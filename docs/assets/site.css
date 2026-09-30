@@ -16,6 +16,8 @@
   --button-hover: #383835;
   --series-baseline: #2a78d6;
   --series-skill: #eb6834;
+  --series-watch: #1baf7a;
+  --series-video-use: #eda100;
   --film: #1a1a19;
   --film-cell: #2c2c2a;
   --film-unseen: #52514e;
@@ -45,6 +47,8 @@
     --button-hover: #e1e0d9;
     --series-baseline: #3987e5;
     --series-skill: #d95926;
+    --series-watch: #199e70;
+    --series-video-use: #c98500;
     --film: #111110;
     --film-cell: #2c2c2a;
     --film-unseen: #52514e;
@@ -68,6 +72,8 @@
   --button-hover: #e1e0d9;
   --series-baseline: #3987e5;
   --series-skill: #d95926;
+  --series-watch: #199e70;
+  --series-video-use: #c98500;
   --film: #111110;
   --film-cell: #2c2c2a;
   --film-unseen: #52514e;
@@ -216,7 +222,7 @@ tbody th { font-weight: 600; }
 tbody tr:last-child > * { border-bottom: 0; }
 .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .compare td:last-child { color: var(--ink); }
-.compare td:nth-child(2) { color: var(--ink-2); }
+.compare td:not(:last-child) { color: var(--ink-2); }
 
 /* Charts */
 .chart-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }

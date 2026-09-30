@@ -12,6 +12,7 @@ Interactive charts: <https://junhan2.github.io/video-lens/#benchmarks>. Scripts,
 - [Fairness measures](#fairness-measures)
 - [Scoring and tolerances](#scoring-and-tolerances)
 - [Per-task results](#per-task-results)
+- [Other video skills](#other-video-skills)
 - [Caveats](#caveats)
 - [Reproduce](#reproduce)
 
@@ -161,6 +162,24 @@ Median of 3 runs per cell; worst run is the lowest of the 3.
   <source media="(prefers-color-scheme: dark)" srcset="assets/charts/tasks-dark.png">
   <img alt="Bar chart: median run time per task for Claude Opus 5.5, model alone and with video-lens. Values are in the table above." src="assets/charts/tasks-light.png" width="800">
 </picture>
+
+## Other video skills
+
+The same 9 tasks and prompts with Claude Opus 5.5 using [/watch](https://github.com/bradautomates/claude-video) or [video-use](https://github.com/browser-use/video-use) instead of video-lens. The prompt starts with `/watch:watch` or `/video-use`, video-lens is locked on disk as for the model alone, and video-use is loaded only for its own runs (`--add-dir`), never installed globally.
+
+<!-- skills:start -->
+<!-- Generated from docs/data/benchmark.json by tools/render_results.py. Do not edit by hand. -->
+
+Runs in progress. The results appear here when every run has finished.
+
+<!-- skills:end -->
+
+<!-- skills-per-task:start -->
+<!-- Generated from docs/data/benchmark.json by tools/render_results.py. Do not edit by hand. -->
+
+Runs in progress. The results appear here when every run has finished.
+
+<!-- skills-per-task:end -->
 
 ## Caveats
 

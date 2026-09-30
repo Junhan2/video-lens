@@ -55,25 +55,31 @@
   },
   "why": {
     "title": "Why",
-    "watch_title": "Compared with /watch",
-    "watch_intro": "/watch (claude-video 0.1.3) is built for a quick look at what a video is about. video-lens is for when something happens, for how long and how.",
+    "watch_title": "Compared with /watch and video-use",
+    "watch_intro": "/watch (claude-video 0.1.3) is built for a quick look at what a video is about. video-use edits videos by conversation: cuts, colour and subtitles. video-lens is for when something happens, for how long and how.",
     "col_blank": "Aspect",
     "col_watch": "/watch (claude-video 0.1.3)",
+    "col_video_use": "video-use (browser-use)",
     "col_lens": "video-lens",
     "row_frames": "Frames looked at",
     "row_frames_watch": "At most 2 per second, 100 in total",
+    "row_frames_video_use": "10 frames per requested range, 320 px wide, when it asks for them",
     "row_frames_lens": "Every frame",
     "row_precision": "Time precision",
     "row_precision_watch": "Whole seconds",
+    "row_precision_video_use": "Word timestamps for speech; frames at the times it asks for",
     "row_precision_lens": "One frame (16.7 ms at 60 fps)",
     "row_anim": "A 300 ms animation",
     "row_anim_watch": "0 or 1 frames",
+    "row_anim_video_use": "Only the frames it samples; motion is not measured",
     "row_anim_lens": "Start, duration, easing and CSS measured",
     "row_speech": "Speech",
     "row_speech_watch": "Audio uploaded to Groq or OpenAI Whisper unless English captions exist",
+    "row_speech_video_use": "Audio uploaded to ElevenLabs Scribe (paid API key)",
     "row_speech_lens": "Transcribed on your Mac, Korean included",
     "row_scenes": "Scene cuts and on-screen text",
     "row_scenes_watch": "Not detected",
+    "row_scenes_video_use": "Not detected",
     "row_scenes_lens": "Cut times and the text of each slide",
     "alone_title": "Compared with the model alone",
     "alone_body": "Without the skill, Claude writes new ffmpeg and Python code for each video and measures with it. That often works, but the code differs every run.",
@@ -87,6 +93,17 @@
     "close_scores": "Both conditions solve most tasks, so mean scores sit close together. The worst run shows how far a single run can go wrong.",
     "autotrigger": "Skill runs named the skill in the prompt. In a separate test where the prompt did not name it, Opus 5.5 chose it on its own in 8 of 9 tasks.",
     "method_link": "How the tasks were built and scored: [How we measured](#method) and [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)."
+  },
+  "skills": {
+    "title": "Against other video skills",
+    "intro": "{model} with each video skill on the same {tasks} tasks and prompts, {runs} runs per condition, one run at a time. Each run named its skill in the prompt, and video-lens was hidden from the runs of the other skills.",
+    "note": {
+      "watch": "/watch ({version}) looks at up to 2 frames per second and sends speech to the Groq or OpenAI Whisper API.",
+      "video-use": "video-use ({version}) is built to edit videos, not to measure them. It sends speech to ElevenLabs Scribe and looks at filmstrips of frames. These tasks test only how well it reads a video."
+    },
+    "per_task_title": "{model} with other video skills",
+    "pending": "Runs in progress. The results appear here when every run has finished.",
+    "cost_note": "Cost counts only what Claude Code reports for the model. The speech APIs that /watch (Groq or OpenAI) and video-use (ElevenLabs) call are billed to their own keys and are not included."
   },
   "chart": {
     "cost_title": "Average cost per run",
@@ -115,14 +132,20 @@
     "hide_table_aria": "Hide table: {chart}",
     "loading": "Loading the benchmark data…",
     "load_error": "The benchmark data could not be loaded. The numbers are also in [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
-    "library_error": "The chart library could not be loaded. The numbers are also in [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)."
+    "library_error": "The chart library could not be loaded. The numbers are also in [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
+    "skills_title": "With each video skill",
+    "skills_sub_score": "{model}, score from 0 to 1 against the answer key, {runs} runs per row. Each line runs from the worst run to the mean.",
+    "skills_sub_cost": "{model}, mean cost of {runs} runs per bar, US dollars at API prices. Lower is better.",
+    "skills_sub_time": "{model}, mean run duration of {runs} runs per bar, seconds. Lower is better."
   },
   "series": {
     "baseline": "Model alone",
     "skill": "With video-lens",
     "mean": "Mean score",
     "median": "Median score",
-    "worst": "Worst run"
+    "worst": "Worst run",
+    "watch": "With /watch",
+    "video-use": "With video-use"
   },
   "table": {
     "model": "Model",

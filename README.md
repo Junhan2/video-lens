@@ -35,17 +35,17 @@ Claude cannot watch video. video-lens measures it frame by frame, hands Claude n
 - **Talks and demos:** scene cuts, keyframes, Korean and English on-screen text (macOS Vision), a speech transcript and audio/video sync, all with timestamps.
 - **Nothing uploaded:** ffmpeg, OpenCV, macOS Vision, Apple on-device speech recognition and whisper.cpp.
 
-### Compared with /watch
+### Compared with /watch and video-use
 
-| | /watch (claude-video 0.1.3) | video-lens |
-|---|---|---|
-| Frames looked at | At most 2 per second, 100 in total | Every frame |
-| Time precision | Whole seconds | One frame (16.7 ms at 60 fps) |
-| A 300 ms animation | 0 or 1 frames | Start, duration, easing and CSS measured |
-| Speech | Audio uploaded to Groq or OpenAI Whisper unless English captions exist | Transcribed on your Mac, Korean included |
-| Scene cuts and on-screen text | Not detected | Cut times and the text of each slide |
+| | /watch (claude-video 0.1.3) | video-use (browser-use) | video-lens |
+|---|---|---|---|
+| Frames looked at | At most 2 per second, 100 in total | 10 frames per requested range, 320 px wide, when it asks for them | Every frame |
+| Time precision | Whole seconds | Word timestamps for speech; frames at the times it asks for | One frame (16.7 ms at 60 fps) |
+| A 300 ms animation | 0 or 1 frames | Only the frames it samples; motion is not measured | Start, duration, easing and CSS measured |
+| Speech | Audio uploaded to Groq or OpenAI Whisper unless English captions exist | Audio uploaded to ElevenLabs Scribe (paid API key) | Transcribed on your Mac, Korean included |
+| Scene cuts and on-screen text | Not detected | Not detected | Cut times and the text of each slide |
 
-/watch is built for a quick look at what a video is about. video-lens is for when something happens, for how long and how.
+/watch is built for a quick look at what a video is about. video-use edits videos by conversation: cuts, colour and subtitles. video-lens is for when something happens, for how long and how. How the three score on the same tasks: [Against other video skills](#against-other-video-skills).
 
 Example: a 3-second toast recording rendered from real CSS in headless Chrome. video-lens measured 298 ms (range 284 to 313) and `cubic-bezier(0.22, 1, 0.36, 1)`. The CSS said 300 ms and the same curve.
 
@@ -174,6 +174,15 @@ Measured 2026-09-30. 9 tasks × 3 runs = 27 runs per condition, no MCP servers, 
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/charts/tasks-dark.png">
   <img alt="Bar chart: median run time per task for Claude Opus 5.5, model alone and with video-lens. Per-task values are in docs/BENCHMARK.md." src="docs/assets/charts/tasks-light.png" width="800">
 </picture>
+
+### Against other video skills
+
+<!-- skills:start -->
+<!-- Generated from docs/data/benchmark.json by tools/render_results.py. Do not edit by hand. -->
+
+Runs in progress. The results appear here when every run has finished.
+
+<!-- skills:end -->
 
 Answer keys come from real CSS animations rendered frame by frame in headless Chrome (the truth is the CSS as written) and from lectures narrated with macOS text-to-speech; the carousel task is a real recording with an approximate key. Tolerances: start and duration ±1 frame, easing within 0.05 of the true curve, sounds ±10 ms, speech timing ±150 ms.
 

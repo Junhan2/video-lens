@@ -1,13 +1,15 @@
 // Benchmark charts drawn with Chart.js (loaded from cdnjs as window.Chart).
 // Every number comes from data/benchmark.json. Models whose status is "pending" are skipped;
 // a model added with data shows up as one more row in every chart without code changes.
-// Colours: the two series use slots 1 and 2 of the dataviz reference palette, validated for
-// light and dark with validate_palette.js. Text always uses text tokens, never series colours.
+// Colours: the two series use slots 1 and 2 of the dataviz reference palette; the comparison with other video
+// skills adds slots 3 (/watch) and 4 (video-use) in the row order skillConditions() uses. Both sets were validated
+// for light and dark with validate_palette.js. Text always uses text tokens, never series colours.
 
 const SERIES = ['baseline', 'skill'];
 const TASK_METRICS = ['time', 'cost', 'score'];
 const activeCharts = new Map();
 const taskView = { model: null, metric: 'time' };
+const skillsView = { metric: 'score' };
 
 export function measuredModels(data) {
   return Object.entries(data.models)
@@ -40,14 +42,24 @@ function costOrTime(fmt, isCost) {
   };
 }
 
-function readTheme() {
+/** Theme tokens; each series key reads its colour from --series-<key>. */
+function readTheme(seriesKeys) {
   const style = getComputedStyle(document.documentElement);
   const token = (name) => style.getPropertyValue(name).trim();
   return {
     surface: token('--surface'), ink: token('--ink'), ink2: token('--ink-2'), muted: token('--muted'), grid: token('--grid'),
     axis: token('--axis'), font: token('--font-sans'),
-    series: { baseline: token('--series-baseline'), skill: token('--series-skill') },
+    series: Object.fromEntries(seriesKeys.map((key) => [key, token(`--series-${key}`)])),
   };
+}
+
+/** A chart's datasets: model alone and with video-lens unless the spec passes its own. A colour may be one per row. */
+function seriesOf({ theme, i18n }, spec) {
+  return spec.series || SERIES.map((key) => ({ key, colour: theme.series[key], label: i18n.t(`series.${key}`) }));
+}
+
+function colourAt(entry, index) {
+  return Array.isArray(entry.colour) ? entry.colour[index] : entry.colour;
 }
 
 function mixHex(colour, other, weight) {
@@ -135,7 +147,7 @@ function buildCard(card, context, spec) {
   head.append(title, node('p', 'chart-sub', spec.subtitle));
   card.append(head);
   if (spec.controls) card.append(spec.controls);
-  card.append(buildLegend(spec.legend));
+  if (spec.legend.length) card.append(buildLegend(spec.legend));
 
   const box = node('div', 'chart-box');
   box.style.height = `${spec.height}px`;
@@ -169,7 +181,7 @@ function buildCard(card, context, spec) {
   toggle.setAttribute('aria-controls', tableId);
   const table = buildTable(spec.table.columns, spec.table.rows);
   table.id = tableId;
-  // Four charts each have a toggle, so the accessible name carries the chart title.
+  // Every chart has a toggle, so the accessible name carries the chart title.
   const showState = (isOpen) => {
     table.hidden = !isOpen;
     toggle.setAttribute('aria-expanded', String(isOpen));
@@ -291,10 +303,11 @@ function wrapLabel(label, limit) {
 
 /** Horizontal grouped bars, one row per model or task, value at each bar's tip. */
 function drawBars(card, context, spec) {
-  const { theme, i18n } = context;
+  const { theme } = context;
+  const series = seriesOf(context, spec);
   const parts = buildCard(card, context, {
     ...spec,
-    legend: SERIES.map((series) => ({ shape: 'rect', colour: theme.series[series], label: i18n.t(`series.${series}`) })),
+    legend: spec.legend || series.map((entry) => ({ shape: 'rect', colour: entry.colour, label: entry.label })),
   });
   const valueLabels = {
     id: 'vlValueLabels',
@@ -325,11 +338,11 @@ function drawBars(card, context, spec) {
     type: 'bar',
     data: {
       labels: spec.rows.map((row) => row.label),
-      datasets: SERIES.map((series) => ({
-        label: i18n.t(`series.${series}`),
-        data: spec.rows.map((row) => row[series]),
-        backgroundColor: theme.series[series],
-        hoverBackgroundColor: mixHex(theme.series[series], theme.surface, 0.28),
+      datasets: series.map((entry) => ({
+        label: entry.label,
+        data: spec.rows.map((row) => row[entry.key]),
+        backgroundColor: entry.colour,
+        hoverBackgroundColor: spec.rows.map((_, index) => mixHex(colourAt(entry, index), theme.surface, 0.28)),
         borderRadius: 4,
         borderSkipped: 'start',
         maxBarThickness: 20,
@@ -350,10 +363,11 @@ function drawBars(card, context, spec) {
  */
 function drawDumbbell(card, context, spec) {
   const { theme, i18n } = context;
+  const series = seriesOf(context, spec);
   const parts = buildCard(card, context, {
     ...spec,
     legend: [
-      ...SERIES.map((series) => ({ shape: 'line', colour: theme.series[series], label: i18n.t(`series.${series}`) })),
+      ...(spec.legend || series.map((entry) => ({ shape: 'line', colour: entry.colour, label: entry.label }))),
       { shape: 'circle', colour: theme.ink2, label: spec.highName },
       { shape: 'diamond', colour: theme.ink2, label: i18n.t('series.worst') },
     ],
@@ -367,10 +381,10 @@ function drawDumbbell(card, context, spec) {
       ctx.save();
       ctx.font = `12px ${theme.font}`;
       ctx.textBaseline = 'middle';
-      SERIES.forEach((series, datasetIndex) => {
+      series.forEach((entry, datasetIndex) => {
         chart.getDatasetMeta(datasetIndex).data.forEach((bar, index) => {
           const { y } = bar.getProps(['y'], true);
-          const { high, low } = spec.rows[index][series];
+          const { high, low } = spec.rows[index][entry.key];
           const radius = 5;
           const isActive = activeRows.has(index);
           const xHigh = scale.getPixelForValue(high);
@@ -382,7 +396,7 @@ function drawDumbbell(card, context, spec) {
             }
             ctx.fillStyle = theme.surface;
             draw(size + 2);
-            ctx.fillStyle = theme.series[series];
+            ctx.fillStyle = colourAt(entry, index);
             draw(size);
           };
           const diamond = (size) => {
@@ -440,11 +454,11 @@ function drawDumbbell(card, context, spec) {
     type: 'bar',
     data: {
       labels: spec.rows.map((row) => row.label),
-      datasets: SERIES.map((series) => ({
-        label: i18n.t(`series.${series}`),
-        data: spec.rows.map((row) => [row[series].low, row[series].high]),
-        backgroundColor: theme.series[series],
-        hoverBackgroundColor: theme.series[series],
+      datasets: series.map((entry) => ({
+        label: entry.label,
+        data: spec.rows.map((row) => [row[entry.key].low, row[entry.key].high]),
+        backgroundColor: entry.colour,
+        hoverBackgroundColor: entry.colour,
         maxBarThickness: 2,
         categoryPercentage: 0.62,
         barPercentage: 1,
@@ -498,10 +512,23 @@ function overallBars(metric, context) {
   };
 }
 
+/** "15/27": the runs of one condition that scored 1.0, out of all its runs. */
+function perfectRuns(i18n, overall) {
+  return i18n.t('format.of', { a: i18n.format.integer(overall.perfect_runs), b: i18n.format.integer(overall.runs) });
+}
+
+/** Tooltip lines for one condition's accuracy: mean score, worst run, runs scoring 1.0. */
+function scoreItems(i18n, overall) {
+  return [
+    { value: i18n.format.score(overall.mean_score), label: i18n.t('series.mean') },
+    { value: i18n.format.score(overall.worst_score), label: i18n.t('series.worst') },
+    { value: perfectRuns(i18n, overall), label: i18n.t('table.perfect_runs') },
+  ];
+}
+
 function accuracySpec(context) {
   const { i18n, data, models } = context;
   const fmt = i18n.format;
-  const runs = (series, model) => i18n.t('format.of', { a: fmt.integer(model.overall[series].perfect_runs), b: fmt.integer(model.overall[series].runs) });
   return {
     title: i18n.t('chart.accuracy_title'),
     subtitle: i18n.t('chart.accuracy_sub', { runs: fmt.integer(data.runs_per_condition) }),
@@ -519,11 +546,7 @@ function accuracySpec(context) {
       groups: SERIES.map((series) => ({
         colour: context.theme.series[series],
         name: i18n.t(`series.${series}`),
-        items: [
-          { value: fmt.score(models[index].overall[series].mean_score), label: i18n.t('series.mean') },
-          { value: fmt.score(models[index].overall[series].worst_score), label: i18n.t('series.worst') },
-          { value: runs(series, models[index]), label: i18n.t('table.perfect_runs') },
-        ],
+        items: scoreItems(i18n, models[index].overall[series]),
       })),
     }),
     captions: models.map((model) => i18n.t('chart.accuracy_caption', {
@@ -540,7 +563,7 @@ function accuracySpec(context) {
       ],
       rows: models.flatMap((model) => SERIES.map((series) => [
         model.label, i18n.t(`series.${series}`), fmt.score(model.overall[series].mean_score),
-        fmt.score(model.overall[series].worst_score), runs(series, model),
+        fmt.score(model.overall[series].worst_score), perfectRuns(i18n, model.overall[series]),
       ])),
     },
   };
@@ -561,21 +584,25 @@ function taskControls(context, onChange) {
   });
   select.addEventListener('change', () => onChange({ model: select.value }));
   modelLabel.append(select);
+  bar.append(modelLabel, metricControl(i18n, taskView.metric, onChange));
+  return bar;
+}
 
+/** Time, cost and score as one row of toggle buttons, `current` pressed. */
+function metricControl(i18n, current, onChange) {
   const group = node('div', 'segmented');
   group.setAttribute('role', 'group');
   group.setAttribute('aria-label', i18n.t('chart.metric_label'));
   TASK_METRICS.forEach((metric) => {
     const button = node('button', 'segment', i18n.t(`chart.metric_${metric}`));
     button.type = 'button';
-    button.setAttribute('aria-pressed', String(metric === taskView.metric));
+    button.setAttribute('aria-pressed', String(metric === current));
     button.addEventListener('click', () => onChange({ metric }));
     group.append(button);
   });
   const metricLabel = node('div', 'control');
   metricLabel.append(node('span', 'control-label', i18n.t('chart.metric_label')), group);
-  bar.append(modelLabel, metricLabel);
-  return bar;
+  return metricLabel;
 }
 
 function tasksSpec(context, onChange) {
@@ -647,36 +674,106 @@ function tasksSpec(context, onChange) {
   };
 }
 
+/**
+ * The comparison with other video skills: the model they ran on, its measured competitor arms, and the condition keys
+ * in row order (alone, video-lens, then each competitor), which is the order validate_palette.js passed (orange never
+ * next to yellow). Competitor cells sit in the model's overall and per_task under the arm id. keys is empty until a
+ * competitor has data.
+ */
+export function skillConditions(data) {
+  const model = data.skills && measuredModels(data).find((candidate) => candidate.id === data.skills.model);
+  const arms = model ? data.skills.arms.filter((arm) => arm.status !== 'pending' && model.overall[arm.id]) : [];
+  return { model, arms, keys: arms.length ? [...SERIES, ...arms.map((arm) => arm.id)] : [] };
+}
+
+function skillsSpec(context, onChange) {
+  const { i18n, data, theme } = context;
+  const { model, keys } = skillConditions(data);
+  if (!keys.length) return null;
+  const fmt = i18n.format;
+  const name = (key) => i18n.t(`series.${key}`);
+  const overall = (index) => model.overall[keys[index]];
+  const common = {
+    title: i18n.t('chart.skills_title'),
+    subtitle: i18n.t(`chart.skills_sub_${skillsView.metric}`, { model: model.label, runs: fmt.integer(data.runs_per_condition) }),
+    controls: context.isSolo ? null : node('div', 'chart-controls'),
+    legend: [],
+    series: [{ key: 'value', colour: keys.map((key) => theme.series[key]), label: model.label }],
+    height: keys.length * 46 + 40,
+    table: {
+      columns: [
+        { label: i18n.t('table.condition') }, { label: i18n.t('table.mean_score'), isNumeric: true },
+        { label: i18n.t('table.worst_score'), isNumeric: true }, { label: i18n.t('table.perfect_runs'), isNumeric: true },
+        { label: i18n.t('table.cost'), isNumeric: true }, { label: i18n.t('table.time'), isNumeric: true },
+      ],
+      rows: keys.map((key, index) => [
+        name(key), fmt.score(overall(index).mean_score), fmt.score(overall(index).worst_score), perfectRuns(i18n, overall(index)),
+        fmt.usd(overall(index).cost_usd, 3), fmt.seconds(overall(index).time_s, 1),
+      ]),
+    },
+  };
+  common.controls?.append(metricControl(i18n, skillsView.metric, onChange));
+  const describe = (index, items) => ({
+    title: name(keys[index]),
+    groups: [{ colour: theme.series[keys[index]], name: model.label, items }],
+  });
+  if (skillsView.metric === 'score') {
+    return {
+      kind: 'dumbbell',
+      ...common,
+      highName: i18n.t('series.mean'),
+      rows: keys.map((key, index) => ({ label: name(key), value: { high: overall(index).mean_score, low: overall(index).worst_score } })),
+      label: (value) => fmt.score(value, 3),
+      showLabel: () => true,
+      describe: (index) => describe(index, scoreItems(i18n, overall(index))),
+    };
+  }
+  const isCost = skillsView.metric === 'cost';
+  const field = isCost ? 'cost_usd' : 'time_s';
+  const { round, exact } = costOrTime(fmt, isCost);
+  return {
+    kind: 'bars',
+    ...common,
+    rows: keys.map((key, index) => ({ label: name(key), value: overall(index)[field] })),
+    label: round,
+    describe: (index) => describe(index, [{ value: exact(overall(index)[field]) }]),
+  };
+}
+
+/** Charts with a measure toggle: the view they read and their spec builder, which returns null when there is no data. */
+const TOGGLED_CHARTS = { tasks: { view: taskView, build: tasksSpec }, skills: { view: skillsView, build: skillsSpec } };
+
 function drawChart(card, context) {
   const id = card.dataset.chart;
   activeCharts.get(id)?.destroy();
   let chart;
   if (id === 'cost' || id === 'time') chart = drawBars(card, context, overallBars(id, context));
   else if (id === 'accuracy') chart = drawDumbbell(card, context, accuracySpec(context));
-  else if (id === 'tasks') {
+  else if (TOGGLED_CHARTS[id]) {
+    const { view, build } = TOGGLED_CHARTS[id];
     const redraw = (change) => {
-      Object.assign(taskView, change);
+      Object.assign(view, change);
       drawChart(card, context);
       card.querySelector(change.model ? '.chart-controls select' : '.segment[aria-pressed="true"]')?.focus();
     };
-    const spec = tasksSpec(context, redraw);
-    chart = spec.kind === 'dumbbell' ? drawDumbbell(card, context, spec) : drawBars(card, context, spec);
+    const spec = build(context, redraw);
+    if (spec) chart = spec.kind === 'dumbbell' ? drawDumbbell(card, context, spec) : drawBars(card, context, spec);
   }
   if (chart) activeCharts.set(id, chart);
 }
 
-export const CHART_IDS = ['cost', 'time', 'accuracy', 'tasks'];
+export const CHART_IDS = ['cost', 'time', 'accuracy', 'tasks', 'skills'];
 
 /**
  * Draws every .chart-card[data-chart] (or only `onlyId`) for the current language and theme.
- * `taskOptions` sets the per-task view: { model, metric } from the URL.
+ * `viewOptions` comes from the URL: `model` picks the per-task chart's model, `metric` every toggled chart's measure.
  */
-export function renderCharts({ data, i18n, onlyId = null, taskOptions = {} }) {
+export function renderCharts({ data, i18n, onlyId = null, viewOptions = {} }) {
   const models = measuredModels(data);
   if (!taskView.model || !models.some((model) => model.id === taskView.model)) taskView.model = models[0]?.id ?? null;
-  if (taskOptions.model && models.some((model) => model.id === taskOptions.model)) taskView.model = taskOptions.model;
-  if (TASK_METRICS.includes(taskOptions.metric)) taskView.metric = taskOptions.metric;
-  const theme = readTheme();
+  if (viewOptions.model && models.some((model) => model.id === viewOptions.model)) taskView.model = viewOptions.model;
+  if (TASK_METRICS.includes(viewOptions.metric)) Object.values(TOGGLED_CHARTS).forEach(({ view }) => { view.metric = viewOptions.metric; });
+  const theme = readTheme([...SERIES, ...(data.skills?.arms ?? []).map((arm) => arm.id)]);
   window.Chart.defaults.font.family = theme.font;
   window.Chart.defaults.color = theme.muted;
   const context = { data, i18n, models, theme, isSolo: Boolean(onlyId) };

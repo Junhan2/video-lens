@@ -9,6 +9,8 @@ Blocks (only those present in a file are touched):
   <!-- results:start --> ... <!-- results:end -->     overall results and each model's setup
   <!-- per-task:start --> ... <!-- per-task:end -->   per-task medians per model
   <!-- tasks:start --> ... <!-- tasks:end -->         the task list
+  <!-- skills:start --> ... <!-- skills:end -->       the model alone, with video-lens and with other video skills
+  <!-- skills-per-task:start --> ... <!-- skills-per-task:end -->   the same comparison per task
   <!-- long-lecture:start -->...<!-- long-lecture:end -->   one sentence, start and end on the same line
 
 docs/index.html: the elements site.js fills from the data (hero-summary, hero-models, why-spread, why-models,
@@ -123,17 +125,25 @@ def table(header, rows, numeric_from):
     return "\n".join(lines)
 
 
+def overall_cells(cell, labels):
+    """Mean score, worst run, runs scoring 1, cost, time and turns of one condition over all its runs."""
+    return [labels.score(cell["mean_score"]), labels.score(cell["worst_score"]),
+            labels.t("format.of", a=cell["perfect_runs"], b=cell["runs"]), labels.usd(cell["cost_usd"]),
+            labels.seconds(cell["time_s"]), labels.number(cell["turns"], 1)]
+
+
+def task_cells(cell, labels):
+    """Median score, worst run, median cost and median time of one condition on one task."""
+    return [labels.score(cell["median_score"]), labels.score(cell["worst_score"]),
+            labels.usd(cell["median_cost_usd"]), labels.seconds(cell["median_time_s"])]
+
+
 def results_block(data, labels):
     models = measured_models(data)
     header = [labels.t(f"table.{key}") for key in
               ("model", "condition", "mean_score", "worst_score", "perfect_runs", "cost", "time", "turns")]
-    rows = []
-    for model in models:
-        for series in SERIES:
-            cell = model["overall"][series]
-            rows.append([model["label"], labels.t(f"series.{series}"), labels.score(cell["mean_score"]),
-                         labels.score(cell["worst_score"]), labels.t("format.of", a=cell["perfect_runs"], b=cell["runs"]),
-                         labels.usd(cell["cost_usd"]), labels.seconds(cell["time_s"]), labels.number(cell["turns"], 1)])
+    rows = [[model["label"], labels.t(f"series.{series}"), *overall_cells(model["overall"][series], labels)]
+            for model in models for series in SERIES]
     changes = [labels.t("results.change_line", model=model["label"],
                         cost=labels.change(model["overall"]["baseline"]["cost_usd"], model["overall"]["skill"]["cost_usd"]),
                         time=labels.change(model["overall"]["baseline"]["time_s"], model["overall"]["skill"]["time_s"]))
@@ -158,13 +168,53 @@ def per_task_block(data, labels):
             if task["id"] not in model["per_task"]:
                 continue
             for series in SERIES:
-                cell = model["per_task"][task["id"]][series]
                 rows.append([labels.task(task, "long") if series == "baseline" else "", labels.t(f"series.{series}"),
-                             labels.score(cell["median_score"]), labels.score(cell["worst_score"]),
-                             labels.usd(cell["median_cost_usd"]), labels.seconds(cell["median_time_s"])])
+                             *task_cells(model["per_task"][task["id"]][series], labels)])
         parts.append(f"### {model['label']}\n\n{table(header, rows, 2)}")
     parts.append(labels.t("results.per_task_note", reps=data["runs_per_task"]))
     return "\n\n".join(parts)
+
+
+def skill_conditions(data):
+    """(model, arms, keys): the model the other video skills ran on, its measured competitor arms, and the condition
+    keys in the page's row order (alone, video-lens, then each competitor). keys is empty until a competitor has data."""
+    skills = data.get("skills")
+    model = skills and data["models"].get(skills["model"])
+    if not model or model not in measured_models(data):
+        return model, [], []
+    arms = [arm for arm in skills["arms"] if arm.get("status") != "pending" and arm["id"] in model["overall"]]
+    return model, arms, [*SERIES, *(arm["id"] for arm in arms)] if arms else []
+
+
+def skills_text(data, labels):
+    """The intro sentence and the notes (one per competitor, then the cost note), shared by README and page."""
+    model, arms, _ = skill_conditions(data)
+    intro = labels.t("skills.intro", model=model["label"], tasks=data["tasks_count"], runs=data["runs_per_condition"])
+    return intro, [labels.t(f"skills.note.{arm['id']}", version=arm["version"]) for arm in arms] + [labels.t("skills.cost_note")]
+
+
+def skills_block(data, labels):
+    model, _, keys = skill_conditions(data)
+    if not keys:
+        return labels.t("skills.pending")
+    header = [labels.t(f"table.{key}") for key in
+              ("condition", "mean_score", "worst_score", "perfect_runs", "cost", "time", "turns")]
+    rows = [[labels.t(f"series.{key}"), *overall_cells(model["overall"][key], labels)] for key in keys]
+    intro, notes = skills_text(data, labels)
+    return "\n\n".join([intro, table(header, rows, 1), bullets(notes)])
+
+
+def skills_per_task_block(data, labels):
+    model, _, keys = skill_conditions(data)
+    if not keys:
+        return labels.t("skills.pending")
+    header = [labels.t(f"table.{key}") for key in
+              ("task", "condition", "median_score", "worst_score", "median_cost", "median_time")]
+    rows = [[labels.task(task, "long") if index == 0 else "", labels.t(f"series.{key}"),
+             *task_cells(model["per_task"][task["id"]][key], labels)]
+            for task in data["tasks"] for index, key in enumerate(keys)]
+    title = labels.t("skills.per_task_title", model=model["label"])
+    return "\n\n".join([f"### {title}", table(header, rows, 2), labels.t("results.per_task_note", reps=data["runs_per_task"])])
 
 
 def tasks_block(data, labels):
@@ -181,7 +231,8 @@ def long_lecture(data, labels):
                     time=labels.change(cell["baseline"]["median_time_s"], cell["skill"]["median_time_s"]))
 
 
-BLOCKS = {"results": results_block, "per-task": per_task_block, "tasks": tasks_block}
+BLOCKS = {"results": results_block, "per-task": per_task_block, "tasks": tasks_block, "skills": skills_block,
+          "skills-per-task": skills_per_task_block}
 INLINE_BLOCKS = {"long-lecture": long_lecture}
 
 
@@ -235,6 +286,7 @@ def page_content(data, labels):
                                      if task["id"] in model["per_task"]),
                                     key=lambda pair: pair[0]["per_task"][pair[1]["id"]]["baseline"]["worst_score"])
     spread = spread_model["per_task"][spread_task["id"]]["baseline"]
+    skills_intro, skill_notes = skills_text(data, labels) if skill_conditions(data)[2] else ("", [])
     rows = [f'<tr><th scope="row">{task["id"]}</th><td>{rich_html(labels.task(task, "long"))}</td></tr>'
             for task in data["tasks"]]
     return {
@@ -252,6 +304,8 @@ def page_content(data, labels):
         "method-setup": items(setup_line(data, model, labels) for model in models),
         "method-tasks-title": labels.t("method.tasks_title", **counts),
         "method-tasks": rows,
+        "skills-intro": skills_intro,
+        "skills-notes": items(skill_notes),
     }
 
 

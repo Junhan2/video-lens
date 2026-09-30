@@ -17,6 +17,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { skillConditions } from '../docs/assets/charts.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DOCS = join(ROOT, 'docs');
@@ -27,6 +28,8 @@ const CHARTS = [
   { id: 'time', query: '' },
   { id: 'accuracy', query: '' },
   { id: 'tasks', query: '&metric=time' },
+  // Drawn only once another video skill has data (benchmark.json skills.overall).
+  { id: 'skills', query: '&metric=score', isReady: (data) => skillConditions(data).keys.length > 0 },
 ];
 const THEMES = ['light', 'dark'];
 const SCALE = 2;
@@ -141,8 +144,7 @@ async function renderChart(cdp, base, chart, theme) {
 async function renderPage(cdp, base, args) {
   const url = `${base}/index.html?theme=${args.theme}&lang=${args.lang}`;
   await openPage(cdp, url, { width: args.width, height: 1000, theme: args.theme });
-  await waitFor(() => cdp.evaluate('document.querySelectorAll(".chart-card canvas").length >= 4 || !!document.querySelector(".chart-card .chart-loading")'), 'charts');
-  await new Promise((next) => setTimeout(next, 500));
+  await waitFor(() => cdp.evaluate('document.documentElement.dataset.ready === "true"'), 'the page');
   const height = await cdp.evaluate('document.documentElement.scrollHeight');
   await cdp.send('Emulation.setDeviceMetricsOverride', { width: args.width, height, deviceScaleFactor: 1, mobile: false });
   await new Promise((next) => setTimeout(next, 500));
@@ -153,6 +155,12 @@ async function renderPage(cdp, base, args) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  const data = JSON.parse(await readFile(join(DOCS, 'data', 'benchmark.json'), 'utf8'));
+  const charts = CHARTS.filter((entry) => (!args.only || entry.id === args.only) && (!entry.isReady || entry.isReady(data)));
+  if (!args.page && !charts.length) {
+    console.log('render_charts: nothing to draw (a chart without data is skipped)');
+    return;
+  }
   const server = await startServer();
   const base = `http://127.0.0.1:${server.address().port}`;
   const { chrome, profile, socketUrl } = await launchChrome();
@@ -164,7 +172,7 @@ async function main() {
       return;
     }
     await mkdir(OUT_DIR, { recursive: true });
-    for (const chart of CHARTS.filter((entry) => !args.only || entry.id === args.only)) {
+    for (const chart of charts) {
       for (const theme of THEMES) {
         const result = await renderChart(cdp, base, chart, theme);
         console.log(`${result.file.replace(`${ROOT}/`, '')} ${result.width}x${result.height}`);

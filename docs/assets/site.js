@@ -3,7 +3,7 @@
 // ?chart=<id> shows one chart alone at a fixed size for screenshots (tools/render_charts.mjs).
 
 import { DEFAULT_LANG, applyStaticStrings, loadLanguageList, loadStrings, makeTranslator, pickLanguage } from './i18n.js';
-import { CHART_IDS, describeChange, formatDate, measuredModels, renderCharts, taskLabel } from './charts.js';
+import { CHART_IDS, describeChange, formatDate, measuredModels, renderCharts, skillConditions, taskLabel } from './charts.js';
 
 const params = new URLSearchParams(window.location.search);
 const soloChart = CHART_IDS.includes(params.get('chart')) ? params.get('chart') : null;
@@ -92,6 +92,7 @@ function fillComputedText() {
     });
   }
 
+  fillSkillsText(counts);
   fillList('method-setup', models.map((model) => ['setup.line', setupValues(i18n, data, model)]));
   setRich('method-tasks-title', 'method.tasks_title', counts);
   const body = document.getElementById('method-tasks');
@@ -106,6 +107,15 @@ function fillComputedText() {
     row.append(id, label);
     body.append(row);
   });
+}
+
+/** The comparison with other video skills stays hidden until at least one of them has data. */
+function fillSkillsText(counts) {
+  const { model, arms, keys } = skillConditions(state.data);
+  document.getElementById('skills-compare').hidden = !keys.length;
+  if (!keys.length) return;
+  setRich('skills-intro', 'skills.intro', { model: model.label, tasks: counts.tasks, runs: counts.runs });
+  fillList('skills-notes', [...arms.map((arm) => [`skills.note.${arm.id}`, { version: arm.version }]), ['skills.cost_note', {}]]);
 }
 
 function fillVersion() {
@@ -136,7 +146,7 @@ function drawCharts() {
     data: state.data,
     i18n: state.i18n,
     onlyId: soloChart,
-    taskOptions: { model: params.get('model'), metric: params.get('metric') },
+    viewOptions: { model: params.get('model'), metric: params.get('metric') },
   });
 }
 
@@ -289,7 +299,7 @@ async function main() {
   buildLanguageSwitcher(code);
   setupCopyButtons();
   watchTheme();
-  if (soloChart) markReady();
+  markReady();
 }
 
 main();
