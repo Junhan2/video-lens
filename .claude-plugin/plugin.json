@@ -1,6 +1,6 @@
 {
   "name": "video-lens",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Local video analysis for Claude Code on macOS: frame-accurate UI motion (duration, easing, stagger, CSS), scenes and keyframes, Korean and English on-screen text, on-device speech transcripts and audio sync. Nothing is uploaded.",
   "author": {
     "name": "Junhan2",
@@ -9,5 +9,18 @@
   "homepage": "https://github.com/Junhan2/video-lens",
   "repository": "https://github.com/Junhan2/video-lens",
   "license": "MIT",
-  "keywords": ["video", "animation", "motion", "easing", "css", "screen-recording", "ocr", "transcript", "korean", "macos", "claude-code", "skills"]
+  "keywords": [
+    "video",
+    "animation",
+    "motion",
+    "easing",
+    "css",
+    "screen-recording",
+    "ocr",
+    "transcript",
+    "korean",
+    "macos",
+    "claude-code",
+    "skills"
+  ]
 }

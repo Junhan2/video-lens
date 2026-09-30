@@ -65,6 +65,8 @@ pip3 install opencv-python numpy
 xcode-select --install   # builds the on-screen text and speech helpers
 ```
 
+- Tested with Python 3.13. If a package is missing, the skill prints the exact install command in one line.
+
 - macOS only; tested on macOS 26 (Apple Silicon). On-device speech recognition (SpeechTranscriber) needs macOS 26.
 - Optional: `brew install whisper-cpp` and a ggml model (for example `ggml-large-v3-turbo-q5_0.bin`) in `~/.local/share/whisper/` to transcribe with whisper as well.
 - Optional: Node 24 and Google Chrome let it read a web page's declared CSS animations and compare them with the measurement.

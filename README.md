@@ -65,6 +65,8 @@ pip3 install opencv-python numpy
 xcode-select --install   # 화면 글자와 음성 인식 도우미를 빌드할 때 필요
 ```
 
+- 파이썬 3.13에서 시험했습니다. 패키지가 빠져 있으면 스킬이 설치 명령을 한 줄로 알려 줍니다.
+
 - macOS 전용입니다. macOS 26(Apple Silicon)에서 시험했습니다. 기기 안 음성 인식(SpeechTranscriber)은 macOS 26부터 됩니다.
 - 선택: `brew install whisper-cpp` 후 ggml 모델(예: `ggml-large-v3-turbo-q5_0.bin`)을 `~/.local/share/whisper/`에 두면 whisper로도 받아씁니다.
 - 선택: Node 24와 Google Chrome이 있으면 웹페이지의 CSS 애니메이션 선언값을 직접 읽어 측정값과 비교합니다.

@@ -1,7 +1,7 @@
 """video-lens: local video analysis. Package root holds the version constants and skill paths."""
 from pathlib import Path
 
-TOOL_VERSION = "1.0.0"
+TOOL_VERSION = "1.0.1"
 SCHEMA = "video-lens/1"
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent

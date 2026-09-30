@@ -5,6 +5,7 @@ stdout carries only the command's result (report.md for analyze); stderr stays s
 Stage modules are imported late (`stage()`), so each command needs only the modules it uses.
 """
 import importlib
+import importlib.util
 import json
 import sys
 import tempfile
@@ -15,11 +16,28 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from vl.errors import EXIT_DEPENDENCY  # noqa: E402  (dependency-free, so it loads before the check below)
+
+REQUIRED_MODULES = {"numpy": "numpy", "cv2": "opencv-python"}   # import name -> pip package
+
+
+def exit_if_packages_missing():
+    """A first run without numpy or OpenCV gets one actionable line (exit 5) instead of an import traceback."""
+    missing = [package for module, package in REQUIRED_MODULES.items() if importlib.util.find_spec(module) is None]
+    if not missing:
+        return
+    print(f"video-lens: missing Python packages: {', '.join(missing)}. "
+          f"Install them: {sys.executable} -m pip install {' '.join(missing)}", file=sys.stderr)
+    sys.exit(EXIT_DEPENDENCY)
+
+
+exit_if_packages_missing()
+
 from vl import SELFTEST_DIR, cache, decode, views  # noqa: E402
 from vl.cli import parse_args  # noqa: E402
 from vl.context import (AUTO_ACTIVITY_MAX, AUTO_MOTION_MAX_S, CONTENT_MODES, MOTION_MODES, Run,  # noqa: E402
                         resolve_input, validated_roi)
-from vl.errors import EXIT_DEPENDENCY, EXIT_OK, VlError  # noqa: E402
+from vl.errors import EXIT_OK, VlError  # noqa: E402
 from vl.probe import probe  # noqa: E402
 
 LOG_DIR = Path(tempfile.gettempdir()) / "video-lens"

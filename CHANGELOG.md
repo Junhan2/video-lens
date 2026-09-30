@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 (2026-09-30)
+
+- A first run without numpy or OpenCV prints one line with the exact `pip install` command (exit 5) instead of a traceback.
+- Colour-only changes (for example a button fill) are typed `color` again, including buttons with a static border and ghost-to-filled buttons.
+
 ## 1.0.0 (2026-09-30)
 
 First public release.
