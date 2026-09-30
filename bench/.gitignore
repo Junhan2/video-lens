@@ -1,0 +1,6 @@
+# Rebuilt clips, generator scratch space, your own recording
+*.mp4
+evalset/_work/
+hardset/_work/
+byo/
+__pycache__/

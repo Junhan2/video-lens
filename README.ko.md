@@ -1,0 +1,199 @@
+<!-- 언어 표시줄. 존재하는 README 파일만 적습니다. 번역자는 아래 표시 앞에 같은 형식으로 링크를 더합니다. 예: · <a href="README.ja.md">日本語</a> -->
+<p align="center">
+  <a href="README.md">English</a> · <b>한국어</b>
+  <!-- i18n:languages -->
+</p>
+
+# video-lens
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Platform: macOS](https://img.shields.io/badge/platform-macOS-lightgrey)](#요구-사항)
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757)](#설치)
+
+영상을 눈대중으로 보지 않고 재는 Claude Code 스킬입니다. UI 애니메이션의 타이밍과 easing을 CSS로 내주고, 장면, 화면 글자, 음성을 시각과 함께 정리합니다. 모든 처리는 내 Mac 안에서 끝납니다.
+
+그래프를 직접 조작해 볼 수 있는 웹사이트: <https://junhan2.github.io/video-lens/>
+
+## 목차
+
+- [왜 필요한가](#왜-필요한가)
+- [언제 쓰나](#언제-쓰나)
+- [설치](#설치)
+- [쓰는 법](#쓰는-법)
+- [동작 방식](#동작-방식)
+- [벤치마크 요약](#벤치마크-요약)
+- [한계](#한계)
+- [기여와 자체 점검](#기여와-자체-점검)
+- [라이선스](#라이선스)
+
+## 왜 필요한가
+
+Claude는 영상을 직접 보지 못합니다. video-lens는 영상을 프레임 단위로 재서 숫자와 글을 먼저 건네고, 눈으로 확인해야 할 곳만 이미지로 보여 줍니다.
+
+- **UI 모션:** 움직이는 요소마다 시작 시각, 길이, easing(이름 있는 곡선 또는 cubic-bezier), 요소 사이 지연(stagger), 이동 거리를 프레임 단위로 재서 CSS로 적어 줍니다.
+- **강의와 데모 영상:** 장면 전환, 대표 프레임, 한국어와 영어 화면 글자(macOS Vision), 음성 받아쓰기, 소리와 화면의 어긋남을 모두 시각과 함께 정리합니다.
+- **업로드 없음:** ffmpeg, OpenCV, macOS Vision, Apple 기기 내 음성 인식, whisper.cpp만 씁니다.
+
+### /watch와 비교
+
+| | /watch (claude-video 0.1.3) | video-lens |
+|---|---|---|
+| 보는 프레임 | 초당 최대 2장, 모두 합쳐 최대 100장 | 모든 프레임 |
+| 시각 정밀도 | 초 단위 | 한 프레임(60fps에서 16.7ms) |
+| 300ms 애니메이션 | 0장 또는 1장 | 시작, 길이, easing, CSS를 측정 |
+| 음성 | 영어 자막이 없으면 오디오를 Groq 또는 OpenAI Whisper로 업로드 | 내 Mac에서 받아쓰기, 한국어 포함 |
+| 장면 전환과 화면 글자 | 감지하지 않음 | 전환 시각과 슬라이드별 글자 |
+
+/watch는 영상이 대략 무슨 내용인지 빨리 볼 때 알맞고, video-lens는 무엇이 언제, 얼마 동안, 어떻게 일어나는지 재야 할 때 알맞습니다.
+
+예: 헤드리스 Chrome에서 실제 CSS로 렌더링한 3초짜리 토스트 녹화를 video-lens는 298ms(범위 284~313)와 `cubic-bezier(0.22, 1, 0.36, 1)`로 쟀습니다. CSS에 적힌 값은 300ms와 같은 곡선이었습니다.
+
+### 모델만 쓸 때와 비교
+
+스킬이 없으면 Claude는 영상마다 ffmpeg와 파이썬 코드를 새로 짜서 잽니다. 대개는 되지만 코드가 실행마다 달라집니다. 정답표로 채점하는 과제 9개를 과제마다 3회, 조건마다 27회씩 video-lens 없이, 그리고 video-lens와 함께 돌렸습니다. 숫자는 [벤치마크 요약](#벤치마크-요약)에 있습니다.
+
+아래 그래프 이미지는 영어로 표시됩니다.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/charts/cost-dark.png">
+  <img alt="막대 그래프: 모델별 실행당 평균 비용, 모델 단독과 video-lens 사용 비교. 값은 벤치마크 요약 표에 있습니다." src="docs/assets/charts/cost-light.png" width="800">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/charts/time-dark.png">
+  <img alt="막대 그래프: 모델별 실행당 평균 시간, 모델 단독과 video-lens 사용 비교. 값은 벤치마크 요약 표에 있습니다." src="docs/assets/charts/time-light.png" width="800">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/charts/accuracy-dark.png">
+  <img alt="0에서 1 사이 축의 덤벨 그래프: 모델별 평균 점수와 최저 점수, 모델 단독과 video-lens 사용 비교. 값은 벤치마크 요약 표에 있습니다." src="docs/assets/charts/accuracy-light.png" width="800">
+</picture>
+
+## 언제 쓰나
+
+쓰면 좋은 경우:
+
+- **UI 모션을 다시 만들거나 검수할 때.** 시작, 길이, easing, stagger를 숫자와 CSS로, 값이 들어갈 수 있는 범위와 함께 줍니다. "이 전환 정말 400ms ease-out 맞아?" 같은 질문에 잰 값으로 답합니다.
+- **긴 녹화.** <!-- long-lecture:start -->10분짜리 한국어 강의에서 Claude Opus 5.5에 video-lens 사용 시 비용 30% 감소, 시간 74% 감소(실행 3회의 중앙값).<!-- long-lecture:end -->
+- **반복되는 모션.** 캐러셀이나 반복 애니메이션은 한 묶음으로 재고, 반복마다 시작 시각을 줍니다.
+- **밖으로 보내면 안 되는 강연과 회의.** 음성은 내 Mac에서 받아쓰고, 슬라이드 글자는 시각과 함께 나옵니다.
+
+필요 없는 경우:
+
+- **짧은 영상의 대략적인 요약.** 모델만으로 충분하고, 스킬을 불러오면 비용이 조금 늘어납니다.
+- **Windows나 Linux.** video-lens는 macOS에서만 돌아갑니다.
+- **화자 구분, 언어 감지, 음악 템포.** 지원하지 않습니다.
+
+## 설치
+
+Claude Code에서:
+
+```
+/plugin marketplace add Junhan2/video-lens
+/plugin install video-lens@video-lens
+```
+
+터미널에서:
+
+```
+brew install ffmpeg
+pip3 install opencv-python numpy
+xcode-select --install   # 화면 글자와 음성 인식 도우미를 빌드합니다
+```
+
+### 요구 사항
+
+| | 무엇 | 참고 |
+|---|---|---|
+| 필수 | macOS | macOS 26, Apple Silicon에서 시험했습니다. |
+| 필수 | ffmpeg | |
+| 필수 | opencv-python과 numpy가 있는 Python 3 | Python 3.13에서 시험했습니다. 패키지가 없으면 설치할 pip 명령을 그대로 알려 줍니다. |
+| 필수 | Xcode Command Line Tools | 화면 글자와 음성 인식 도우미를 빌드합니다. |
+| 선택 | macOS 26 | 기기 내 음성 인식(Apple SpeechTranscriber). |
+| 선택 | whisper-cpp와 ggml 모델 | 예: `~/.local/share/whisper/`에 둔 `ggml-large-v3-turbo-q5_0.bin`. whisper로 받아쓸 때 씁니다. |
+| 선택 | Node 24와 Google Chrome | 웹페이지에 선언된 CSS 애니메이션 값을 읽어 측정값과 비교합니다. |
+| 선택 | yt-dlp | 영상 주소(URL)로 분석합니다. |
+
+## 쓰는 법
+
+평소처럼 물으면 됩니다. 재야 하는 질문이면 Claude가 스킬을 고릅니다. 직접 부르려면 메시지를 `/video-lens`로 시작합니다.
+
+```
+이 화면 녹화의 애니메이션을 CSS로 다시 만들 수 있게 분석해줘
+이 강의에서 슬라이드가 언제 나오고 무엇이 적혀 있는지 정리해줘
+12분쯤에 무슨 말을 했어?
+```
+
+프롬프트에 스킬 이름을 넣지 않은 시험에서 Opus 5.5는 과제 9개 중 8개에서 스스로 스킬을 골랐습니다.
+
+여러 요소가 한꺼번에 움직이면 "왼쪽 목록만"처럼 볼 영역을 알려 주세요. Claude가 `--roi`로 측정 영역을 좁힙니다.
+
+## 동작 방식
+
+명령 하나, `vl.py analyze`가 영상을 재고 6,000자 이내의 텍스트 보고서를 냅니다. Claude는 이 보고서를 먼저 읽고, 다음으로 설명이 붙은 이미지 몇 장을, 꼭 필요할 때만 단일 프레임을 봅니다.
+
+```mermaid
+flowchart LR
+  A[영상 파일 또는 URL] --> B[영상 정보 읽기<br/>스트림과 프레임 시각]
+  B --> C[오디오<br/>소리 구간과 시작점]
+  C --> D{모드}
+  D -->|content| E[음성과 내용<br/>받아쓰기, 장면 전환, 대표 프레임, 화면 글자]
+  D -->|motion| F[모션<br/>요소 추적, easing 맞춤, stagger, CSS]
+  E --> G[동기화<br/>소리와 화면 비교]
+  F --> G
+  G --> H[보고서<br/>텍스트, 타임라인, 프레임 모아 보기 이미지]
+  H --> I[Claude는 텍스트 먼저,<br/>이미지 다음, 프레임은 마지막]
+```
+
+- **모드:** 소리 없는 2분 이하 영상은 모션으로, 더 긴 영상은 내용으로 재고, 소리가 있는 짧은 영상은 둘 다 합니다.
+- **음성을 읽는 순서:** 자막 스트림, 영상 옆에 둔 `.srt`나 `.vtt` 파일, 기기 내 Apple SpeechTranscriber, whisper.cpp 순서입니다. 오디오는 밖으로 보내지 않습니다.
+- **모션:** OpenCV가 움직이는 요소를 찾아 프레임마다 추적합니다. 시작, 길이, easing, stagger, 이동 거리를 맞춰 내고, 값의 범위와 거의 같은 후보도 함께 알려 줍니다.
+
+## 벤치마크 요약
+
+<!-- results:start -->
+<!-- Generated from docs/data/benchmark.json by tools/render_results.py. Do not edit by hand. -->
+
+| 모델 | 조건 | 평균 점수 | 최저 점수 | 만점 실행 | 실행당 평균 비용 | 실행당 평균 시간 | 평균 턴 수 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Claude Opus 5.5 | 모델 단독 | 0.949 | 0.167 | 21/27 | $0.859 | 420.2초 | 17.5 |
+| Claude Opus 5.5 | video-lens 사용 | 0.956 | 0.800 | 15/27 | $0.663 | 265.1초 | 10.1 |
+| Claude Sonnet 5.5 | 모델 단독 | 0.970 | 0.600 | 22/27 | $0.626 | 287.9초 | 20.9 |
+| Claude Sonnet 5.5 | video-lens 사용 | 0.940 | 0.625 | 15/27 | $0.408 | 121.8초 | 10.0 |
+
+- Claude Opus 5.5에 video-lens 사용 시 비용 23% 감소, 시간 37% 감소.
+- Claude Sonnet 5.5에 video-lens 사용 시 비용 35% 감소, 시간 58% 감소.
+
+2026-09-30 측정. 과제 9개 × 3회 = 조건마다 27회, MCP 서버 없이 한 번에 하나씩 실행했습니다. 평균 점수, 비용, 시간, 턴 수는 모든 실행의 평균이고, 최저 점수는 가장 낮았던 한 번의 점수입니다.
+
+- Claude Opus 5.5: Claude Code에서 실행, effort high. 비용은 Claude Code가 보고하는 API 환산값 `total_cost_usd`입니다. 시간은 Claude Code가 보고하는 실행 시간입니다.
+- Claude Sonnet 5.5: Claude Code에서 실행, effort high. 비용은 Claude Code가 보고하는 API 환산값 `total_cost_usd`입니다. 시간은 Claude Code가 보고하는 실행 시간입니다.
+
+<!-- results:end -->
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/charts/tasks-dark.png">
+  <img alt="막대 그래프: Claude Opus 5.5의 과제별 실행 시간 중앙값, 모델 단독과 video-lens 사용 비교. 과제별 값은 docs/BENCHMARK.md에 있습니다." src="docs/assets/charts/tasks-light.png" width="800">
+</picture>
+
+정답표는 헤드리스 Chrome에서 실제 CSS 애니메이션을 프레임마다 렌더링해 만들었고(정답은 CSS에 적힌 값 그대로), 강의는 macOS 음성 합성으로 내레이션을 넣었습니다. 캐러셀 과제는 실제 녹화라서 정답이 근사값입니다. 허용 오차는 시작과 길이 ±1프레임, easing은 실제 곡선과 0.05 이내, 소리 ±10ms, 말 시각 ±150ms입니다.
+
+방법, 과제별 결과, 주의할 점: [docs/BENCHMARK.md](docs/BENCHMARK.md)(영어). 스크립트와 실행별 결과: [bench/](bench/README.md)(영어).
+
+## 한계
+
+- 여러 요소가 한꺼번에 움직이면 첫 분석에서 한 상자로 합쳐지거나 여러 조각으로 나뉠 수 있습니다. `--roi`로 영역을 좁히면 해결됩니다. 벤치마크에서 Opus 5.5는 이렇게 스스로 했고, Sonnet 5.5는 덜 했습니다.
+- 사진이나 그라데이션 배경 위의 모션, 잡음이 많은 실제 음성은 충분히 시험하지 않았습니다.
+- 화자 구분, 언어 자동 감지, 음악 템포는 지원하지 않습니다.
+- 30fps 녹화는 시각 해상도가 절반입니다. 가능하면 60fps로 녹화하세요.
+- macOS 전용이며, macOS 26, Apple Silicon에서 시험했습니다.
+
+## 기여와 자체 점검
+
+- **자체 점검:** `python3 skills/video-lens/scripts/vl.py selftest`는 합성 영상으로 정답을 아는 검사를 돌리고, 하나라도 틀리면 종료 코드 1로 끝납니다. `--quick`은 더 짧은 검사만 돌립니다.
+- **벤치마크 숫자**는 [`docs/data/benchmark.json`](docs/data/benchmark.json) 한 파일에 있습니다. 모델마다 `settings`(실행 도구, effort, 비용과 시간을 잰 방식)가 있고, 모델별 실행 조건 문장은 여기서 만들어집니다. 파일을 바꾼 뒤 `python3 tools/render_results.py`(모든 README와 BENCHMARK 파일의 `results`, `per-task`, `tasks`, `long-lecture` 표시 사이 내용과 `docs/index.html`의 계산된 문장을 다시 씁니다. `--check`는 확인만 합니다)와 `node tools/render_charts.mjs`(헤드리스 Chrome으로 그래프 이미지를 다시 그립니다)를 실행합니다.
+- **번역:** `docs/i18n/en.json`을 `docs/i18n/<lang>.json`으로 복사해 값을 번역하고, `docs/i18n/languages.json`에 언어를 더한 뒤 `python3 tools/i18n.py check`를 실행합니다. 번역한 README는 같은 표시를 넣은 `README.<lang>.md`로 만들고 `python3 tools/render_results.py`를 실행하면 표가 그 언어로 채워집니다. `en.json`이나 `languages.json`을 고친 뒤에는 `python3 tools/i18n.py sync`와 `python3 tools/render_results.py`를 실행해 페이지에 내장된 영어와 언어 링크를 맞춥니다.
+
+## 라이선스
+
+[MIT](LICENSE)

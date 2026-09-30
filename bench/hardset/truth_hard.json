@@ -1,0 +1,4345 @@
+{
+  "schema": "video-eval-truth/1",
+  "created": "2026-09-27",
+  "generator": "gen_hard.py (python3 gen_hard.py regenerates every file and this truth)",
+  "renderer": "Google Chrome 153.0.8010.54, headless, DevTools pipe; each frame = all CSS animations paused at currentTime = t, then Page.captureScreenshot (h1 with Emulation deviceScaleFactor 2); encoded with ffmpeg libx264 yuv420p bt709 limited range (crf 14; h2 -bf 0 so the mp4 duration equals the presentation span; h3 crf 16 -tune stillimage)",
+  "renderer_notes": [
+    "Chrome rasterises a moving layer in sub-pixel steps and opacity in 1/255 steps, so a rendered position can differ from the CSS value by a fraction of a pixel; pixel checks carry tolerances for this.",
+    "Near the end of a soft ease-out Chrome holds the layer at its last raster step, then re-rasterises it once as part of the page; that step is where observed_in_file.last_change usually lands.",
+    "cv2.VideoCapture decodes these BT.709 files with a BT.601 matrix: geometry fits use it, colour checks use an ffmpeg rgb24 decode with in_color_matrix=bt709.",
+    "h1 is rendered at deviceScaleFactor 2: every file-pixel distance is 2x the CSS distance.",
+    "h1 opacity fitted against the final (flattened) frame reads +0.002 to +0.022 versus the CSS value while the rows are still composited layers (same effect as evalset v1)."
+  ],
+  "time_convention": "Seconds of presentation time (pts) from the first frame. In the CFR files frame n shows the page state at exactly t = n / fps. In the VFR file each kept frame shows the state at its own pts. start_s/end_s/duration_ms/delay_ms/easing are the authored CSS values (exact). observed_in_file gives what pixel differencing can actually see (threshold 8 levels on the max of B, G, R, 20 pixels; the same thresholds are used at DPR 2, where 20 file px = 5 CSS px).",
+  "field_notes": {
+    "delay_ms": "offset from the first event of the same group (stagger delay); independent events have 0 and a delay_note",
+    "css_animation_delay_ms": "animation-delay as written in the page CSS (relative to t = 0)",
+    "peak_speed_px_s": "magnitude / duration x max slope of the easing curve (exact parametric derivative), in CSS px per second",
+    "geometry": "h1 only: CSS viewport, device scale factor and which fields are CSS vs file px",
+    "overshoot": "h2 badge only: analytic maximum of the easing (y > 1) and when it happens",
+    "luma": "h2 colour event: BT.709/BT.601 luma of both colours and what greyscale detectors see",
+    "distractors": "moving things that must NOT be reported as intended entrance/exit/transition motion (they may be named as loops)",
+    "named_curve_check": "h1: distance of the custom easing from 80+ named curves"
+  },
+  "scoring_hints": {
+    "start_s": "+-1 frame (16.7 ms at 60 fps, 33.3 ms at 30 fps)",
+    "duration_ms": "+-1 frame of the CSS duration; a value between observed (last_change - start) and the CSS duration is 'observed-correct'",
+    "delay_ms": "+-1 frame",
+    "easing": "each control point +-0.1, or max |y_pred(x)-y_true(x)| <= 0.05 on x = 0..1 (progress_at_x has the truth curve)",
+    "translate_px": "CSS px; for h1 a value in file px (2x) is wrong",
+    "colour": "h2 record-colour: property background-color (or 'color'/'colour' change) with a blue start and a red end; any hue-only / luma-constant wording is a bonus, not required",
+    "overshoot": "h2 badge-pop: easing must exceed 1 somewhere (p1y or p2y > 1) to be correct",
+    "cuts_s": "+-1 frame",
+    "narration_s": "+-150 ms",
+    "text": "exact after whitespace normalisation; Korean CER <= 5% as partial credit",
+    "distractors": "reporting a distractor as an intended event is a false positive"
+  },
+  "videos": [
+    {
+      "file": "h1_list_dpr2.mp4",
+      "kind": "ui-motion",
+      "container": {
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "duration_s": 3.0,
+        "size_bytes": 559648,
+        "video": {
+          "codec": "h264",
+          "profile": "High",
+          "width": 2560,
+          "height": 1600,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "time_base": "1/15360",
+          "nb_frames": 90,
+          "color_space": "bt709",
+          "first_pts_s": 0.0,
+          "last_pts_s": 2.966667
+        }
+      },
+      "geometry": {
+        "css_viewport": [
+          1280,
+          800
+        ],
+        "device_scale_factor": 2,
+        "file_px_per_css_px": 2,
+        "units": "translate, magnitude_px, bbox_final and peak_speed_px_s are CSS px; *_file_px and observed_in_file.box_xyxy are file pixels (2 x CSS px)"
+      },
+      "summary": "Settings page recorded on a 2x (Retina) display: the file is 2560x1600 but the page is 1280x800 CSS px. Six setting rows fade in while sliding 24 CSS px to the right (48 file px), 520 ms each, staggered 45 ms from 0.900 s (rows 1-6 top to bottom, overlapping heavily), easing cubic-bezier(0.34, 0.12, 0.08, 0.98). A skeleton shimmer loops in the 'Recent activity' panel the whole time.",
+      "events": [
+        {
+          "id": "row1-enter",
+          "element": "settings row 1 of 6 (\"Notifications\" · Email and push alerts for mentions)",
+          "selector": ".row:nth-child(1)",
+          "kind": "entrance",
+          "start_s": 0.9,
+          "end_s": 1.42,
+          "duration_ms": 520,
+          "delay_ms": 0,
+          "css_animation_delay_ms": 900,
+          "easing": {
+            "css": "cubic-bezier(0.34, 0.12, 0.08, 0.98)",
+            "p1x": 0.34,
+            "p1y": 0.12,
+            "p2x": 0.08,
+            "p2y": 0.98,
+            "name": "custom (not a named curve; slow start, fast middle, long soft tail)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.073,
+              "0.2": 0.2895,
+              "0.3": 0.5792,
+              "0.4": 0.7493,
+              "0.5": 0.8495,
+              "0.6": 0.913,
+              "0.7": 0.954,
+              "0.8": 0.9797,
+              "0.9": 0.9942,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateX",
+              "from": -24,
+              "to": 0,
+              "unit": "CSS px",
+              "from_file_px": -48
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "left to right (moves from 24 CSS px left of its resting place to 0)",
+          "magnitude_px": 24,
+          "magnitude_file_px": 48,
+          "peak_speed_px_s": 149.2,
+          "bbox_final": {
+            "x": 288,
+            "y": 150,
+            "w": 620,
+            "h": 64
+          },
+          "bbox_final_file_px": {
+            "x": 576,
+            "y": 300,
+            "w": 1240,
+            "h": 128
+          },
+          "observed_in_file": {
+            "first_change_frame": 28,
+            "first_change_pts_s": 0.933333,
+            "last_still_before_pts_s": 0.9,
+            "last_change_frame": 43,
+            "last_change_pts_s": 1.433333,
+            "changed_frames": 16,
+            "box_xyxy": [
+              522,
+              296,
+              1822,
+              432
+            ],
+            "box_units": "file px (2 x CSS px)"
+          }
+        },
+        {
+          "id": "row2-enter",
+          "element": "settings row 2 of 6 (\"Privacy\" · Who can see your profile and activity)",
+          "selector": ".row:nth-child(2)",
+          "kind": "entrance",
+          "start_s": 0.945,
+          "end_s": 1.465,
+          "duration_ms": 520,
+          "delay_ms": 45,
+          "css_animation_delay_ms": 945,
+          "easing": {
+            "css": "cubic-bezier(0.34, 0.12, 0.08, 0.98)",
+            "p1x": 0.34,
+            "p1y": 0.12,
+            "p2x": 0.08,
+            "p2y": 0.98,
+            "name": "custom (not a named curve; slow start, fast middle, long soft tail)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.073,
+              "0.2": 0.2895,
+              "0.3": 0.5792,
+              "0.4": 0.7493,
+              "0.5": 0.8495,
+              "0.6": 0.913,
+              "0.7": 0.954,
+              "0.8": 0.9797,
+              "0.9": 0.9942,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateX",
+              "from": -24,
+              "to": 0,
+              "unit": "CSS px",
+              "from_file_px": -48
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "left to right (moves from 24 CSS px left of its resting place to 0)",
+          "magnitude_px": 24,
+          "magnitude_file_px": 48,
+          "peak_speed_px_s": 149.2,
+          "bbox_final": {
+            "x": 288,
+            "y": 226,
+            "w": 620,
+            "h": 64
+          },
+          "bbox_final_file_px": {
+            "x": 576,
+            "y": 452,
+            "w": 1240,
+            "h": 128
+          },
+          "observed_in_file": {
+            "first_change_frame": 30,
+            "first_change_pts_s": 1.0,
+            "last_still_before_pts_s": 0.966667,
+            "last_change_frame": 44,
+            "last_change_pts_s": 1.466667,
+            "changed_frames": 15,
+            "box_xyxy": [
+              522,
+              448,
+              1822,
+              584
+            ],
+            "box_units": "file px (2 x CSS px)"
+          }
+        },
+        {
+          "id": "row3-enter",
+          "element": "settings row 3 of 6 (\"Appearance\" · Theme, density and font size)",
+          "selector": ".row:nth-child(3)",
+          "kind": "entrance",
+          "start_s": 0.99,
+          "end_s": 1.51,
+          "duration_ms": 520,
+          "delay_ms": 90,
+          "css_animation_delay_ms": 990,
+          "easing": {
+            "css": "cubic-bezier(0.34, 0.12, 0.08, 0.98)",
+            "p1x": 0.34,
+            "p1y": 0.12,
+            "p2x": 0.08,
+            "p2y": 0.98,
+            "name": "custom (not a named curve; slow start, fast middle, long soft tail)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.073,
+              "0.2": 0.2895,
+              "0.3": 0.5792,
+              "0.4": 0.7493,
+              "0.5": 0.8495,
+              "0.6": 0.913,
+              "0.7": 0.954,
+              "0.8": 0.9797,
+              "0.9": 0.9942,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateX",
+              "from": -24,
+              "to": 0,
+              "unit": "CSS px",
+              "from_file_px": -48
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "left to right (moves from 24 CSS px left of its resting place to 0)",
+          "magnitude_px": 24,
+          "magnitude_file_px": 48,
+          "peak_speed_px_s": 149.2,
+          "bbox_final": {
+            "x": 288,
+            "y": 302,
+            "w": 620,
+            "h": 64
+          },
+          "bbox_final_file_px": {
+            "x": 576,
+            "y": 604,
+            "w": 1240,
+            "h": 128
+          },
+          "observed_in_file": {
+            "first_change_frame": 31,
+            "first_change_pts_s": 1.033333,
+            "last_still_before_pts_s": 1.0,
+            "last_change_frame": 46,
+            "last_change_pts_s": 1.533333,
+            "changed_frames": 16,
+            "box_xyxy": [
+              522,
+              600,
+              1822,
+              736
+            ],
+            "box_units": "file px (2 x CSS px)"
+          }
+        },
+        {
+          "id": "row4-enter",
+          "element": "settings row 4 of 6 (\"Language & region\" · Korean · Asia/Seoul)",
+          "selector": ".row:nth-child(4)",
+          "kind": "entrance",
+          "start_s": 1.035,
+          "end_s": 1.555,
+          "duration_ms": 520,
+          "delay_ms": 135,
+          "css_animation_delay_ms": 1035,
+          "easing": {
+            "css": "cubic-bezier(0.34, 0.12, 0.08, 0.98)",
+            "p1x": 0.34,
+            "p1y": 0.12,
+            "p2x": 0.08,
+            "p2y": 0.98,
+            "name": "custom (not a named curve; slow start, fast middle, long soft tail)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.073,
+              "0.2": 0.2895,
+              "0.3": 0.5792,
+              "0.4": 0.7493,
+              "0.5": 0.8495,
+              "0.6": 0.913,
+              "0.7": 0.954,
+              "0.8": 0.9797,
+              "0.9": 0.9942,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateX",
+              "from": -24,
+              "to": 0,
+              "unit": "CSS px",
+              "from_file_px": -48
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "left to right (moves from 24 CSS px left of its resting place to 0)",
+          "magnitude_px": 24,
+          "magnitude_file_px": 48,
+          "peak_speed_px_s": 149.2,
+          "bbox_final": {
+            "x": 288,
+            "y": 378,
+            "w": 620,
+            "h": 64
+          },
+          "bbox_final_file_px": {
+            "x": 576,
+            "y": 756,
+            "w": 1240,
+            "h": 128
+          },
+          "observed_in_file": {
+            "first_change_frame": 32,
+            "first_change_pts_s": 1.066667,
+            "last_still_before_pts_s": 1.033333,
+            "last_change_frame": 47,
+            "last_change_pts_s": 1.566667,
+            "changed_frames": 16,
+            "box_xyxy": [
+              522,
+              752,
+              1822,
+              888
+            ],
+            "box_units": "file px (2 x CSS px)"
+          }
+        },
+        {
+          "id": "row5-enter",
+          "element": "settings row 5 of 6 (\"Connected apps\" · Slack, GitHub and 3 more)",
+          "selector": ".row:nth-child(5)",
+          "kind": "entrance",
+          "start_s": 1.08,
+          "end_s": 1.6,
+          "duration_ms": 520,
+          "delay_ms": 180,
+          "css_animation_delay_ms": 1080,
+          "easing": {
+            "css": "cubic-bezier(0.34, 0.12, 0.08, 0.98)",
+            "p1x": 0.34,
+            "p1y": 0.12,
+            "p2x": 0.08,
+            "p2y": 0.98,
+            "name": "custom (not a named curve; slow start, fast middle, long soft tail)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.073,
+              "0.2": 0.2895,
+              "0.3": 0.5792,
+              "0.4": 0.7493,
+              "0.5": 0.8495,
+              "0.6": 0.913,
+              "0.7": 0.954,
+              "0.8": 0.9797,
+              "0.9": 0.9942,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateX",
+              "from": -24,
+              "to": 0,
+              "unit": "CSS px",
+              "from_file_px": -48
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "left to right (moves from 24 CSS px left of its resting place to 0)",
+          "magnitude_px": 24,
+          "magnitude_file_px": 48,
+          "peak_speed_px_s": 149.2,
+          "bbox_final": {
+            "x": 288,
+            "y": 454,
+            "w": 620,
+            "h": 64
+          },
+          "bbox_final_file_px": {
+            "x": 576,
+            "y": 908,
+            "w": 1240,
+            "h": 128
+          },
+          "observed_in_file": {
+            "first_change_frame": 34,
+            "first_change_pts_s": 1.133333,
+            "last_still_before_pts_s": 1.1,
+            "last_change_frame": 48,
+            "last_change_pts_s": 1.6,
+            "changed_frames": 15,
+            "box_xyxy": [
+              522,
+              904,
+              1822,
+              1040
+            ],
+            "box_units": "file px (2 x CSS px)"
+          }
+        },
+        {
+          "id": "row6-enter",
+          "element": "settings row 6 of 6 (\"Two-step verification\" · Authenticator app is set up)",
+          "selector": ".row:nth-child(6)",
+          "kind": "entrance",
+          "start_s": 1.125,
+          "end_s": 1.645,
+          "duration_ms": 520,
+          "delay_ms": 225,
+          "css_animation_delay_ms": 1125,
+          "easing": {
+            "css": "cubic-bezier(0.34, 0.12, 0.08, 0.98)",
+            "p1x": 0.34,
+            "p1y": 0.12,
+            "p2x": 0.08,
+            "p2y": 0.98,
+            "name": "custom (not a named curve; slow start, fast middle, long soft tail)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.073,
+              "0.2": 0.2895,
+              "0.3": 0.5792,
+              "0.4": 0.7493,
+              "0.5": 0.8495,
+              "0.6": 0.913,
+              "0.7": 0.954,
+              "0.8": 0.9797,
+              "0.9": 0.9942,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateX",
+              "from": -24,
+              "to": 0,
+              "unit": "CSS px",
+              "from_file_px": -48
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "left to right (moves from 24 CSS px left of its resting place to 0)",
+          "magnitude_px": 24,
+          "magnitude_file_px": 48,
+          "peak_speed_px_s": 149.2,
+          "bbox_final": {
+            "x": 288,
+            "y": 530,
+            "w": 620,
+            "h": 64
+          },
+          "bbox_final_file_px": {
+            "x": 576,
+            "y": 1060,
+            "w": 1240,
+            "h": 128
+          },
+          "observed_in_file": {
+            "first_change_frame": 35,
+            "first_change_pts_s": 1.166667,
+            "last_still_before_pts_s": 1.133333,
+            "last_change_frame": 50,
+            "last_change_pts_s": 1.666667,
+            "changed_frames": 16,
+            "box_xyxy": [
+              522,
+              1056,
+              1822,
+              1192
+            ],
+            "box_units": "file px (2 x CSS px)"
+          }
+        }
+      ],
+      "groups": [
+        {
+          "type": "stagger",
+          "members": [
+            "row1-enter",
+            "row2-enter",
+            "row3-enter",
+            "row4-enter",
+            "row5-enter",
+            "row6-enter"
+          ],
+          "stagger_ms": 45,
+          "order": "top to bottom",
+          "group_start_s": 0.9,
+          "group_end_s": 1.645,
+          "total_span_ms": 745,
+          "overlap": "every row starts before the previous one is 10% through its duration; all six move together from 1.125 s to 1.420 s"
+        }
+      ],
+      "css_source": ".row{animation:row-in 520ms cubic-bezier(0.34,0.12,0.08,0.98) both} .row:nth-child(1){animation-delay:900ms} .row:nth-child(2){animation-delay:945ms} .row:nth-child(3){animation-delay:990ms} .row:nth-child(4){animation-delay:1035ms} .row:nth-child(5){animation-delay:1080ms} .row:nth-child(6){animation-delay:1125ms} @keyframes row-in{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}} .glint{animation:shimmer 1200ms linear infinite} @keyframes shimmer{from{transform:translateX(-120px)}to{transform:translateX(250px)}}",
+      "expected_css_answer": {
+        "duration": "520ms",
+        "delays": [
+          "0ms",
+          "45ms",
+          "90ms",
+          "135ms",
+          "180ms",
+          "225ms"
+        ],
+        "first_start": "900ms",
+        "timing_function": "cubic-bezier(0.34, 0.12, 0.08, 0.98)",
+        "keyframes": "from {opacity: 0; transform: translateX(-24px)} to {opacity: 1; transform: none}"
+      },
+      "distractors": [
+        {
+          "id": "skeleton-shimmer",
+          "element": "skeleton placeholder (three grey bars) in the 'Recent activity' panel, a white glint sweeps across it",
+          "selector": ".glint",
+          "kind": "shimmer loop (not an entrance or transition)",
+          "css": "animation: shimmer 1200ms linear infinite; translateX(-120px -> 250px) inside a 250 px wide clip",
+          "period_ms": 1200,
+          "easing": "linear",
+          "speed_px_s": 308.333,
+          "direction": "left to right",
+          "phase_at_t0": "glint just left of the bars (translateX -120 CSS px)",
+          "runs_s": [
+            0.0,
+            3.0
+          ],
+          "bbox": {
+            "x": 969,
+            "y": 227,
+            "w": 250,
+            "h": 80
+          },
+          "glint_bbox_at_rect_time": {
+            "x": 1003.17,
+            "y": 227,
+            "w": 120.0,
+            "h": 80
+          },
+          "must_not_report_as": "an intended entrance/exit/transition event; at most mention it as a looping shimmer"
+        }
+      ],
+      "traps": [
+        "DPR 2: every distance measured in file pixels is twice the CSS value (48 file px of travel = translateX(-24px)).",
+        "The stagger (45 ms) is shorter than the 30 fps frame interval (33.3 ms) and not a multiple of it: rows 2-6 start between frames (0.945, 0.990, 1.035, 1.080, 1.125 s). Because the easing starts slowly (slope 0.35 at x = 0), the first changed frame comes 33, 55, 43, 32, 53, 42 ms after the CSS start (rows 1-6), up to 1.65 frames late; rows 2, 3, 5, 6 miss the +-1 frame window. Fitting the curve recovers the start.",
+        "Rows overlap heavily in time: one bounding box around the list merges six events into one 745 ms blob.",
+        "The easing ends very softly (slope 0.02 at x = 1), but at DPR 2 the tail still moves text edges by fractions of a file pixel: every row keeps changing up to the last frame before end_s, and the detector's last change is the settling frame 0-23 ms after end_s. Observed last - first change is 467-500 ms: 520 ms minus the start lag plus that settling delay. Nearest named curves: Open Props --ease-5 (max |dy| 0.0607); Open Props --ease-4 (max |dy| 0.0693); CSS ease (max |dy| 0.0717); none is within 0.05.",
+        "The shimmer is faint: consecutive frames differ by at most 16 levels inside the skeleton, and while the glint enters or leaves it (around each loop restart at 0, 1.2, 2.4 s) fewer than 20 px pass the 8-level threshold. A whole-frame detector (8 levels, 20 px, consecutive frames) is busy at pts 0.033, 0.200, 0.300-2.300, 2.600-2.967 s (frame 1 alone is I-to-P codec noise) and quiet in between (cv2 decode; these frames sit near the threshold, so another decoder moves the span edges by a frame or two): not one 3-second event, and its spans do not mark the rows.",
+        "The background is a vertical gradient, so 'changed vs frame 0' masks differ in brightness by row."
+      ],
+      "named_curve_check": {
+        "curves_compared": 103,
+        "nearest": [
+          {
+            "name": "Open Props --ease-5",
+            "max_abs_dy_dense": 0.0607,
+            "max_abs_dy_11pt": 0.0601,
+            "control_points_within_0.1": false
+          },
+          {
+            "name": "Open Props --ease-4",
+            "max_abs_dy_dense": 0.0693,
+            "max_abs_dy_11pt": 0.0662,
+            "control_points_within_0.1": false
+          },
+          {
+            "name": "CSS ease",
+            "max_abs_dy_dense": 0.0717,
+            "max_abs_dy_11pt": 0.0668,
+            "control_points_within_0.1": false
+          },
+          {
+            "name": "easings.net easeOutQuad",
+            "max_abs_dy_dense": 0.1252,
+            "max_abs_dy_11pt": 0.1167,
+            "control_points_within_0.1": false
+          },
+          {
+            "name": "Penner easeOutQuad",
+            "max_abs_dy_dense": 0.1257,
+            "max_abs_dy_11pt": 0.117
+          }
+        ],
+        "method": "max |y_named(x) - y(x)| on 2001 x points and on the scorer's 11 points; beziers sampled parametrically; Penner functions exact; Material 3 'emphasized' as its two-segment path"
+      },
+      "verification": [
+        {
+          "check": "source screenshot size (px) at deviceScaleFactor 2",
+          "measured": [
+            2560,
+            1600
+          ],
+          "expected": [
+            2560,
+            1600
+          ],
+          "pass": true
+        },
+        {
+          "check": "decoded frames: count and size",
+          "measured": [
+            90,
+            2560,
+            1600
+          ],
+          "expected": [
+            90,
+            2560,
+            1600
+          ],
+          "pass": true
+        },
+        {
+          "check": "CFR 30 fps: pts == n / 30 for every frame",
+          "measured": 0.0,
+          "expected": 0,
+          "pass": true
+        },
+        {
+          "check": "easing is not a named curve: smallest max|dy| (dense x grid) over 103 named curves > 0.05",
+          "measured": 0.0607,
+          "nearest": "Open Props --ease-5",
+          "expected": "> 0.05",
+          "pass": true
+        },
+        {
+          "check": "no named curve passes the scorer's easing test (11-pt max|dy| <= 0.05 or every control point within 0.1)",
+          "measured": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "check": "row1 chrome translateX (CSS px) vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "row1 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row2 chrome translateX (CSS px) vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "row2 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row3 chrome translateX (CSS px) vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "row3 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row4 chrome translateX (CSS px) vs solver (max abs err, all frames)",
+          "measured": 0.0001,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "row4 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row5 chrome translateX (CSS px) vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "row5 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row6 chrome translateX (CSS px) vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "row6 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "all six rows are mid-animation at frame 36 (t=1.2000s)",
+          "measured": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "expected": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "pass": true
+        },
+        {
+          "check": "glint chrome translateX vs 1200 ms linear loop (max abs err, all frames)",
+          "measured": 0.0004,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "row1 icon left edge in final decoded frame (file px, sub-pixel) == 2 x CSS x",
+          "measured": 618.0106,
+          "expected": 618,
+          "tolerance": 0.6,
+          "unit": "file px",
+          "pass": true
+        },
+        {
+          "check": "row1 icon width in final decoded frame (file px) == 2 x 36 CSS px",
+          "measured": 71.9879,
+          "expected": 72,
+          "tolerance": 0.8,
+          "unit": "file px",
+          "pass": true
+        },
+        {
+          "check": "row1 decoded mp4 frame 32 (t=1.0667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -9.035,
+          "expected": -9.055,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row1 decoded mp4 frame 32 opacity from the same fit",
+          "measured": 0.6307,
+          "expected": 0.6227,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row1 decoded mp4 frame 35 (t=1.1667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.395,
+          "expected": -3.3769,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row1 decoded mp4 frame 35 opacity from the same fit",
+          "measured": 0.8748,
+          "expected": 0.8593,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row1 source PNG frame 35 (t=1.1667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.395,
+          "expected": -3.3769,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row1 source PNG frame 35 opacity from the same fit",
+          "measured": 0.8724,
+          "expected": 0.8593,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row1 decoded mp4 frame 39 (t=1.3000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -0.63,
+          "expected": -0.6445,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row1 decoded mp4 frame 39 opacity from the same fit",
+          "measured": 0.9923,
+          "expected": 0.9731,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row2 decoded mp4 frame 33 (t=1.1000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -10.225,
+          "expected": -10.2037,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row2 decoded mp4 frame 33 opacity from the same fit",
+          "measured": 0.592,
+          "expected": 0.5748,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row2 decoded mp4 frame 36 (t=1.2000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.785,
+          "expected": -3.797,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row2 decoded mp4 frame 36 opacity from the same fit",
+          "measured": 0.857,
+          "expected": 0.8418,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row2 source PNG frame 36 (t=1.2000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.785,
+          "expected": -3.797,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row2 source PNG frame 36 opacity from the same fit",
+          "measured": 0.8603,
+          "expected": 0.8418,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row2 decoded mp4 frame 40 (t=1.3333s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -0.77,
+          "expected": -0.7764,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row2 decoded mp4 frame 40 opacity from the same fit",
+          "measured": 0.988,
+          "expected": 0.9676,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row3 decoded mp4 frame 34 (t=1.1333s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -11.535,
+          "expected": -11.5224,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row3 decoded mp4 frame 34 opacity from the same fit",
+          "measured": 0.5296,
+          "expected": 0.5199,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row3 decoded mp4 frame 38 (t=1.2667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.07,
+          "expected": -3.0489,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row3 decoded mp4 frame 38 opacity from the same fit",
+          "measured": 0.8821,
+          "expected": 0.873,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row3 source PNG frame 38 (t=1.2667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.07,
+          "expected": -3.0489,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row3 source PNG frame 38 opacity from the same fit",
+          "measured": 0.8797,
+          "expected": 0.873,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row3 decoded mp4 frame 41 (t=1.3667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -0.96,
+          "expected": -0.924,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row3 decoded mp4 frame 41 opacity from the same fit",
+          "measured": 0.9649,
+          "expected": 0.9615,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row4 decoded mp4 frame 36 (t=1.2000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -9.21,
+          "expected": -9.2096,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row4 decoded mp4 frame 36 opacity from the same fit",
+          "measured": 0.6369,
+          "expected": 0.6163,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row4 decoded mp4 frame 39 (t=1.3000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.445,
+          "expected": -3.4344,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row4 decoded mp4 frame 39 opacity from the same fit",
+          "measured": 0.8681,
+          "expected": 0.8569,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row4 source PNG frame 39 (t=1.3000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.445,
+          "expected": -3.4344,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row4 source PNG frame 39 opacity from the same fit",
+          "measured": 0.8676,
+          "expected": 0.8569,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row4 decoded mp4 frame 43 (t=1.4333s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -0.66,
+          "expected": -0.6624,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row4 decoded mp4 frame 43 opacity from the same fit",
+          "measured": 0.9793,
+          "expected": 0.9724,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row5 decoded mp4 frame 37 (t=1.2333s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -10.395,
+          "expected": -10.3811,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row5 decoded mp4 frame 37 opacity from the same fit",
+          "measured": 0.5848,
+          "expected": 0.5675,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row5 decoded mp4 frame 40 (t=1.3333s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.88,
+          "expected": -3.8606,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row5 decoded mp4 frame 40 opacity from the same fit",
+          "measured": 0.8522,
+          "expected": 0.8391,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row5 source PNG frame 40 (t=1.3333s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.88,
+          "expected": -3.8606,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row5 source PNG frame 40 opacity from the same fit",
+          "measured": 0.8493,
+          "expected": 0.8391,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row5 decoded mp4 frame 44 (t=1.4667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -0.8,
+          "expected": -0.7965,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row5 decoded mp4 frame 44 opacity from the same fit",
+          "measured": 0.9773,
+          "expected": 0.9668,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row6 decoded mp4 frame 38 (t=1.2667s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -11.725,
+          "expected": -11.7257,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row6 decoded mp4 frame 38 opacity from the same fit",
+          "measured": 0.5216,
+          "expected": 0.5114,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row6 decoded mp4 frame 42 (t=1.4000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.1,
+          "expected": -3.1016,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row6 decoded mp4 frame 42 opacity from the same fit",
+          "measured": 0.8926,
+          "expected": 0.8708,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row6 source PNG frame 42 (t=1.4000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -3.1,
+          "expected": -3.1016,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row6 source PNG frame 42 opacity from the same fit",
+          "measured": 0.8812,
+          "expected": 0.8708,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "row6 decoded mp4 frame 45 (t=1.5000s) translateX by sub-pixel shift fit (luma, file px / 2)",
+          "measured": -0.96,
+          "expected": -0.9464,
+          "tolerance": 0.2,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "row6 decoded mp4 frame 45 opacity from the same fit",
+          "measured": 0.9629,
+          "expected": 0.9606,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "glint centre in decoded frame 15 (t=0.5000s), CSS px from the bar's left edge",
+          "measured": 94.1285,
+          "expected": 94.1667,
+          "tolerance": 1.0,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "glint centre in decoded frame 54 (t=1.8000s), CSS px from the bar's left edge",
+          "measured": 124.8221,
+          "expected": 125.0,
+          "tolerance": 1.0,
+          "unit": "CSS px",
+          "pass": true
+        },
+        {
+          "check": "glint centre in decoded frame 87 (t=2.9000s), CSS px from the bar's left edge",
+          "measured": 94.3458,
+          "expected": 94.1667,
+          "tolerance": 1.0,
+          "unit": "CSS px",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "h2_colour_overshoot_vfr.mp4",
+      "kind": "ui-motion",
+      "container": {
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "duration_s": 3.2,
+        "size_bytes": 87461,
+        "video": {
+          "codec": "h264",
+          "profile": "High",
+          "width": 1280,
+          "height": 800,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "60/1",
+          "avg_frame_rate": "65/4",
+          "time_base": "1/15360",
+          "nb_frames": 52,
+          "color_space": "bt709",
+          "first_pts_s": 0.0,
+          "last_pts_s": 3.183333
+        }
+      },
+      "summary": "Variable-frame-rate recording of a screen-recorder app. At 0.6 s the 'Record' button's background turns from blue #2824dc to dark red #761f2b (200 ms, linear) with no change in brightness. At 1.0 s a notification badge pops in (scale 0 -> 1, 350 ms, overshooting to 1.098). At 1.8 s a bottom drawer slides up from below the screen edge (450 ms).",
+      "events": [
+        {
+          "id": "record-colour",
+          "element": "primary 'Record' button, right of the preview card",
+          "selector": ".rec",
+          "kind": "transition",
+          "start_s": 0.6,
+          "end_s": 0.8,
+          "duration_ms": 200,
+          "delay_ms": 0,
+          "delay_note": "independent event; no stagger group",
+          "css_animation_delay_ms": 600,
+          "easing": {
+            "css": "cubic-bezier(0, 0, 1, 1)",
+            "p1x": 0,
+            "p1y": 0,
+            "p2x": 1,
+            "p2y": 1,
+            "name": "linear",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.1,
+              "0.2": 0.2,
+              "0.3": 0.3,
+              "0.4": 0.4,
+              "0.5": 0.5,
+              "0.6": 0.6,
+              "0.7": 0.7,
+              "0.8": 0.8,
+              "0.9": 0.9,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "background-color",
+              "from": "#2824dc",
+              "to": "#761f2b",
+              "from_rgb": [
+                40,
+                36,
+                220
+              ],
+              "to_rgb": [
+                118,
+                31,
+                43
+              ],
+              "interpolation": "sRGB channel-wise (CSS legacy colour)"
+            }
+          ],
+          "direction": "no movement: colour only (blue to dark red); label, size and position unchanged",
+          "luma": {
+            "bt709_from": 50.135,
+            "bt709_to": 50.363,
+            "bt601_from": 58.172,
+            "bt601_to": 58.381
+          },
+          "bbox_final": {
+            "x": 880,
+            "y": 190,
+            "w": 200,
+            "h": 52
+          },
+          "observed_in_file": {
+            "first_change_frame": 1,
+            "first_change_pts_s": 0.616667,
+            "last_still_before_pts_s": 0.0,
+            "last_change_frame": 12,
+            "last_change_pts_s": 0.8,
+            "changed_frames": 12,
+            "box_xyxy": [
+              876,
+              186,
+              1084,
+              246
+            ],
+            "luma": {
+              "file_Y_plane_interior_mean_range_levels": 1.0,
+              "file_Y_plane_max_px_change_vs_frame0": 2.0,
+              "cv2_decode_BGR2GRAY_max_px_change_vs_frame0": 10.0,
+              "bt709_rgb_then_bt601_grey_max_px_change_vs_frame0": 11.15,
+              "bt709_rgb_then_bt709_grey_max_px_change_vs_frame0": 7.12,
+              "px_over_8_levels_any_frame": {
+                "file_Y": 0,
+                "cv2_gray": 6,
+                "rgb_bt601_grey": 9,
+                "rgb_bt709_grey": 0
+              },
+              "max_channel_rgb_px_change_vs_frame0": 191.0
+            },
+            "luma_only_detectors": {
+              "file_Y_plane": null,
+              "cv2_BGR2GRAY": null
+            },
+            "note": "Found by a per-channel (max of B, G, R) diff. The file's luma plane never changes by more than the codec noise listed in 'luma'."
+          }
+        },
+        {
+          "id": "badge-pop",
+          "element": "red notification badge '3' on the bell icon, top-right of the header",
+          "selector": ".badge",
+          "kind": "entrance",
+          "start_s": 1.0,
+          "end_s": 1.35,
+          "duration_ms": 350,
+          "delay_ms": 0,
+          "delay_note": "independent event; no stagger group",
+          "css_animation_delay_ms": 1000,
+          "easing": {
+            "css": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+            "p1x": 0.34,
+            "p1y": 1.56,
+            "p2x": 0.64,
+            "p2y": 1,
+            "name": "ease-out-back (overshoot; easings.net easeOutBack)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.4039,
+              "0.2": 0.703,
+              "0.3": 0.9074,
+              "0.4": 1.0302,
+              "0.5": 1.0874,
+              "0.6": 1.0966,
+              "0.7": 1.0758,
+              "0.8": 1.0425,
+              "0.9": 1.0126,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "scale",
+              "from": 0,
+              "to": 1,
+              "origin": "50% 50%"
+            }
+          ],
+          "direction": "grows from its centre, overshoots past full size, settles back",
+          "overshoot": {
+            "peak_scale": 1.0978,
+            "peak_at_x": 0.5728,
+            "peak_at_s": 1.2005,
+            "overshoot_percent": 9.78
+          },
+          "magnitude": "scale 0 -> 1 (26 px circle + 2 px white ring), peak 1.0978 at 1.2005 s",
+          "bbox_final": {
+            "x": 1226,
+            "y": 6,
+            "w": 26,
+            "h": 26
+          },
+          "observed_in_file": {
+            "first_change_frame": 13,
+            "first_change_pts_s": 1.016667,
+            "last_still_before_pts_s": 0.8,
+            "last_change_frame": 25,
+            "last_change_pts_s": 1.35,
+            "changed_frames": 13,
+            "box_xyxy": [
+              1220,
+              0,
+              1258,
+              38
+            ],
+            "note": "Around the peak and in the tail the badge edge (radius 13 px + 2 px ring) moves at most 0.24 px per source frame, so mpdecimate dropped source frames [71, 72, 73, 74, 75, 77, 79, 80]. The analytic peak (1.0978 at 1.2005 s) is NOT in the file; the largest scale present is 1.0788 at pts 1.1667 s."
+          }
+        },
+        {
+          "id": "drawer-enter",
+          "element": "bottom drawer 'Recording saved' (760 x 300 px, rounded top corners)",
+          "selector": ".drawer",
+          "kind": "entrance",
+          "start_s": 1.8,
+          "end_s": 2.25,
+          "duration_ms": 450,
+          "delay_ms": 0,
+          "delay_note": "independent event; no stagger group",
+          "css_animation_delay_ms": 1800,
+          "easing": {
+            "css": "cubic-bezier(0.32, 0.72, 0, 1)",
+            "p1x": 0.32,
+            "p1y": 0.72,
+            "p2x": 0,
+            "p2y": 1,
+            "name": "iOS-style spring-ish ease-out",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.2698,
+              "0.2": 0.6557,
+              "0.3": 0.8472,
+              "0.4": 0.9184,
+              "0.5": 0.9548,
+              "0.6": 0.9758,
+              "0.7": 0.9882,
+              "0.8": 0.9954,
+              "0.9": 0.999,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateY",
+              "from": "100%",
+              "to": 0,
+              "from_px": 300,
+              "unit": "px"
+            }
+          ],
+          "direction": "up (slides in from fully below the bottom edge)",
+          "magnitude_px": 300,
+          "fully_offscreen_before_start": true,
+          "opacity_animated": false,
+          "peak_speed_px_s": 2811.9,
+          "bbox_final": {
+            "x": 260,
+            "y": 500,
+            "w": 760,
+            "h": 300
+          },
+          "observed_in_file": {
+            "first_change_frame": 26,
+            "first_change_pts_s": 1.816667,
+            "last_still_before_pts_s": 1.35,
+            "last_change_frame": 51,
+            "last_change_pts_s": 3.183333,
+            "changed_frames": 26,
+            "box_xyxy": [
+              262,
+              480,
+              1018,
+              800
+            ],
+            "note": "The last change is the final frame (pts 3.1833 s): 24 px, max 20 levels, where Chrome re-rasterises the settled drawer (translateY 0.040 px at pts 2.2333 s, then 0). That is not motion: the visible travel ends at pts 2.233333 s."
+          }
+        }
+      ],
+      "groups": [],
+      "vfr": {
+        "source_fps": 60,
+        "source_frames": 192,
+        "method": "ffmpeg mpdecimate (defaults hi=64*12, lo=64*5, frac=0.33) on the 60 fps source PNGs, -fps_mode vfr; the final source frame is also kept so the file ends at 3.2 s",
+        "mpdecimate_kept_source_frames": [
+          0,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          76,
+          78,
+          81,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          134
+        ],
+        "kept_frames": [
+          {
+            "pts_s": 0.0,
+            "source_frame": 0,
+            "rec_rgb": [
+              40.0,
+              36.0,
+              220.0
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.616667,
+            "source_frame": 37,
+            "rec_rgb": [
+              46.5,
+              35.58,
+              205.25
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.633333,
+            "source_frame": 38,
+            "rec_rgb": [
+              53.0,
+              35.17,
+              190.5
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.65,
+            "source_frame": 39,
+            "rec_rgb": [
+              59.5,
+              34.75,
+              175.75
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.666667,
+            "source_frame": 40,
+            "rec_rgb": [
+              66.0,
+              34.33,
+              161.0
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.683333,
+            "source_frame": 41,
+            "rec_rgb": [
+              72.5,
+              33.92,
+              146.25
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.7,
+            "source_frame": 42,
+            "rec_rgb": [
+              79.0,
+              33.5,
+              131.5
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.716667,
+            "source_frame": 43,
+            "rec_rgb": [
+              85.5,
+              33.08,
+              116.75
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.733333,
+            "source_frame": 44,
+            "rec_rgb": [
+              92.0,
+              32.67,
+              102.0
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.75,
+            "source_frame": 45,
+            "rec_rgb": [
+              98.5,
+              32.25,
+              87.25
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.766667,
+            "source_frame": 46,
+            "rec_rgb": [
+              105.0,
+              31.83,
+              72.5
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.783333,
+            "source_frame": 47,
+            "rec_rgb": [
+              111.5,
+              31.42,
+              57.75
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 0.8,
+            "source_frame": 48,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.016667,
+            "source_frame": 61,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.20592,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.033333,
+            "source_frame": 62,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.38714,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.05,
+            "source_frame": 63,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.54445,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.066667,
+            "source_frame": 64,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.67882,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.083333,
+            "source_frame": 65,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.7914,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.1,
+            "source_frame": 66,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.8835,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.116667,
+            "source_frame": 67,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 0.95662,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.133333,
+            "source_frame": 68,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.01236,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.15,
+            "source_frame": 69,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.05248,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.166667,
+            "source_frame": 70,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.07881,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.266667,
+            "source_frame": 76,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.05558,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.3,
+            "source_frame": 78,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.02405,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.35,
+            "source_frame": 81,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 300.0
+          },
+          {
+            "pts_s": 1.816667,
+            "source_frame": 109,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 273.51
+          },
+          {
+            "pts_s": 1.833333,
+            "source_frame": 110,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 243.278
+          },
+          {
+            "pts_s": 1.85,
+            "source_frame": 111,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 207.7
+          },
+          {
+            "pts_s": 1.866667,
+            "source_frame": 112,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 165.084
+          },
+          {
+            "pts_s": 1.883333,
+            "source_frame": 113,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 119.248
+          },
+          {
+            "pts_s": 1.9,
+            "source_frame": 114,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 83.9
+          },
+          {
+            "pts_s": 1.916667,
+            "source_frame": 115,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 61.599
+          },
+          {
+            "pts_s": 1.933333,
+            "source_frame": 116,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 47.034
+          },
+          {
+            "pts_s": 1.95,
+            "source_frame": 117,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 36.815
+          },
+          {
+            "pts_s": 1.966667,
+            "source_frame": 118,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 29.245
+          },
+          {
+            "pts_s": 1.983333,
+            "source_frame": 119,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 23.424
+          },
+          {
+            "pts_s": 2.0,
+            "source_frame": 120,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 18.829
+          },
+          {
+            "pts_s": 2.016667,
+            "source_frame": 121,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 15.136
+          },
+          {
+            "pts_s": 2.033333,
+            "source_frame": 122,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 12.13
+          },
+          {
+            "pts_s": 2.05,
+            "source_frame": 123,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 9.663
+          },
+          {
+            "pts_s": 2.066667,
+            "source_frame": 124,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 7.629
+          },
+          {
+            "pts_s": 2.083333,
+            "source_frame": 125,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 5.949
+          },
+          {
+            "pts_s": 2.1,
+            "source_frame": 126,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 4.563
+          },
+          {
+            "pts_s": 2.116667,
+            "source_frame": 127,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 3.425
+          },
+          {
+            "pts_s": 2.133333,
+            "source_frame": 128,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 2.498
+          },
+          {
+            "pts_s": 2.15,
+            "source_frame": 129,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 1.752
+          },
+          {
+            "pts_s": 2.166667,
+            "source_frame": 130,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 1.165
+          },
+          {
+            "pts_s": 2.183333,
+            "source_frame": 131,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 0.715
+          },
+          {
+            "pts_s": 2.2,
+            "source_frame": 132,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 0.386
+          },
+          {
+            "pts_s": 2.233333,
+            "source_frame": 134,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 0.04
+          },
+          {
+            "pts_s": 3.183333,
+            "source_frame": 191,
+            "rec_rgb": [
+              118.0,
+              31.0,
+              43.0
+            ],
+            "badge_scale": 1.0,
+            "drawer_translateY_px": 0.0
+          }
+        ],
+        "moving_source_frames_dropped": [
+          71,
+          72,
+          73,
+          74,
+          75,
+          77,
+          79,
+          80,
+          133,
+          135
+        ],
+        "note": "Each kept frame shows the page state at its own pts. Frames absent from the file were identical or nearly identical to the previous KEPT frame (mpdecimate compares with the last kept frame, so slow changes are kept in steps)."
+      },
+      "css_source": ".rec{animation:rec-colour 200ms linear 600ms both} @keyframes rec-colour{from{background-color:#2824dc}to{background-color:#761f2b}} .badge{transform-origin:50% 50%;animation:badge-pop 350ms cubic-bezier(0.34,1.56,0.64,1) 1000ms both} @keyframes badge-pop{from{transform:scale(0)}to{transform:scale(1)}} .drawer{animation:drawer-in 450ms cubic-bezier(0.32,0.72,0,1) 1800ms both} @keyframes drawer-in{from{transform:translateY(100%)}to{transform:translateY(0)}}",
+      "expected_css_answer": {
+        "record-colour": "background-color #2824dc -> #761f2b, 200ms linear, starts 600ms",
+        "badge-pop": "transform scale(0) -> scale(1), 350ms cubic-bezier(0.34, 1.56, 0.64, 1), starts 1000ms, origin centre",
+        "drawer-enter": "transform translateY(100%) -> translateY(0), 450ms cubic-bezier(0.32, 0.72, 0, 1), starts 1800ms"
+      },
+      "distractors": [],
+      "traps": [
+        "The button colour change keeps luma constant (BT.709 and BT.601 within 0.4 levels): a greyscale frame diff (cv2 BGR2GRAY, PIL 'L', ffmpeg Y plane) sees nothing; a per-channel or chroma diff sees a large change.",
+        "The badge overshoots: peak scale 1.0978 at 1.2005 s. A monotone ease-out fitted to its size misses the overshoot; y > 1 needs p1y or p2y > 1.",
+        "The overshoot peak itself fell into a VFR hole (source frames [71, 72, 73, 74, 75, 77, 79, 80] dropped): the largest badge scale present in the file is 1.0788 at 1.1667 s, so the peak height and time must be inferred from the curve, not read off a frame.",
+        "The drawer starts fully below the viewport: nothing is visible at 1.8 s; its first visible frame is pts 1.816667 s. The last change is the final frame (pts 3.1833 s): 24 px, max 20 levels, where Chrome re-rasterises the settled drawer (translateY 0.040 px at pts 2.2333 s, then 0). That is not motion: the visible travel ends at pts 2.233333 s.",
+        "Frame gaps of 0.617 s (0.000 -> 0.617), 0.217 s (0.800 -> 1.017), 0.100 s (1.167 -> 1.267), 0.033 s (1.267 -> 1.300), 0.050 s (1.300 -> 1.350), 0.467 s (1.350 -> 1.817), 0.033 s (2.200 -> 2.233), 0.950 s (2.233 -> 3.183) are VFR holes where the page did not change (or changed too little for mpdecimate), not pauses.",
+        "10 source frames whose CSS state changed were dropped by mpdecimate (source frames [71, 72, 73, 74, 75, 77, 79, 80, 133, 135]); the kept frames around them show the change in larger steps.",
+        "Three unrelated events: reporting them as one stagger group, or giving them delay_ms relative to each other, is wrong (each has delay_ms 0)."
+      ],
+      "verification": [
+        {
+          "check": "kept pts == mpdecimate decisions (+ final frame)",
+          "measured": [
+            0,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            76,
+            78,
+            81,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            134,
+            191
+          ],
+          "expected": [
+            0,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            76,
+            78,
+            81,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            134,
+            191
+          ],
+          "pass": true
+        },
+        {
+          "check": "decoded frame counts (cv2, ffmpeg rgb24, Y plane) == ffprobe pts count",
+          "measured": [
+            52,
+            52,
+            52
+          ],
+          "expected": [
+            52,
+            52,
+            52
+          ],
+          "pass": true
+        },
+        {
+          "check": "container duration (ffprobe format) == source frames / fps (last kept pts + one source frame)",
+          "measured": 3.2,
+          "expected": 3.2,
+          "tolerance": 0.001,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "BT.709 luma: blue vs red (full-range 8-bit levels)",
+          "measured": 0.2274,
+          "expected": 0,
+          "tolerance": 2.0,
+          "unit": "levels",
+          "pass": true
+        },
+        {
+          "check": "BT.601 luma: blue vs red (full-range 8-bit levels)",
+          "measured": 0.209,
+          "expected": 0,
+          "tolerance": 2.0,
+          "unit": "levels",
+          "pass": true
+        },
+        {
+          "check": "chrome background-color vs linear sRGB interpolation (max channel err, all 192 source frames; Chrome reports integer channels, so up to 0.5 is rounding)",
+          "measured": 0.5,
+          "expected": 0,
+          "tolerance": 0.501,
+          "unit": "levels",
+          "pass": true
+        },
+        {
+          "check": "chrome badge scale vs solver (max abs err, all source frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.0001,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "chrome drawer translateY vs solver (max abs err, all source frames)",
+          "measured": 0.0004,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "chrome badge max scale over source frames vs analytic peak",
+          "measured": 1.0978,
+          "expected": 1.0978,
+          "tolerance": 0.002,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=0.6500s button interior RGB (bt709 decode) vs CSS colour",
+          "measured": [
+            59.0,
+            34.0,
+            175.0
+          ],
+          "expected": [
+            59.5,
+            34.8,
+            175.7
+          ],
+          "tolerance": 3.0,
+          "unit": "levels per channel",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=0.7000s button interior RGB (bt709 decode) vs CSS colour",
+          "measured": [
+            80.0,
+            34.0,
+            133.0
+          ],
+          "expected": [
+            79.0,
+            33.5,
+            131.5
+          ],
+          "tolerance": 3.0,
+          "unit": "levels per channel",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=0.7500s button interior RGB (bt709 decode) vs CSS colour",
+          "measured": [
+            98.0,
+            32.0,
+            86.0
+          ],
+          "expected": [
+            98.5,
+            32.2,
+            87.2
+          ],
+          "tolerance": 3.0,
+          "unit": "levels per channel",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=1.3500s button interior RGB (bt709 decode) vs CSS colour",
+          "measured": [
+            118.0,
+            30.0,
+            44.0
+          ],
+          "expected": [
+            118.0,
+            31.0,
+            43.0
+          ],
+          "tolerance": 3.0,
+          "unit": "levels per channel",
+          "pass": true
+        },
+        {
+          "check": "file Y plane: button-interior mean luma range over all frames",
+          "measured": 1.0,
+          "expected": 0,
+          "tolerance": 2.0,
+          "unit": "levels",
+          "pass": true
+        },
+        {
+          "check": "file Y plane: pixels in the button box that differ from frame 0 by > 8 levels (worst frame) stay below the 20 px detector floor",
+          "measured": 0,
+          "expected": "< 20",
+          "pass": true
+        },
+        {
+          "check": "cv2 decode + BGR2GRAY: pixels in the button box that differ from frame 0 by > 8 levels (worst frame) stay below the 20 px detector floor",
+          "measured": 6,
+          "expected": "< 20",
+          "pass": true
+        },
+        {
+          "check": "bt709 rgb decode + BT.601 grey (PIL 'L', ffmpeg->png->cv2 gray): pixels in the button box that differ from frame 0 by > 8 levels (worst frame) stay below the 20 px detector floor",
+          "measured": 9,
+          "expected": "< 20",
+          "pass": true
+        },
+        {
+          "check": "bt709 rgb decode + BT.709 grey: pixels in the button box that differ from frame 0 by > 8 levels (worst frame) stay below the 20 px detector floor",
+          "measured": 0,
+          "expected": "< 20",
+          "pass": true
+        },
+        {
+          "check": "colour change is visible to a max-channel BGR diff but to no luma/grey diff (consecutive frames, > 8 levels, >= 20 px)",
+          "measured": {
+            "bgr_max_channel": true,
+            "file_Y": false,
+            "cv2_gray": false
+          },
+          "expected": {
+            "bgr_max_channel": true,
+            "file_Y": false,
+            "cv2_gray": false
+          },
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=1.0667s badge scale by least-squares fit about its centre (luma)",
+          "measured": 0.6735,
+          "expected": 0.6788,
+          "tolerance": 0.03,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=1.1333s badge scale by least-squares fit about its centre (luma)",
+          "measured": 1.0095,
+          "expected": 1.0124,
+          "tolerance": 0.03,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=1.1667s badge scale by least-squares fit about its centre (luma)",
+          "measured": 1.0775,
+          "expected": 1.0788,
+          "tolerance": 0.03,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=1.2667s badge scale by least-squares fit about its centre (luma)",
+          "measured": 1.054,
+          "expected": 1.0556,
+          "tolerance": 0.03,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "badge overshoot: largest fitted scale (kept frame pts=1.1667s) vs CSS at that pts",
+          "measured": 1.0775,
+          "expected": 1.0788,
+          "tolerance": 0.03,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "badge overshoot is visible in the file: largest fitted scale > 1.05",
+          "measured": 1.0775,
+          "expected": "> 1.05",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=1.8333s drawer translateY by shift fit (luma)",
+          "measured": 243.08,
+          "expected": 243.2783,
+          "tolerance": 0.5,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=1.9000s drawer translateY by shift fit (luma)",
+          "measured": 84.0,
+          "expected": 83.9003,
+          "tolerance": 0.5,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=2.0000s drawer translateY by shift fit (luma)",
+          "measured": 18.94,
+          "expected": 18.8289,
+          "tolerance": 0.5,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=2.1167s drawer translateY by shift fit (luma)",
+          "measured": 3.16,
+          "expected": 3.4247,
+          "tolerance": 0.5,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "positive control: the same luma-only detectors DO see the badge and the drawer",
+          "measured": {
+            "badge": true,
+            "drawer": true,
+            "badge_cv2_gray": true
+          },
+          "expected": {
+            "badge": true,
+            "drawer": true,
+            "badge_cv2_gray": true
+          },
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "h3_lecture10_ko.mp4",
+      "kind": "lecture (Korean)",
+      "container": {
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "duration_s": 600.0,
+        "size_bytes": 3180066,
+        "video": {
+          "codec": "h264",
+          "profile": "High",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "time_base": "1/15360",
+          "nb_frames": 18000,
+          "color_space": "bt709",
+          "first_pts_s": 0.0,
+          "last_pts_s": 599.966667
+        },
+        "audio": {
+          "codec": "aac",
+          "sample_rate": 48000,
+          "channels": 1,
+          "duration_s": 600.0,
+          "start_time_s": 0.0
+        }
+      },
+      "summary": "Ten-minute Korean lecture on web performance: 24 static slides (Korean title, one English line, footer 'n / 24'), hard cuts at irregular times, Korean narration (macOS voice Yuna) of 1-2 sentences per slide starting 0.3-1.0 s after each cut, with long silences on several slides.",
+      "scenes": [
+        {
+          "index": 1,
+          "start_s": 0.0,
+          "end_s": 21.8,
+          "start_frame": 0,
+          "end_frame_exclusive": 654,
+          "accent_bar_color": "#4c6ef5"
+        },
+        {
+          "index": 2,
+          "start_s": 21.8,
+          "end_s": 37.733,
+          "start_frame": 654,
+          "end_frame_exclusive": 1132,
+          "accent_bar_color": "#12b76a"
+        },
+        {
+          "index": 3,
+          "start_s": 37.733,
+          "end_s": 51.733,
+          "start_frame": 1132,
+          "end_frame_exclusive": 1552,
+          "accent_bar_color": "#f79009"
+        },
+        {
+          "index": 4,
+          "start_s": 51.733,
+          "end_s": 100.467,
+          "start_frame": 1552,
+          "end_frame_exclusive": 3014,
+          "accent_bar_color": "#ee46bc"
+        },
+        {
+          "index": 5,
+          "start_s": 100.467,
+          "end_s": 116.2,
+          "start_frame": 3014,
+          "end_frame_exclusive": 3486,
+          "accent_bar_color": "#7a5af8"
+        },
+        {
+          "index": 6,
+          "start_s": 116.2,
+          "end_s": 130.367,
+          "start_frame": 3486,
+          "end_frame_exclusive": 3911,
+          "accent_bar_color": "#0ba5ec"
+        },
+        {
+          "index": 7,
+          "start_s": 130.367,
+          "end_s": 145.167,
+          "start_frame": 3911,
+          "end_frame_exclusive": 4355,
+          "accent_bar_color": "#4c6ef5"
+        },
+        {
+          "index": 8,
+          "start_s": 145.167,
+          "end_s": 164.967,
+          "start_frame": 4355,
+          "end_frame_exclusive": 4949,
+          "accent_bar_color": "#12b76a"
+        },
+        {
+          "index": 9,
+          "start_s": 164.967,
+          "end_s": 224.467,
+          "start_frame": 4949,
+          "end_frame_exclusive": 6734,
+          "accent_bar_color": "#f79009"
+        },
+        {
+          "index": 10,
+          "start_s": 224.467,
+          "end_s": 237.433,
+          "start_frame": 6734,
+          "end_frame_exclusive": 7123,
+          "accent_bar_color": "#ee46bc"
+        },
+        {
+          "index": 11,
+          "start_s": 237.433,
+          "end_s": 253.233,
+          "start_frame": 7123,
+          "end_frame_exclusive": 7597,
+          "accent_bar_color": "#7a5af8"
+        },
+        {
+          "index": 12,
+          "start_s": 253.233,
+          "end_s": 265.467,
+          "start_frame": 7597,
+          "end_frame_exclusive": 7964,
+          "accent_bar_color": "#0ba5ec"
+        },
+        {
+          "index": 13,
+          "start_s": 265.467,
+          "end_s": 333.233,
+          "start_frame": 7964,
+          "end_frame_exclusive": 9997,
+          "accent_bar_color": "#4c6ef5"
+        },
+        {
+          "index": 14,
+          "start_s": 333.233,
+          "end_s": 357.367,
+          "start_frame": 9997,
+          "end_frame_exclusive": 10721,
+          "accent_bar_color": "#12b76a"
+        },
+        {
+          "index": 15,
+          "start_s": 357.367,
+          "end_s": 375.6,
+          "start_frame": 10721,
+          "end_frame_exclusive": 11268,
+          "accent_bar_color": "#f79009"
+        },
+        {
+          "index": 16,
+          "start_s": 375.6,
+          "end_s": 396.933,
+          "start_frame": 11268,
+          "end_frame_exclusive": 11908,
+          "accent_bar_color": "#ee46bc"
+        },
+        {
+          "index": 17,
+          "start_s": 396.933,
+          "end_s": 413.1,
+          "start_frame": 11908,
+          "end_frame_exclusive": 12393,
+          "accent_bar_color": "#7a5af8"
+        },
+        {
+          "index": 18,
+          "start_s": 413.1,
+          "end_s": 472.8,
+          "start_frame": 12393,
+          "end_frame_exclusive": 14184,
+          "accent_bar_color": "#0ba5ec"
+        },
+        {
+          "index": 19,
+          "start_s": 472.8,
+          "end_s": 483.8,
+          "start_frame": 14184,
+          "end_frame_exclusive": 14514,
+          "accent_bar_color": "#4c6ef5"
+        },
+        {
+          "index": 20,
+          "start_s": 483.8,
+          "end_s": 496.5,
+          "start_frame": 14514,
+          "end_frame_exclusive": 14895,
+          "accent_bar_color": "#12b76a"
+        },
+        {
+          "index": 21,
+          "start_s": 496.5,
+          "end_s": 515.267,
+          "start_frame": 14895,
+          "end_frame_exclusive": 15458,
+          "accent_bar_color": "#f79009"
+        },
+        {
+          "index": 22,
+          "start_s": 515.267,
+          "end_s": 578.533,
+          "start_frame": 15458,
+          "end_frame_exclusive": 17356,
+          "accent_bar_color": "#ee46bc"
+        },
+        {
+          "index": 23,
+          "start_s": 578.533,
+          "end_s": 589.8,
+          "start_frame": 17356,
+          "end_frame_exclusive": 17694,
+          "accent_bar_color": "#7a5af8"
+        },
+        {
+          "index": 24,
+          "start_s": 589.8,
+          "end_s": 600.0,
+          "start_frame": 17694,
+          "end_frame_exclusive": 18000,
+          "accent_bar_color": "#0ba5ec"
+        }
+      ],
+      "cuts_s": [
+        21.8,
+        37.733,
+        51.733,
+        100.467,
+        116.2,
+        130.367,
+        145.167,
+        164.967,
+        224.467,
+        237.433,
+        253.233,
+        265.467,
+        333.233,
+        357.367,
+        375.6,
+        396.933,
+        413.1,
+        472.8,
+        483.8,
+        496.5,
+        515.267,
+        578.533,
+        589.8
+      ],
+      "cut_frames": [
+        654,
+        1132,
+        1552,
+        3014,
+        3486,
+        3911,
+        4355,
+        4949,
+        6734,
+        7123,
+        7597,
+        7964,
+        9997,
+        10721,
+        11268,
+        11908,
+        12393,
+        14184,
+        14514,
+        14895,
+        15458,
+        17356,
+        17694
+      ],
+      "transition": "hard cut (no fade)",
+      "text": [
+        {
+          "slide": 1,
+          "title_ko": "웹 성능, 왜 중요한가",
+          "line_en": "Why web performance matters",
+          "footer": "1 / 24",
+          "visible_s": [
+            0.0,
+            21.8
+          ]
+        },
+        {
+          "slide": 2,
+          "title_ko": "렌더링 파이프라인",
+          "line_en": "The rendering pipeline",
+          "footer": "2 / 24",
+          "visible_s": [
+            21.8,
+            37.733
+          ]
+        },
+        {
+          "slide": 3,
+          "title_ko": "프레임 예산 16.7밀리초",
+          "line_en": "A 16.7 ms frame budget",
+          "footer": "3 / 24",
+          "visible_s": [
+            37.733,
+            51.733
+          ]
+        },
+        {
+          "slide": 4,
+          "title_ko": "메인 스레드를 막는 작업",
+          "line_en": "Long tasks block the main thread",
+          "footer": "4 / 24",
+          "visible_s": [
+            51.733,
+            100.467
+          ]
+        },
+        {
+          "slide": 5,
+          "title_ko": "핵심 웹 지표 세 가지",
+          "line_en": "Three Core Web Vitals",
+          "footer": "5 / 24",
+          "visible_s": [
+            100.467,
+            116.2
+          ]
+        },
+        {
+          "slide": 6,
+          "title_ko": "가장 큰 콘텐츠 표시 시간",
+          "line_en": "Largest Contentful Paint",
+          "footer": "6 / 24",
+          "visible_s": [
+            116.2,
+            130.367
+          ]
+        },
+        {
+          "slide": 7,
+          "title_ko": "다음 페인트까지의 상호작용",
+          "line_en": "Interaction to Next Paint",
+          "footer": "7 / 24",
+          "visible_s": [
+            130.367,
+            145.167
+          ]
+        },
+        {
+          "slide": 8,
+          "title_ko": "누적 레이아웃 이동",
+          "line_en": "Cumulative Layout Shift",
+          "footer": "8 / 24",
+          "visible_s": [
+            145.167,
+            164.967
+          ]
+        },
+        {
+          "slide": 9,
+          "title_ko": "측정 도구 고르기",
+          "line_en": "Choosing a measurement tool",
+          "footer": "9 / 24",
+          "visible_s": [
+            164.967,
+            224.467
+          ]
+        },
+        {
+          "slide": 10,
+          "title_ko": "네트워크 요청 줄이기",
+          "line_en": "Fewer network requests",
+          "footer": "10 / 24",
+          "visible_s": [
+            224.467,
+            237.433
+          ]
+        },
+        {
+          "slide": 11,
+          "title_ko": "이미지 최적화",
+          "line_en": "Optimizing images",
+          "footer": "11 / 24",
+          "visible_s": [
+            237.433,
+            253.233
+          ]
+        },
+        {
+          "slide": 12,
+          "title_ko": "지연 로딩",
+          "line_en": "Lazy loading below the fold",
+          "footer": "12 / 24",
+          "visible_s": [
+            253.233,
+            265.467
+          ]
+        },
+        {
+          "slide": 13,
+          "title_ko": "자바스크립트 번들 나누기",
+          "line_en": "Splitting the JavaScript bundle",
+          "footer": "13 / 24",
+          "visible_s": [
+            265.467,
+            333.233
+          ]
+        },
+        {
+          "slide": 14,
+          "title_ko": "캐시 전략",
+          "line_en": "Caching strategy",
+          "footer": "14 / 24",
+          "visible_s": [
+            333.233,
+            357.367
+          ]
+        },
+        {
+          "slide": 15,
+          "title_ko": "CDN과 지연 시간",
+          "line_en": "CDNs and latency",
+          "footer": "15 / 24",
+          "visible_s": [
+            357.367,
+            375.6
+          ]
+        },
+        {
+          "slide": 16,
+          "title_ko": "폰트 로딩",
+          "line_en": "Loading web fonts",
+          "footer": "16 / 24",
+          "visible_s": [
+            375.6,
+            396.933
+          ]
+        },
+        {
+          "slide": 17,
+          "title_ko": "애니메이션 성능",
+          "line_en": "Animation performance",
+          "footer": "17 / 24",
+          "visible_s": [
+            396.933,
+            413.1
+          ]
+        },
+        {
+          "slide": 18,
+          "title_ko": "레이아웃 스래싱 피하기",
+          "line_en": "Avoiding layout thrashing",
+          "footer": "18 / 24",
+          "visible_s": [
+            413.1,
+            472.8
+          ]
+        },
+        {
+          "slide": 19,
+          "title_ko": "서버 응답 시간",
+          "line_en": "Time to First Byte",
+          "footer": "19 / 24",
+          "visible_s": [
+            472.8,
+            483.8
+          ]
+        },
+        {
+          "slide": 20,
+          "title_ko": "중급 휴대폰을 가정하기",
+          "line_en": "Assume a mid-range phone",
+          "footer": "20 / 24",
+          "visible_s": [
+            483.8,
+            496.5
+          ]
+        },
+        {
+          "slide": 21,
+          "title_ko": "성능 예산 세우기",
+          "line_en": "Setting a performance budget",
+          "footer": "21 / 24",
+          "visible_s": [
+            496.5,
+            515.267
+          ]
+        },
+        {
+          "slide": 22,
+          "title_ko": "회귀 막기",
+          "line_en": "Catching regressions",
+          "footer": "22 / 24",
+          "visible_s": [
+            515.267,
+            578.533
+          ]
+        },
+        {
+          "slide": 23,
+          "title_ko": "사례: 3초에서 1.2초로",
+          "line_en": "Case study: from 3 s to 1.2 s",
+          "footer": "23 / 24",
+          "visible_s": [
+            578.533,
+            589.8
+          ]
+        },
+        {
+          "slide": 24,
+          "title_ko": "정리와 다음 단계",
+          "line_en": "Summary and next steps",
+          "footer": "24 / 24",
+          "visible_s": [
+            589.8,
+            600.0
+          ]
+        }
+      ],
+      "narration": [
+        {
+          "slide": 1,
+          "text": "페이지 로딩이 1초 늦어질 때마다 전환율이 약 7퍼센트 떨어진다는 조사가 있습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 0.37,
+          "end_s": 6.08,
+          "duration_s": 5.71,
+          "placed_start_s": 0.37,
+          "placed_end_s": 6.081,
+          "offset_after_cut_s": 0.37,
+          "silence_after_s": 15.72
+        },
+        {
+          "slide": 2,
+          "text": "브라우저는 HTML을 파싱해 DOM을 만들고, 스타일 계산과 레이아웃을 거쳐 화면에 픽셀을 그립니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 22.38,
+          "end_s": 29.65,
+          "duration_s": 7.27,
+          "placed_start_s": 22.38,
+          "placed_end_s": 29.649,
+          "offset_after_cut_s": 0.58,
+          "silence_after_s": 8.083
+        },
+        {
+          "slide": 3,
+          "text": "초당 60 프레임을 유지하려면 한 프레임을 16.7밀리초 안에 끝내야 합니다. 실제로 스크립트에 쓸 수 있는 시간은 10밀리초 정도입니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 38.07,
+          "end_s": 47.71,
+          "duration_s": 9.64,
+          "placed_start_s": 38.063,
+          "placed_end_s": 47.714,
+          "offset_after_cut_s": 0.33,
+          "silence_after_s": 4.023
+        },
+        {
+          "slide": 4,
+          "text": "50밀리초가 넘는 작업을 long task라고 부르며, 그동안에는 클릭에 반응할 수 없습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 52.66,
+          "end_s": 58.69,
+          "duration_s": 6.03,
+          "placed_start_s": 52.663,
+          "placed_end_s": 58.685,
+          "offset_after_cut_s": 0.93,
+          "silence_after_s": 41.777
+        },
+        {
+          "slide": 5,
+          "text": "Core Web Vitals는 LCP, INP, CLS 세 가지 지표로 사용자 경험을 요약합니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 100.78,
+          "end_s": 107.52,
+          "duration_s": 6.74,
+          "placed_start_s": 100.787,
+          "placed_end_s": 107.517,
+          "offset_after_cut_s": 0.32,
+          "silence_after_s": 8.68
+        },
+        {
+          "slide": 6,
+          "text": "LCP는 2.5초 이내면 좋음, 4초를 넘으면 나쁨으로 분류됩니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 117.13,
+          "end_s": 122.29,
+          "duration_s": 5.16,
+          "placed_start_s": 117.13,
+          "placed_end_s": 122.297,
+          "offset_after_cut_s": 0.93,
+          "silence_after_s": 8.077
+        },
+        {
+          "slide": 7,
+          "text": "INP는 사용자의 입력부터 다음 화면 갱신까지 걸린 시간이며, 200밀리초 이하를 목표로 합니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 131.19,
+          "end_s": 138.36,
+          "duration_s": 7.17,
+          "placed_start_s": 131.187,
+          "placed_end_s": 138.357,
+          "offset_after_cut_s": 0.82,
+          "silence_after_s": 6.807
+        },
+        {
+          "slide": 8,
+          "text": "CLS 점수는 0.1 이하로 유지해야 합니다. 이미지에 width와 height를 지정하는 것만으로도 크게 줄어듭니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 145.77,
+          "end_s": 153.32,
+          "duration_s": 7.55,
+          "placed_start_s": 145.777,
+          "placed_end_s": 153.322,
+          "offset_after_cut_s": 0.61,
+          "silence_after_s": 11.647
+        },
+        {
+          "slide": 9,
+          "text": "실험실 측정에는 Lighthouse를, 실제 사용자 데이터에는 RUM 도구를 씁니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 165.89,
+          "end_s": 171.23,
+          "duration_s": 5.34,
+          "placed_start_s": 165.887,
+          "placed_end_s": 171.227,
+          "offset_after_cut_s": 0.92,
+          "silence_after_s": 53.237
+        },
+        {
+          "slide": 10,
+          "text": "첫 화면에 필요한 요청이 30개를 넘으면 연결을 재사용해도 대기 시간이 쌓입니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 224.93,
+          "end_s": 230.47,
+          "duration_s": 5.54,
+          "placed_start_s": 224.927,
+          "placed_end_s": 230.471,
+          "offset_after_cut_s": 0.46,
+          "silence_after_s": 6.963
+        },
+        {
+          "slide": 11,
+          "text": "같은 사진이라도 AVIF로 바꾸면 JPEG보다 용량이 절반 가까이 줄어듭니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 238.37,
+          "end_s": 243.75,
+          "duration_s": 5.38,
+          "placed_start_s": 238.373,
+          "placed_end_s": 243.76,
+          "offset_after_cut_s": 0.94,
+          "silence_after_s": 9.483
+        },
+        {
+          "slide": 12,
+          "text": "화면 아래쪽 이미지는 loading 속성을 lazy로 지정해 나중에 불러옵니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 254.19,
+          "end_s": 258.74,
+          "duration_s": 4.55,
+          "placed_start_s": 254.183,
+          "placed_end_s": 258.745,
+          "offset_after_cut_s": 0.95,
+          "silence_after_s": 6.727
+        },
+        {
+          "slide": 13,
+          "text": "번들 크기가 300킬로바이트를 넘으면 코드 분할을 검토하세요. 경로별로 나누면 첫 로딩이 가벼워집니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 266.29,
+          "end_s": 273.9,
+          "duration_s": 7.61,
+          "placed_start_s": 266.287,
+          "placed_end_s": 273.902,
+          "offset_after_cut_s": 0.82,
+          "silence_after_s": 59.333
+        },
+        {
+          "slide": 14,
+          "text": "정적 파일에는 1년짜리 Cache-Control 헤더를 붙이고, 파일 이름에 해시를 넣어 갱신합니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 333.99,
+          "end_s": 340.0,
+          "duration_s": 6.01,
+          "placed_start_s": 333.993,
+          "placed_end_s": 339.999,
+          "offset_after_cut_s": 0.76,
+          "silence_after_s": 17.367
+        },
+        {
+          "slide": 15,
+          "text": "서울에서 미국 서부까지 왕복 시간은 약 130밀리초이므로, 가까운 CDN 엣지 서버가 필요합니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 357.77,
+          "end_s": 364.92,
+          "duration_s": 7.15,
+          "placed_start_s": 357.767,
+          "placed_end_s": 364.914,
+          "offset_after_cut_s": 0.4,
+          "silence_after_s": 10.68
+        },
+        {
+          "slide": 16,
+          "text": "font-display를 swap으로 두면 글꼴이 늦게 도착해도 글자가 먼저 보입니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 376.32,
+          "end_s": 381.69,
+          "duration_s": 5.37,
+          "placed_start_s": 376.32,
+          "placed_end_s": 381.689,
+          "offset_after_cut_s": 0.72,
+          "silence_after_s": 15.243
+        },
+        {
+          "slide": 17,
+          "text": "transform과 opacity만 움직이면 레이아웃을 다시 계산하지 않아서 부드럽습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 397.79,
+          "end_s": 403.33,
+          "duration_s": 5.54,
+          "placed_start_s": 397.793,
+          "placed_end_s": 403.331,
+          "offset_after_cut_s": 0.86,
+          "silence_after_s": 9.77
+        },
+        {
+          "slide": 18,
+          "text": "읽기와 쓰기를 번갈아 하면 브라우저가 한 프레임에 레이아웃을 여러 번 계산합니다. 읽기를 먼저 모아서 처리하세요.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 414.07,
+          "end_s": 421.67,
+          "duration_s": 7.6,
+          "placed_start_s": 414.07,
+          "placed_end_s": 421.664,
+          "offset_after_cut_s": 0.97,
+          "silence_after_s": 51.13
+        },
+        {
+          "slide": 19,
+          "text": "TTFB가 800밀리초를 넘으면 나머지 최적화의 효과가 크게 줄어듭니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 473.7,
+          "end_s": 479.3,
+          "duration_s": 5.6,
+          "placed_start_s": 473.7,
+          "placed_end_s": 479.294,
+          "offset_after_cut_s": 0.9,
+          "silence_after_s": 4.5
+        },
+        {
+          "slide": 20,
+          "text": "테스트할 때는 CPU를 4배 느리게 하고, 네트워크 속도도 함께 제한해 보세요.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 484.25,
+          "end_s": 489.9,
+          "duration_s": 5.65,
+          "placed_start_s": 484.25,
+          "placed_end_s": 489.897,
+          "offset_after_cut_s": 0.45,
+          "silence_after_s": 6.6
+        },
+        {
+          "slide": 21,
+          "text": "LCP 2초, 번들 200킬로바이트처럼 팀이 합의한 예산을 CI에서 자동으로 검사합니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 497.46,
+          "end_s": 503.51,
+          "duration_s": 6.05,
+          "placed_start_s": 497.46,
+          "placed_end_s": 503.511,
+          "offset_after_cut_s": 0.96,
+          "silence_after_s": 11.757
+        },
+        {
+          "slide": 22,
+          "text": "배포할 때마다 지표를 기록하면 어느 커밋에서 느려졌는지 바로 찾을 수 있습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 515.72,
+          "end_s": 521.23,
+          "duration_s": 5.51,
+          "placed_start_s": 515.727,
+          "placed_end_s": 521.239,
+          "offset_after_cut_s": 0.46,
+          "silence_after_s": 57.303
+        },
+        {
+          "slide": 23,
+          "text": "한 쇼핑몰은 이미지와 폰트만 손봐서 LCP를 3초에서 1.2초로 줄였습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 579.24,
+          "end_s": 584.99,
+          "duration_s": 5.75,
+          "placed_start_s": 579.243,
+          "placed_end_s": 584.995,
+          "offset_after_cut_s": 0.71,
+          "silence_after_s": 4.81
+        },
+        {
+          "slide": 24,
+          "text": "오늘 내용 중 세 가지만 기억하세요. 먼저 측정하고, 예산을 세우고, 회귀를 막는 것입니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 590.29,
+          "end_s": 597.04,
+          "duration_s": 6.75,
+          "placed_start_s": 590.29,
+          "placed_end_s": 597.035,
+          "offset_after_cut_s": 0.49,
+          "silence_after_s": 2.96
+        }
+      ],
+      "audio": {
+        "sample_rate": 48000,
+        "channels": 1,
+        "codec": "aac 64 kb/s mono",
+        "speech_detector": "10 ms RMS windows above -45 dBFS on the decoded mp4 audio; start = first active window in the slide, end = end of the last active window in the slide",
+        "ffmpeg_silencedetect_-45dB_0.4s": [
+          [
+            6.081,
+            22.38
+          ],
+          [
+            29.649,
+            38.063
+          ],
+          [
+            47.714,
+            52.663
+          ],
+          [
+            58.685,
+            100.787
+          ],
+          [
+            107.517,
+            117.13
+          ],
+          [
+            122.297,
+            131.187
+          ],
+          [
+            138.357,
+            145.777
+          ],
+          [
+            153.322,
+            165.887
+          ],
+          [
+            171.227,
+            224.927
+          ],
+          [
+            230.471,
+            238.373
+          ],
+          [
+            243.76,
+            254.183
+          ],
+          [
+            258.745,
+            266.287
+          ],
+          [
+            273.902,
+            333.993
+          ],
+          [
+            339.999,
+            357.767
+          ],
+          [
+            364.914,
+            376.32
+          ],
+          [
+            381.689,
+            397.793
+          ],
+          [
+            403.331,
+            414.07
+          ],
+          [
+            421.664,
+            473.7
+          ],
+          [
+            479.294,
+            484.25
+          ],
+          [
+            489.897,
+            497.46
+          ],
+          [
+            503.511,
+            515.727
+          ],
+          [
+            521.239,
+            579.243
+          ],
+          [
+            584.995,
+            590.29
+          ],
+          [
+            597.035,
+            600.0
+          ]
+        ]
+      },
+      "events": [],
+      "distractors": [],
+      "traps": [
+        "Cut times are irregular and not on whole seconds; sampling one frame per second (or per N seconds) places a cut only to within that interval (scoring needs +-1 frame = 33 ms).",
+        "Slide durations range from 10.2 s to 67.8 s; the longest silences follow slides 13 (59.3 s), 22 (57.3 s), 9 (53.2 s), 18 (51.1 s), 4 (41.8 s). A transcript aligned by 'one sentence per N seconds' drifts.",
+        "Each narration is a different text from its slide title; numbers (16.7, 2.5, 0.1, 300 ...) and English terms (LCP, INP, CLS, Lighthouse, Cache-Control, TTFB ...) are written in the script as digits/Latin; ASR may spell them in Hangul, which costs character error rate against this script.",
+        "Several narrations contain two sentences with a pause between them: they are one entry per slide.",
+        "No motion between cuts: slides are fully static, so no animation events should be reported.",
+        "x264 noise after I-frames changes a few title-glyph pixels between identical source frames in 1 frames (largest: frame 10364 (39 px, max 16)). A detector at 8 levels / 20 px sees these as tiny events; they are codec noise."
+      ],
+      "verification": [
+        {
+          "check": "frame count, CFR 30 fps, duration",
+          "measured": [
+            18000,
+            "30/1",
+            "30/1",
+            600.0
+          ],
+          "expected": [
+            18000,
+            "30/1",
+            "30/1",
+            600.0
+          ],
+          "pass": true
+        },
+        {
+          "check": "audio stream AAC, 600 s",
+          "measured": [
+            "aac",
+            600.0
+          ],
+          "expected": [
+            "aac",
+            600.0
+          ],
+          "pass": true
+        },
+        {
+          "check": "file size (bytes) stays small",
+          "measured": 3180066,
+          "expected": "< 12 MB",
+          "pass": true
+        },
+        {
+          "check": "hard cuts found by consecutive-frame mean abs diff > 1.0 (all 18000 decoded frames)",
+          "measured": [
+            654,
+            1132,
+            1552,
+            3014,
+            3486,
+            3911,
+            4355,
+            4949,
+            6734,
+            7123,
+            7597,
+            7964,
+            9997,
+            10721,
+            11268,
+            11908,
+            12393,
+            14184,
+            14514,
+            14895,
+            15458,
+            17356,
+            17694
+          ],
+          "expected": [
+            654,
+            1132,
+            1552,
+            3014,
+            3486,
+            3911,
+            4355,
+            4949,
+            6734,
+            7123,
+            7597,
+            7964,
+            9997,
+            10721,
+            11268,
+            11908,
+            12393,
+            14184,
+            14514,
+            14895,
+            15458,
+            17356,
+            17694
+          ],
+          "pass": true,
+          "min_diff_at_cuts": 1.9776,
+          "max_diff_outside_cuts": 0.0504
+        },
+        {
+          "check": "slide 1 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 0.37,
+          "expected": 0.37,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 1 narration end (decoded) vs placement",
+          "measured": 6.08,
+          "expected": 6.0809,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 2 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 22.38,
+          "expected": 22.38,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 2 narration end (decoded) vs placement",
+          "measured": 29.65,
+          "expected": 29.6488,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 3 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 38.07,
+          "expected": 38.0633,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 3 narration end (decoded) vs placement",
+          "measured": 47.71,
+          "expected": 47.7136,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 4 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 52.66,
+          "expected": 52.6633,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 4 narration end (decoded) vs placement",
+          "measured": 58.69,
+          "expected": 58.6851,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 5 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 100.78,
+          "expected": 100.7867,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 5 narration end (decoded) vs placement",
+          "measured": 107.52,
+          "expected": 107.517,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 6 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 117.13,
+          "expected": 117.13,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 6 narration end (decoded) vs placement",
+          "measured": 122.29,
+          "expected": 122.2971,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 7 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 131.19,
+          "expected": 131.1867,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 7 narration end (decoded) vs placement",
+          "measured": 138.36,
+          "expected": 138.3574,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 8 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 145.77,
+          "expected": 145.7767,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 8 narration end (decoded) vs placement",
+          "measured": 153.32,
+          "expected": 153.3225,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 9 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 165.89,
+          "expected": 165.8867,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 9 narration end (decoded) vs placement",
+          "measured": 171.23,
+          "expected": 171.2274,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 10 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 224.93,
+          "expected": 224.9267,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 10 narration end (decoded) vs placement",
+          "measured": 230.47,
+          "expected": 230.4709,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 11 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 238.37,
+          "expected": 238.3733,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 11 narration end (decoded) vs placement",
+          "measured": 243.75,
+          "expected": 243.7602,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 12 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 254.19,
+          "expected": 254.1833,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 12 narration end (decoded) vs placement",
+          "measured": 258.74,
+          "expected": 258.7453,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 13 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 266.29,
+          "expected": 266.2867,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 13 narration end (decoded) vs placement",
+          "measured": 273.9,
+          "expected": 273.9018,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 14 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 333.99,
+          "expected": 333.9933,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 14 narration end (decoded) vs placement",
+          "measured": 340.0,
+          "expected": 339.9991,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 15 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 357.77,
+          "expected": 357.7667,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 15 narration end (decoded) vs placement",
+          "measured": 364.92,
+          "expected": 364.914,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 16 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 376.32,
+          "expected": 376.32,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 16 narration end (decoded) vs placement",
+          "measured": 381.69,
+          "expected": 381.6892,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 17 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 397.79,
+          "expected": 397.7933,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 17 narration end (decoded) vs placement",
+          "measured": 403.33,
+          "expected": 403.3309,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 18 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 414.07,
+          "expected": 414.07,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 18 narration end (decoded) vs placement",
+          "measured": 421.67,
+          "expected": 421.6639,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 19 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 473.7,
+          "expected": 473.7,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 19 narration end (decoded) vs placement",
+          "measured": 479.3,
+          "expected": 479.2942,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 20 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 484.25,
+          "expected": 484.25,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 20 narration end (decoded) vs placement",
+          "measured": 489.9,
+          "expected": 489.8967,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 21 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 497.46,
+          "expected": 497.46,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 21 narration end (decoded) vs placement",
+          "measured": 503.51,
+          "expected": 503.5107,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 22 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 515.72,
+          "expected": 515.7267,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 22 narration end (decoded) vs placement",
+          "measured": 521.23,
+          "expected": 521.2393,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 23 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 579.24,
+          "expected": 579.2433,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 23 narration end (decoded) vs placement",
+          "measured": 584.99,
+          "expected": 584.9952,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 24 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 590.29,
+          "expected": 590.29,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 24 narration end (decoded) vs placement",
+          "measured": 597.04,
+          "expected": 597.0352,
+          "tolerance": 0.03,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "every narration starts 0.3-1.0 s after its cut (measured)",
+          "measured": [
+            0.37,
+            0.58,
+            0.337,
+            0.927,
+            0.313,
+            0.93,
+            0.823,
+            0.603,
+            0.923,
+            0.463,
+            0.937,
+            0.957,
+            0.823,
+            0.757,
+            0.403,
+            0.72,
+            0.857,
+            0.97,
+            0.9,
+            0.45,
+            0.96,
+            0.453,
+            0.707,
+            0.49
+          ],
+          "expected": "[0.29, 1.01]",
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_01.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "웹 성능, 왜 중요한가",
+            "Why web performance matters",
+            "1/ 24"
+          ],
+          "expected": [
+            "웹 성능, 왜 중요한가",
+            "Why web performance matters",
+            "1 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_02.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "렌더링 파이프라인",
+            "The rendering pipeline",
+            "2 / 24"
+          ],
+          "expected": [
+            "렌더링 파이프라인",
+            "The rendering pipeline",
+            "2 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_03.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "프레임 예산 16.7밀리초",
+            "A 16.7 ms frame budget",
+            "3/ 24"
+          ],
+          "expected": [
+            "프레임 예산 16.7밀리초",
+            "A 16.7 ms frame budget",
+            "3 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_04.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "메인 스레드를 막는 작업",
+            "Long tasks block the main thread",
+            "4 / 24"
+          ],
+          "expected": [
+            "메인 스레드를 막는 작업",
+            "Long tasks block the main thread",
+            "4 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_05.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "핵심 웹 지표 세 가지",
+            "Three Core Web Vitals",
+            "5 / 24"
+          ],
+          "expected": [
+            "핵심 웹 지표 세 가지",
+            "Three Core Web Vitals",
+            "5 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_06.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "가장 큰 콘텐츠 표시 시간",
+            "Largest Contentful Paint",
+            "6 / 24"
+          ],
+          "expected": [
+            "가장 큰 콘텐츠 표시 시간",
+            "Largest Contentful Paint",
+            "6 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_07.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "다음 페인트까지의 상호작용",
+            "Interaction to Next Paint",
+            "7/ 24"
+          ],
+          "expected": [
+            "다음 페인트까지의 상호작용",
+            "Interaction to Next Paint",
+            "7 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_08.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "누적 레이아웃 이동",
+            "Cumulative Layout Shift",
+            "8/ 24"
+          ],
+          "expected": [
+            "누적 레이아웃 이동",
+            "Cumulative Layout Shift",
+            "8 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_09.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "측정 도구 고르기",
+            "Choosing a measurement tool",
+            "9 / 24"
+          ],
+          "expected": [
+            "측정 도구 고르기",
+            "Choosing a measurement tool",
+            "9 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_10.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "네트워크 요청 줄이기",
+            "Fewer network requests",
+            "10 / 24"
+          ],
+          "expected": [
+            "네트워크 요청 줄이기",
+            "Fewer network requests",
+            "10 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_11.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "이미지 최적화",
+            "Optimizing images",
+            "11/ 24"
+          ],
+          "expected": [
+            "이미지 최적화",
+            "Optimizing images",
+            "11 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_12.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "지연 로딩",
+            "Lazy loading below the fold",
+            "12 / 24"
+          ],
+          "expected": [
+            "지연 로딩",
+            "Lazy loading below the fold",
+            "12 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_13.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "자바스크립트 번들 나누기",
+            "Splitting the JavaScript bundle",
+            "13 / 24"
+          ],
+          "expected": [
+            "자바스크립트 번들 나누기",
+            "Splitting the JavaScript bundle",
+            "13 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_14.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "캐시 전략",
+            "Caching strategy",
+            "14 / 24"
+          ],
+          "expected": [
+            "캐시 전략",
+            "Caching strategy",
+            "14 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_15.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "CDN과 지연 시간",
+            "CDNs and latency",
+            "15 / 24"
+          ],
+          "expected": [
+            "CDN과 지연 시간",
+            "CDNs and latency",
+            "15 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_16.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "폰트 로딩",
+            "Loading web fonts",
+            "16 / 24"
+          ],
+          "expected": [
+            "폰트 로딩",
+            "Loading web fonts",
+            "16 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_17.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "애니메이션 성능",
+            "Animation performance",
+            "17 / 24"
+          ],
+          "expected": [
+            "애니메이션 성능",
+            "Animation performance",
+            "17 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_18.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "레이아웃 스래싱 피하기",
+            "Avoiding layout thrashing",
+            "18 / 24"
+          ],
+          "expected": [
+            "레이아웃 스래싱 피하기",
+            "Avoiding layout thrashing",
+            "18 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_19.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "서버 응답 시간",
+            "Time to First Byte",
+            "19/ 24"
+          ],
+          "expected": [
+            "서버 응답 시간",
+            "Time to First Byte",
+            "19 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_20.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "중급 휴대폰을 가정하기",
+            "Assume a mid-range phone",
+            "20 / 24"
+          ],
+          "expected": [
+            "중급 휴대폰을 가정하기",
+            "Assume a mid-range phone",
+            "20 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_21.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "성능 예산 세우기",
+            "Setting a performance budget",
+            "21/ 24"
+          ],
+          "expected": [
+            "성능 예산 세우기",
+            "Setting a performance budget",
+            "21 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_22.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "회귀 막기",
+            "Catching regressions",
+            "22 / 24"
+          ],
+          "expected": [
+            "회귀 막기",
+            "Catching regressions",
+            "22 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_23.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "사례: 3초에서 1.2초로",
+            "Case study: from 3 s to 1.2 s",
+            "23 / 24"
+          ],
+          "expected": [
+            "사례: 3초에서 1.2초로",
+            "Case study: from 3 s to 1.2 s",
+            "23 / 24"
+          ],
+          "pass": true
+        },
+        {
+          "check": "Vision OCR on decoded_mid_24.png finds every slide string exactly (whitespace-insensitive)",
+          "measured": [
+            "정리와 다음 단계",
+            "Summary and next steps",
+            "24 / 24"
+          ],
+          "expected": [
+            "정리와 다음 단계",
+            "Summary and next steps",
+            "24 / 24"
+          ],
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

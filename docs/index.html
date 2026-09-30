@@ -1,203 +1,336 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>video-lens</title>
-<meta name="description" content="영상을 눈대중으로 보지 않고 재는 Claude Code 스킬. UI 애니메이션 타이밍을 CSS로, 강의 영상의 장면·글자·음성을 시각과 함께. 모든 처리는 내 Mac 안에서.">
-<meta property="og:title" content="video-lens: 영상을 재는 Claude Code 스킬">
-<meta property="og:description" content="Opus 5.5 기준 정확도는 같고 비용 23%, 시간 37% 절감. 업로드 없이 로컬에서.">
+<title data-i18n="meta.title">video-lens: measure video in Claude Code</title>
+<meta content="A Claude Code skill that measures video on your Mac: UI animation timing and easing as CSS, scene cuts, on-screen text and speech with timestamps. Nothing is uploaded." name="description" data-i18n-content="meta.description">
+<meta property="og:title" content="video-lens: measure video in Claude Code">
+<meta property="og:description" content="A Claude Code skill that measures video on your Mac: UI animation timing and easing as CSS, scene cuts, on-screen text and speech with timestamps. Nothing is uploaded.">
 <meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
-<style>
-:root{
-  --ground:#f4f6f8; --surface:#ffffff; --ink:#131920; --muted:#58636f; --rule:#dde2e8;
-  --accent:#0b6e69; --accent-soft:#dbefed; --frame:#1b2530; --frame-cell:#2a3643; --frame-hit:#3fb8ae;
-  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --sans:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo",sans-serif;
-  color-scheme:light;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --ground:#0e1318; --surface:#151c23; --ink:#e5eaef; --muted:#9aa5b1; --rule:#27313b;
-    --accent:#4fc1b8; --accent-soft:#12302d; --frame:#0a0f13; --frame-cell:#1d2731; --frame-hit:#4fc1b8;
-    color-scheme:dark;
-  }
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7}
-.wrap{max-width:920px;margin:0 auto;padding-inline:20px}
-header.hero{padding-block:64px 40px;display:grid;gap:18px}
-.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
-h1{font-size:44px;line-height:1.1;margin:0;font-weight:700;letter-spacing:-.01em}
-.tagline{font-size:20px;margin:0;max-width:34ch;text-wrap:balance}
-.lede{margin:0;color:var(--muted);max-width:62ch}
-.strip{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;background:var(--frame);padding:8px;border-radius:8px;max-width:560px}
-.strip span{height:26px;background:var(--frame-cell);border-radius:2px}
-.strip span.hit{background:var(--frame-hit)}
-.strip-note{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0}
-.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.button{display:inline-flex;align-items:center;gap:8px;font:600 15px var(--sans);padding:10px 18px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;text-decoration:none;cursor:pointer;transition:background-color .15s ease, transform .1s ease}
-.button:hover{background:color-mix(in srgb, var(--accent) 85%, #000)}
-.button:active{transform:scale(.97)}
-.button.ghost{background:transparent;color:var(--accent)}
-.button.ghost:hover{background:var(--accent-soft)}
-.button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-main{display:grid;gap:56px;padding-bottom:72px}
-section{display:grid;gap:16px}
-h2{font-size:24px;margin:0;font-weight:600}
-h3{font-size:17px;margin:0;font-weight:600}
-p{margin:0}
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-.feature{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;gap:8px;align-content:start}
-.feature p{color:var(--muted);font-size:15px}
-.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:10px}
-table{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
-th,td{padding:11px 14px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
-th{font-size:12.5px;color:var(--muted);font-weight:600;background:var(--ground)}
-td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
-tr.skill td{background:var(--accent-soft)}
-tr:last-child td{border-bottom:none}
-ul{margin:0;padding-left:20px;display:grid;gap:8px}
-li{max-width:66ch}
-.note{font-size:14px;color:var(--muted)}
-pre{margin:0;background:var(--frame);color:#e5eaef;padding:14px 16px;border-radius:8px;overflow-x:auto;font:14px/1.6 var(--mono)}
-.copyrow{display:grid;gap:8px}
-.copy{justify-self:start;font:600 13px var(--sans);padding:6px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);cursor:pointer;transition:border-color .15s ease, transform .1s ease}
-.copy:hover{border-color:var(--accent);color:var(--accent)}
-.copy:active{transform:scale(.97)}
-code{font-family:var(--mono);font-size:14px;background:var(--surface);border:1px solid var(--rule);padding:1px 6px;border-radius:4px}
-a{color:var(--accent)}
-a:hover{text-decoration-thickness:2px}
-footer{border-top:1px solid var(--rule);padding-block:24px 40px;color:var(--muted);font-size:14px}
-footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
-@media (max-width:560px){h1{font-size:36px}.tagline{font-size:18px}header.hero{padding-block:44px 28px}main{gap:44px}}
-@media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style>
+<meta property="og:url" content="https://junhan2.github.io/video-lens/">
+<meta name="color-scheme" content="light dark">
+<link rel="canonical" href="https://junhan2.github.io/video-lens/">
+<!-- hreflang:start -->
+<link rel="alternate" hreflang="en" href="https://junhan2.github.io/video-lens/">
+<link rel="alternate" hreflang="x-default" href="https://junhan2.github.io/video-lens/">
+<!-- hreflang:end -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0b'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23eb6834' stroke-width='3.5'/%3E%3C/svg%3E">
+<script>
+  (() => {
+    const theme = new URLSearchParams(window.location.search).get('theme');
+    if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+  })();
+</script>
+<link rel="stylesheet" href="assets/site.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js" integrity="sha512-WoViKhKD4qI2WruSZqv9+kvM4WfFhUMQCLN4QlDTt5aU56fLQy2gYoxWIqlEnXqJy/+Ac5q/hk1oWfqnMDhwMA==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+<script type="module" src="assets/site.js"></script>
 </head>
 <body>
-<header class="hero wrap">
-  <div class="eyebrow">Claude Code skill · macOS · MIT</div>
-  <h1>video-lens</h1>
-  <p class="tagline">영상을 눈대중으로 보지 않고 잽니다. 모든 처리는 내 Mac 안에서.</p>
-  <p class="lede">Claude는 영상을 직접 보지 못합니다. video-lens는 영상을 프레임 단위로 재서 숫자와 글로 먼저 건네고, 확인이 필요한 장면만 이미지로 보여 줍니다.</p>
-  <div class="strip" role="img" aria-label="24개 프레임 중 300ms 애니메이션이 걸친 18개 프레임을 표시한 그림">
-    <span></span><span></span><span></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span></span><span></span><span></span>
-  </div>
-  <p class="strip-note">60fps에서 300ms 애니메이션은 18프레임. 초당 2장만 보면 0~1장에 담깁니다.</p>
-  <div class="actions">
-    <a class="button" href="https://github.com/Junhan2/video-lens" aria-label="GitHub 저장소 열기">GitHub에서 보기</a>
-    <a class="button ghost" href="#install" aria-label="설치 방법으로 이동">설치하기</a>
+<a class="skip-link" href="#main" data-i18n="nav.skip">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-bar">
+    <a class="brand" href="#top" aria-label="video-lens">video-lens</a>
+    <nav aria-label="Sections" class="section-nav" data-i18n-aria-label="nav.primary">
+      <a href="#why" data-i18n="nav.why">Why</a>
+      <a href="#benchmarks" data-i18n="nav.benchmarks">Benchmarks</a>
+      <a href="#when" data-i18n="nav.when">When to use</a>
+      <a href="#install" data-i18n="nav.install">Install</a>
+      <a href="#usage" data-i18n="nav.usage">Usage</a>
+      <a href="#how" data-i18n="nav.how">How it works</a>
+      <a href="#limits" data-i18n="nav.limits">Limits</a>
+    </nav>
+    <div class="header-tools">
+      <label>
+        <span class="visually-hidden" data-i18n="nav.language">Language</span>
+        <select aria-label="Language" id="lang-select" data-i18n-aria-label="nav.language">
+          <option value="en" lang="en" selected>English</option>
+        </select>
+      </label>
+      <a aria-label="Open the video-lens repository on GitHub" class="header-link" href="https://github.com/Junhan2/video-lens" data-i18n-aria-label="nav.github_aria" data-i18n="nav.github">GitHub</a>
+    </div>
   </div>
 </header>
 
-<main class="wrap">
-  <section aria-labelledby="what">
-    <h2 id="what">하는 일</h2>
-    <div class="features">
-      <div class="feature"><h3>UI 모션을 CSS로</h3><p>애니메이션의 시작, 길이, easing(cubic-bezier), 요소 사이 지연을 프레임 단위로 재서 CSS로 내줍니다.</p></div>
-      <div class="feature"><h3>강의·데모를 시각별로</h3><p>장면 전환, 슬라이드 글자(한국어 포함), 음성 받아쓰기, 소리와 화면의 어긋남을 시각과 함께 정리합니다.</p></div>
-      <div class="feature"><h3>업로드 없음</h3><p>ffmpeg, OpenCV, macOS Vision, 기기 안 음성 인식, whisper.cpp만 씁니다. 영상과 음성이 밖으로 나가지 않습니다.</p></div>
+<main id="main">
+  <section class="wrap hero" id="top" aria-labelledby="hero-title">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Claude Code skill · macOS · MIT</p>
+    <h1 id="hero-title">video-lens</h1>
+    <p class="pitch" data-i18n="hero.pitch">Measures video instead of eyeballing it, so Claude can answer when, for how long and how. Everything runs on your Mac.</p>
+    <p class="lede" data-i18n="hero.lede">Claude cannot watch video. video-lens measures it frame by frame, hands Claude numbers and text first, and shows images only where a look is needed.</p>
+    <figure class="strip-figure">
+      <div aria-label="Two rows of 30 frames. At 60 fps a 300 ms animation covers 18 frames. At 2 frames per second only one frame of the 30 is sampled, and it falls before the animation starts." class="strip" role="img" data-i18n-aria-label="hero.strip_aria">
+        <div class="strip-row">
+          <span class="strip-label" data-i18n="hero.strip_60" aria-hidden="true">60 fps, every frame</span>
+          <div class="strip-frames" data-strip="all"></div>
+        </div>
+        <div class="strip-row">
+          <span class="strip-label" data-i18n="hero.strip_2" aria-hidden="true">2 fps, sampled</span>
+          <div class="strip-frames" data-strip="sampled"></div>
+        </div>
+      </div>
+      <figcaption class="strip-note" data-i18n="hero.strip_note">A 300 ms animation at 60 fps spans 18 frames. Sampling 2 frames per second catches 0 or 1 of them.</figcaption>
+    </figure>
+    <div class="hero-summary">
+      <p id="hero-summary">With video-lens, against the same model alone (9 tasks scored against answer keys, 27 runs per condition):</p>
+      <ul id="hero-models">
+        <li>Claude Opus 5.5: cost per run 23% lower, time per run 37% lower, mean score 0.956 against 0.949.</li>
+        <li>Claude Sonnet 5.5: cost per run 35% lower, time per run 58% lower, mean score 0.940 against 0.970.</li>
+      </ul>
+    </div>
+    <div class="actions">
+      <a aria-label="Go to the install instructions" class="button" href="#install" data-i18n-aria-label="hero.cta_install_aria" data-i18n="hero.cta_install">Install</a>
+      <a aria-label="Open the video-lens repository on GitHub" class="button secondary" href="https://github.com/Junhan2/video-lens" data-i18n-aria-label="hero.cta_github_aria" data-i18n="hero.cta_github">View on GitHub</a>
     </div>
   </section>
 
-  <section aria-labelledby="models">
-    <h2 id="models">스킬 없이 모델만 쓸 때와 비교</h2>
-    <p>정답을 아는 영상 9개 과제를 조건마다 27회씩, 한 번에 하나씩 돌린 결과입니다(2026-09-30, effort high).</p>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>모델</th><th>조건</th><th class="num">정확도 평균</th><th class="num">가장 나쁜 1회</th><th class="num">회당 비용</th><th class="num">회당 시간</th></tr></thead>
-        <tbody>
-          <tr><td>Opus 5.5</td><td>스킬 없음</td><td class="num">0.949</td><td class="num">0.17</td><td class="num">$0.86</td><td class="num">420초</td></tr>
-          <tr class="skill"><td>Opus 5.5</td><td>video-lens</td><td class="num">0.956</td><td class="num">0.80</td><td class="num">$0.66</td><td class="num">265초</td></tr>
-          <tr><td>Sonnet 5.5</td><td>스킬 없음</td><td class="num">0.970</td><td class="num">0.60</td><td class="num">$0.63</td><td class="num">288초</td></tr>
-          <tr class="skill"><td>Sonnet 5.5</td><td>video-lens</td><td class="num">0.940</td><td class="num">0.63</td><td class="num">$0.41</td><td class="num">122초</td></tr>
-        </tbody>
-      </table>
+  <section class="wrap section" aria-labelledby="features-title">
+    <h2 id="features-title" data-i18n="features.title">What it does</h2>
+    <div class="grid-3">
+      <article class="card">
+        <h3 data-i18n="features.motion_title">UI motion as CSS</h3>
+        <p data-i18n="features.motion_body">Start, duration, easing as cubic-bezier, stagger and travel of each animated element, to the frame, written out as CSS.</p>
+      </article>
+      <article class="card">
+        <h3 data-i18n="features.content_title">Talks and demos with timestamps</h3>
+        <p data-i18n="features.content_body">Scene cuts, keyframes, Korean and English on-screen text (macOS Vision), a speech transcript and audio/video sync.</p>
+      </article>
+      <article class="card">
+        <h3 data-i18n="features.local_title">Nothing uploaded</h3>
+        <p data-i18n="features.local_body">ffmpeg, OpenCV, macOS Vision, Apple on-device speech recognition and whisper.cpp. Video and audio stay on your Mac.</p>
+      </article>
     </div>
-    <ul>
-      <li>정확도는 비슷합니다. Opus에서는 스킬 쪽이 조금 높고, Sonnet에서는 조금 낮습니다.</li>
-      <li>비용과 시간이 줄어듭니다. Opus 기준 비용 23%, 시간 37%, Sonnet 기준 비용 35%, 시간 58%.</li>
-      <li>크게 틀리는 일이 줄어듭니다. 스킬 없이는 같은 과제에서 만점과 0.17점을 오갔습니다.</li>
-    </ul>
   </section>
 
-  <section aria-labelledby="watch">
-    <h2 id="watch">/watch 스킬과 비교</h2>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th></th><th>/watch (claude-video 0.1.3)</th><th>video-lens</th></tr></thead>
-        <tbody>
-          <tr><td>보는 프레임</td><td>초당 최대 2장, 최대 100장</td><td>모든 프레임</td></tr>
-          <tr><td>시각 정밀도</td><td>초 단위</td><td>프레임 단위(60fps면 ±16.7ms)</td></tr>
-          <tr><td>300ms 애니메이션</td><td>0~1장에 담김</td><td>길이, easing, CSS 값까지 측정</td></tr>
-          <tr><td>음성</td><td>영어 자막이 없으면 오디오를 Groq/OpenAI로 업로드</td><td>기기 안에서 받아쓰기(한국어 포함)</td></tr>
-          <tr><td>장면 전환·화면 글자</td><td>없음</td><td>컷 시각, 슬라이드별 글자</td></tr>
-        </tbody>
-      </table>
+  <section class="wrap section" id="why" aria-labelledby="why-title">
+    <h2 id="why-title" data-i18n="why.title">Why</h2>
+    <div class="block">
+      <h3 data-i18n="why.watch_title">Compared with /watch</h3>
+      <p class="section-lede" data-i18n="why.watch_intro">/watch (claude-video 0.1.3) is built for a quick look at what a video is about. video-lens is for when something happens, for how long and how.</p>
+      <div class="table-wrap">
+        <table class="compare">
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="why.col_blank">Aspect</th>
+              <th scope="col" data-i18n="why.col_watch">/watch (claude-video 0.1.3)</th>
+              <th scope="col" data-i18n="why.col_lens">video-lens</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row" data-i18n="why.row_frames">Frames looked at</th><td data-i18n="why.row_frames_watch">At most 2 per second, 100 in total</td><td data-i18n="why.row_frames_lens">Every frame</td></tr>
+            <tr><th scope="row" data-i18n="why.row_precision">Time precision</th><td data-i18n="why.row_precision_watch">Whole seconds</td><td data-i18n="why.row_precision_lens">One frame (16.7 ms at 60 fps)</td></tr>
+            <tr><th scope="row" data-i18n="why.row_anim">A 300 ms animation</th><td data-i18n="why.row_anim_watch">0 or 1 frames</td><td data-i18n="why.row_anim_lens">Start, duration, easing and CSS measured</td></tr>
+            <tr><th scope="row" data-i18n="why.row_speech">Speech</th><td data-i18n="why.row_speech_watch">Audio uploaded to Groq or OpenAI Whisper unless English captions exist</td><td data-i18n="why.row_speech_lens">Transcribed on your Mac, Korean included</td></tr>
+            <tr><th scope="row" data-i18n="why.row_scenes">Scene cuts and on-screen text</th><td data-i18n="why.row_scenes_watch">Not detected</td><td data-i18n="why.row_scenes_lens">Cut times and the text of each slide</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <p class="note">/watch는 대략적인 내용을 빨리 보는 데, video-lens는 "언제, 얼마 동안, 어떻게"를 재야 할 때 알맞습니다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3 data-i18n="why.alone_title">Compared with the model alone</h3>
+        <p data-i18n="why.alone_body">Without the skill, Claude writes new ffmpeg and Python code for each video and measures with it. That often works, but the code differs every run.</p>
+        <p id="why-spread">Task "Overlapping 6-row list": Claude Opus 5.5 alone had a median score of 1.000 over 3 runs and 0.167 in its worst run.</p>
+        <p data-i18n="why.alone_after">video-lens runs one tested pipeline instead, so every run starts from the same measurements.</p>
+        <ul class="list" id="why-models">
+          <li>Claude Opus 5.5: cost 23% lower, time 37% lower, mean score 0.956 against 0.949, worst run 0.800 against 0.167.</li>
+          <li>Claude Sonnet 5.5: cost 35% lower, time 58% lower, mean score 0.940 against 0.970, worst run 0.625 against 0.600.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 data-i18n="example.title">Example: a 3-second toast recording</h3>
+        <p data-i18n="example.body">The toast was rendered from real CSS in headless Chrome, so the right answer is known.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" data-i18n="example.col_what">Measure</th>
+                <th scope="col" data-i18n="example.col_measured">video-lens</th>
+                <th scope="col" data-i18n="example.col_truth">Answer key</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" data-i18n="example.row_duration">Duration</th>
+                <td data-i18n="example.duration_measured">298 ms (range 284 to 313)</td>
+                <td data-i18n="example.duration_truth">300 ms</td>
+              </tr>
+              <tr>
+                <th scope="row" data-i18n="example.row_easing">Easing</th>
+                <td><code>cubic-bezier(0.22, 1, 0.36, 1)</code></td>
+                <td><code>cubic-bezier(0.22, 1, 0.36, 1)</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section aria-labelledby="when">
-    <h2 id="when">언제 강한가</h2>
-    <ul>
-      <li><strong>긴 영상:</strong> 10분 한국어 강의는 Opus 기준 비용 30%, 시간 74%가 줄었습니다.</li>
-      <li><strong>반복되는 모션:</strong> 캐러셀처럼 되풀이되는 전환을 한 번에 묶어 재서 비용이 절반 이하로 줄었습니다.</li>
-      <li><strong>한국어 강의·회의 녹화:</strong> 음성을 밖으로 보내지 않고 받아쓰고, 슬라이드 글자를 시각과 함께 뽑습니다.</li>
-      <li><strong>디자인 검수:</strong> "이 전환 400ms에 ease-out 맞아?"처럼 숫자로 답해야 하는 질문.</li>
-    </ul>
-    <p class="note">짧은 영상의 한 줄 요약처럼 가벼운 질문에는 필요 없습니다. 여러 요소가 겹쳐 움직이는 화면은 "왼쪽 목록만"처럼 볼 영역을 알려 주면 더 정확합니다.</p>
+  <section class="wrap section" id="benchmarks" aria-labelledby="bench-title">
+    <h2 id="bench-title" data-i18n="bench.title">Benchmarks</h2>
+    <p class="section-lede" id="bench-intro">9 tasks scored against answer keys, 3 runs each, so 27 runs per condition, measured on September 30, 2026. Each model ran alone (writing its own ffmpeg and Python) and with video-lens, with the same prompt, no MCP servers and one run at a time. The tool and effort level each model ran with are under <a href="#method">How we measured</a>.</p>
+    <noscript><p class="note">The charts need JavaScript. Every number is also in <a href="https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md">BENCHMARK.md</a>.</p></noscript>
+    <div class="chart-grid">
+      <figure class="chart-card" id="chart-cost" data-chart="cost"><p class="chart-loading" data-i18n="chart.loading">Loading the benchmark data…</p></figure>
+      <figure class="chart-card" id="chart-time" data-chart="time"><p class="chart-loading" data-i18n="chart.loading">Loading the benchmark data…</p></figure>
+      <figure class="chart-card wide" id="chart-accuracy" data-chart="accuracy"><p class="chart-loading" data-i18n="chart.loading">Loading the benchmark data…</p></figure>
+      <figure class="chart-card wide" id="chart-tasks" data-chart="tasks"><p class="chart-loading" data-i18n="chart.loading">Loading the benchmark data…</p></figure>
+    </div>
+    <p class="note" data-i18n="bench.close_scores">Both conditions solve most tasks, so mean scores sit close together. The worst run shows how far a single run can go wrong.</p>
+    <p class="note" data-i18n="bench.autotrigger">Skill runs named the skill in the prompt. In a separate test where the prompt did not name it, Opus 5.5 chose it on its own in 8 of 9 tasks.</p>
+    <p class="note" data-i18n="bench.method_link">How the tasks were built and scored: <a href="#method">How we measured</a> and <a href="https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md">BENCHMARK.md</a>.</p>
   </section>
 
-  <section id="install" aria-labelledby="install-title">
-    <h2 id="install-title">설치</h2>
-    <div class="copyrow">
-      <p>Claude Code에서:</p>
-      <pre id="cmd-plugin">/plugin marketplace add Junhan2/video-lens
+  <section class="wrap section" id="when" aria-labelledby="when-title">
+    <h2 id="when-title" data-i18n="when.title">When to use it</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3 data-i18n="when.use_title">Use it for</h3>
+        <ul class="list">
+          <li data-i18n="when.use_motion"><strong>Rebuilding or reviewing UI motion.</strong> Start, duration, easing and stagger as numbers and CSS, each with the range it could fall in. Questions such as "is this transition really 400 ms ease-out?" get a measured answer.</li>
+          <li><strong data-i18n="when.use_long_title">Long recordings.</strong> <span id="when-long">On the 10-minute Korean lecture, Claude Opus 5.5 with video-lens: cost 30% lower, time 74% lower (median of 3 runs).</span></li>
+          <li data-i18n="when.use_repeat"><strong>Repeated motion.</strong> Carousels and loops are measured once as a group, with each repeat's start time.</li>
+          <li data-i18n="when.use_private"><strong>Private talks and meetings.</strong> Speech is transcribed on your Mac, and slide text comes with timestamps.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 data-i18n="when.skip_title">You do not need it for</h3>
+        <ul class="list">
+          <li data-i18n="when.skip_gist"><strong>A quick gist of a short clip.</strong> The model alone handles it, and loading the skill adds a little cost.</li>
+          <li data-i18n="when.skip_os"><strong>Windows or Linux.</strong> video-lens runs on macOS only.</li>
+          <li data-i18n="when.skip_features"><strong>Speaker labels, language detection or music tempo.</strong> These are not supported.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" id="install" aria-labelledby="install-title">
+    <h2 id="install-title" data-i18n="install.title">Install</h2>
+    <div class="grid-2">
+      <div class="command">
+        <p data-i18n="install.step_plugin">In Claude Code:</p>
+        <pre id="cmd-plugin">/plugin marketplace add Junhan2/video-lens
 /plugin install video-lens@video-lens</pre>
-      <button class="copy" type="button" data-copy="cmd-plugin" aria-label="플러그인 설치 명령 복사">복사</button>
-    </div>
-    <div class="copyrow">
-      <p>터미널에서:</p>
-      <pre id="cmd-deps">brew install ffmpeg
+        <button aria-label="Copy the plugin install commands" class="copy-button" type="button" data-copy="cmd-plugin" data-i18n="install.copy" data-i18n-aria-label="install.copy_plugin_aria">Copy</button>
+      </div>
+      <div class="command">
+        <p data-i18n="install.step_deps">In a terminal:</p>
+        <pre id="cmd-deps">brew install ffmpeg
 pip3 install opencv-python numpy
 xcode-select --install</pre>
-      <button class="copy" type="button" data-copy="cmd-deps" aria-label="필요한 도구 설치 명령 복사">복사</button>
+        <button aria-label="Copy the dependency install commands" class="copy-button" type="button" data-copy="cmd-deps" data-i18n="install.copy" data-i18n-aria-label="install.copy_deps_aria">Copy</button>
+      </div>
     </div>
-    <p class="note">macOS 전용이며 macOS 26(Apple Silicon)에서 시험했습니다. 기기 안 음성 인식은 macOS 26부터 됩니다. whisper.cpp 모델, Node 24와 Chrome, yt-dlp는 선택입니다. 자세한 내용은 <a href="https://github.com/Junhan2/video-lens#readme">README</a>를 보세요.</p>
-    <p>설치한 뒤에는 평소처럼 말하면 됩니다. <code>이 화면녹화 애니메이션을 CSS로 분석해줘</code></p>
+    <p class="visually-hidden" id="copy-status" aria-live="polite"></p>
+    <div class="grid-2">
+      <div class="card">
+        <h3 data-i18n="install.required_title">Required</h3>
+        <ul class="list">
+          <li data-i18n="install.req_macos">macOS. Tested on macOS 26 with Apple Silicon.</li>
+          <li data-i18n="install.req_ffmpeg">ffmpeg.</li>
+          <li data-i18n="install.req_python">Python 3 with opencv-python and numpy. Tested with Python 3.13. If a package is missing, the skill prints the exact pip command.</li>
+          <li data-i18n="install.req_xcode">Xcode Command Line Tools, to build the on-screen text and speech helpers.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 data-i18n="install.optional_title">Optional</h3>
+        <ul class="list">
+          <li data-i18n="install.opt_speech">macOS 26 for on-device speech recognition (Apple SpeechTranscriber).</li>
+          <li data-i18n="install.opt_whisper">whisper-cpp and a ggml model (for example <code>ggml-large-v3-turbo-q5_0.bin</code>) in <code>~/.local/share/whisper/</code>, to transcribe with whisper.</li>
+          <li data-i18n="install.opt_chrome">Node 24 and Google Chrome, to read a web page's declared CSS animations and compare them with the measurement.</li>
+          <li data-i18n="install.opt_ytdlp">yt-dlp, to analyse a video from a URL.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" id="usage" aria-labelledby="usage-title">
+    <h2 id="usage-title" data-i18n="usage.title">Usage</h2>
+    <p class="section-lede" data-i18n="usage.body">Ask as usual. Claude picks the skill when a question needs measuring. To call it directly, start your message with <code>/video-lens</code>.</p>
+    <div class="block">
+      <h3 data-i18n="usage.examples_title">Example prompts</h3>
+      <ul class="list">
+        <li data-i18n="usage.ex_motion">Analyse the animation in this screen recording so I can rebuild it in CSS</li>
+        <li data-i18n="usage.ex_slides">List when each slide appears in this lecture and what it says</li>
+        <li data-i18n="usage.ex_when">What was said around 12:00?</li>
+      </ul>
+    </div>
+    <p class="note" data-i18n="usage.tip">When several elements move at once, name the area, for example "only the list on the left". Claude then narrows the measurement with <code>--roi</code>.</p>
+  </section>
+
+  <section class="wrap section" id="how" aria-labelledby="how-title">
+    <h2 id="how-title" data-i18n="how.title">How it works</h2>
+    <p class="section-lede" data-i18n="how.intro">One command, <code>vl.py analyze</code>, measures the video and prints a text report of at most 6,000 characters. Claude reads that first, then a few labelled images, and single frames only when needed.</p>
+    <ol class="pipeline">
+      <li><h3 data-i18n="how.s1_title">Probe</h3><p data-i18n="how.s1_body">ffprobe reads the streams, the frame rate and each frame's timestamp, so variable frame rate recordings keep their real timing.</p></li>
+      <li><h3 data-i18n="how.s2_title">Audio</h3><p data-i18n="how.s2_body">Sound activity and onsets. A quiet clip of up to 2 minutes goes to motion mode, a longer one to content mode, a short clip with sound gets both.</p></li>
+      <li><h3 data-i18n="how.s3_title">Speech and content</h3><p data-i18n="how.s3_body">Captions or an on-device transcript (Apple SpeechTranscriber or whisper.cpp), scene cuts, keyframes and on-screen text with macOS Vision.</p></li>
+      <li><h3 data-i18n="how.s4_title">Motion</h3><p data-i18n="how.s4_body">OpenCV finds the moving elements and tracks them frame by frame. Start, duration, easing (a named curve or cubic-bezier), stagger and travel are fitted and written as CSS.</p></li>
+      <li><h3 data-i18n="how.s5_title">Sync</h3><p data-i18n="how.s5_body">The offset between sound and picture, from paired onsets.</p></li>
+      <li><h3 data-i18n="how.s6_title">Report</h3><p data-i18n="how.s6_body">A text report with ranges and confidence, a timeline, and labelled contact sheets with timing maps.</p></li>
+    </ol>
+    <p class="note" data-i18n="how.reading">Reading order for Claude: report, then timeline or text search, then the overview image, then contact sheets, then single frames.</p>
+  </section>
+
+  <section class="wrap section" id="method" aria-labelledby="method-title">
+    <h2 id="method-title" data-i18n="method.title">How we measured</h2>
+    <ul class="list">
+      <li data-i18n="method.keys"><strong>Answer keys.</strong> The UI tasks are real CSS animations rendered frame by frame in headless Chrome, so the truth is the CSS as written. The lectures are narrated with macOS text-to-speech. The carousel is a real screen recording with an approximate key.</li>
+      <li data-i18n="method.same"><strong>Same conditions.</strong> Same prompt, model and effort in both conditions, no MCP servers, one run at a time. Skill runs start the prompt with the skill's name (<code>/video-lens</code> in Claude Code). Each prompt asks for a JSON answer in a fixed format that a script scores against the key.</li>
+      <li data-i18n="method.hidden"><strong>Skill hidden from the baseline.</strong> Baseline runs load no skills and cannot read the skill's folder. This was added after an early baseline run found video-lens on disk and ran it.</li>
+      <li data-i18n="method.score"><strong>Score.</strong> Each answer is checked item by item against the key. A run's score is the checks passed minus false positives, divided by the number of checks, never below 0.</li>
+      <li data-i18n="method.tolerance"><strong>Tolerances.</strong> Start and duration within ±1 frame, easing within 0.05 of the true curve, sounds within ±10 ms, speech timing within ±150 ms.</li>
+      <li><strong data-i18n="method.setup_title">Setup per model.</strong>
+        <ul class="list sublist" id="method-setup">
+          <li>Claude Opus 5.5: run in Claude Code, effort high. Cost is the API-equivalent <code>total_cost_usd</code> that Claude Code reports. Time is the run duration that Claude Code reports.</li>
+          <li>Claude Sonnet 5.5: run in Claude Code, effort high. Cost is the API-equivalent <code>total_cost_usd</code> that Claude Code reports. Time is the run duration that Claude Code reports.</li>
+        </ul>
+      </li>
+    </ul>
+    <div class="block">
+      <h3 id="method-tasks-title">The 9 tasks</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col" data-i18n="table.id">ID</th><th scope="col" data-i18n="table.task">Task</th></tr></thead>
+          <tbody id="method-tasks">
+            <tr><th scope="row">v1</th><td>Card stagger (3 cards, 60 fps, named curve)</td></tr>
+            <tr><th scope="row">v2</th><td>Modal enter and exit (VFR recording)</td></tr>
+            <tr><th scope="row">v3</th><td>Off-screen toast with a click sound</td></tr>
+            <tr><th scope="row">h1</th><td>Overlapping 6-row list, custom curve, 30 fps, Retina</td></tr>
+            <tr><th scope="row">h2</th><td>Colour change, overshoot badge, bottom drawer (VFR)</td></tr>
+            <tr><th scope="row">orbit</th><td>Real 3D card carousel recording, 16.5 s (approximate answer key)</td></tr>
+            <tr><th scope="row">v4</th><td>20-second Korean lecture, 3 slides</td></tr>
+            <tr><th scope="row">h3</th><td>10-minute Korean lecture, 24 slides</td></tr>
+            <tr><th scope="row">gist</th><td>Two-sentence summary of a clip</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="note" data-i18n="method.more">Full method, per-task numbers and caveats: <a href="https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md">BENCHMARK.md</a>. Scripts to reproduce the runs: <a href="https://github.com/Junhan2/video-lens/blob/main/bench/README.md">bench/</a>.</p>
+  </section>
+
+  <section class="wrap section" id="limits" aria-labelledby="limits-title">
+    <h2 id="limits-title" data-i18n="limits.title">Limits</h2>
+    <ul class="list">
+      <li data-i18n="limits.merge">Several elements moving at once can come out merged into one box or split into fragments in the first pass. Narrowing the area with <code>--roi</code> fixes it. In the benchmark Opus 5.5 did this on its own; Sonnet 5.5 did it less often.</li>
+      <li data-i18n="limits.backgrounds">Motion over photo or gradient backgrounds and noisy real-world speech are under-tested.</li>
+      <li data-i18n="limits.features">No speaker labels, language auto-detection or music tempo.</li>
+      <li data-i18n="limits.fps">30 fps recordings halve the timing resolution. Record at 60 fps when you can.</li>
+      <li data-i18n="limits.os">macOS only, tested on macOS 26 with Apple Silicon.</li>
+    </ul>
   </section>
 </main>
 
-<footer>
+<footer class="site-footer">
   <div class="wrap">
-    <span>video-lens · MIT</span>
-    <a href="https://github.com/Junhan2/video-lens">GitHub</a>
-    <a href="https://github.com/Junhan2/video-lens/blob/main/README.en.md">English</a>
+    <span id="footer-version" data-version="1.0.1">video-lens 1.0.1 · MIT License</span>
+    <a href="https://github.com/Junhan2/video-lens" data-i18n="footer.github">GitHub</a>
+    <a href="https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md" data-i18n="footer.benchmark">Benchmark method</a>
+    <a href="https://github.com/Junhan2/video-lens/blob/main/CHANGELOG.md" data-i18n="footer.changelog">Changelog</a>
+    <a href="https://www.chartjs.org/" data-i18n="footer.charts">Charts drawn with Chart.js</a>
   </div>
 </footer>
-
-<script>
-document.querySelectorAll('.copy').forEach((button) => {
-  button.addEventListener('click', async () => {
-    const text = document.getElementById(button.dataset.copy).textContent;
-    try {
-      await navigator.clipboard.writeText(text);
-      button.textContent = '복사됨';
-    } catch {
-      const range = document.createRange();
-      range.selectNodeContents(document.getElementById(button.dataset.copy));
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      button.textContent = '선택됨, ⌘C로 복사';
-    }
-    setTimeout(() => { button.textContent = '복사'; }, 1600);
-  });
-});
-</script>
 </body>
 </html>

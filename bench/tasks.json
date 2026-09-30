@@ -1,0 +1,44 @@
+{
+  "answer_schema": "{\"motion\": [{\"element\": \"string\", \"kind\": \"entrance|exit|transition|other\", \"properties\": [\"translateX|translateY|scale|opacity|rotate|...\"], \"start_s\": 0.0, \"duration_ms\": 0, \"delay_ms\": 0, \"easing\": \"cubic-bezier(x1, y1, x2, y2)\", \"direction\": \"string\"}], \"loops_or_ignored\": [\"string\"], \"audio\": [{\"t_s\": 0.0, \"kind\": \"string\"}], \"sound_minus_motion_ms\": null, \"cuts_s\": [0.0], \"slides\": [{\"start_s\": 0.0, \"text\": [\"string\"]}], \"speech\": [{\"start_s\": 0.0, \"end_s\": 0.0, \"text\": \"string\"}], \"summary\": \"string\"}",
+  "suffix": "\n\n사용자에게 되묻지 말고 끝까지 스스로 판단해서 답해줘. 답변 마지막에 아래 형식의 JSON을 ```json 코드블록 하나로 반드시 붙여줘. 시간은 영상 시작 기준 초(start_s, t_s), 길이와 지연은 ms, 해당 없는 항목은 빈 배열 또는 null로 둬. delay_ms 는 같은 무리(stagger) 첫 요소 대비 지연이야.\n",
+  "tasks": {
+    "v1": {
+      "video": "evalset/v1_stagger.mp4",
+      "prompt": "clip.mp4 는 웹 UI 화면녹화야. 여기 나오는 애니메이션을 CSS로 똑같이 다시 만들 수 있게 분석해줘: 어떤 요소가 언제 시작해서 얼마 동안 어떤 속성(이동, 크기, 투명도 등)으로 움직이는지, 요소 사이 지연(stagger), easing 은 cubic-bezier 값으로. 의도된 등장·퇴장·전환이 아닌 반복 요소는 loops_or_ignored 에 따로 적어줘."
+    },
+    "v2": {
+      "video": "evalset/v2_modal_vfr.mp4",
+      "prompt": "clip.mp4 는 웹 UI 화면녹화야. 여기 나오는 애니메이션을 CSS로 똑같이 다시 만들 수 있게 분석해줘: 어떤 요소가 언제 시작해서 얼마 동안 어떤 속성(이동, 크기, 투명도 등)으로 움직이는지, 요소 사이 지연(stagger), easing 은 cubic-bezier 값으로. 의도된 등장·퇴장·전환이 아닌 반복 요소는 loops_or_ignored 에 따로 적어줘."
+    },
+    "v3": {
+      "video": "evalset/v3_toast_sound.mp4",
+      "prompt": "clip.mp4 는 웹 UI 화면녹화야. 여기 나오는 애니메이션을 CSS로 똑같이 다시 만들 수 있게 분석해줘: 어떤 요소가 언제 시작해서 얼마 동안 어떤 속성(이동, 크기, 투명도 등)으로 움직이는지, easing 은 cubic-bezier 값으로. 소리가 있으면 소리가 나는 시각과, 소리가 움직임 시작보다 몇 ms 늦거나 빠른지(sound_minus_motion_ms)도 알려줘. 의도된 등장·퇴장·전환이 아닌 반복 요소는 loops_or_ignored 에 따로 적어줘."
+    },
+    "v4": {
+      "video": "evalset/v4_slides_ko.mp4",
+      "prompt": "clip.mp4 는 짧은 강의 영상이야. 슬라이드가 바뀌는 시각(cuts_s), 각 슬라이드 화면에 적힌 글자 전부(slides), 내레이션 문장과 각 문장의 시작·끝 시각(speech)을 정리해줘."
+    },
+    "orbit": {
+      "video": "byo/carousel.mp4",
+      "note": "Bring your own real carousel recording, approximate key. The measured runs used the author's private 16.5 s recording of a 3D card carousel, which is not shipped. Put your clip at byo/carousel.mp4 in this folder and replace ORBIT_STARTS (orbit) and the score_gist rubric (gist) in score.py with a key for your clip.",
+      "prompt": "clip.mp4 는 웹 히어로 섹션 화면녹화야. 애니메이션을 CSS로 다시 만들 수 있게 분석해줘: 무엇이 어떤 방향으로 움직이는지, 전환이 몇 번 일어나고 각 전환이 언제 시작하는지(motion 에 전환마다 한 항목), 한 번 전환에 걸리는 시간과 easing(cubic-bezier)."
+    },
+    "gist": {
+      "video": "byo/carousel.mp4",
+      "note": "Bring your own real carousel recording, approximate key. The measured runs used the author's private 16.5 s recording of a 3D card carousel, which is not shipped. Put your clip at byo/carousel.mp4 in this folder and replace ORBIT_STARTS (orbit) and the score_gist rubric (gist) in score.py with a key for your clip.",
+      "prompt": "clip.mp4 가 무엇을 보여주는 영상인지 두세 문장으로 설명해줘. JSON 은 summary 만 채우면 돼."
+    },
+    "h1": {
+      "video": "hardset/h1_list_dpr2.mp4",
+      "prompt": "clip.mp4 는 웹 UI 화면녹화야. 여기 나오는 애니메이션을 CSS로 똑같이 다시 만들 수 있게 분석해줘: 어떤 요소가 언제 시작해서 얼마 동안 어떤 속성(이동, 크기, 투명도 등)으로 움직이는지, 요소 사이 지연(stagger), easing 은 cubic-bezier 값으로. 의도된 등장·퇴장·전환이 아닌 반복 요소는 loops_or_ignored 에 따로 적어줘."
+    },
+    "h2": {
+      "video": "hardset/h2_colour_overshoot_vfr.mp4",
+      "prompt": "clip.mp4 는 웹 UI 화면녹화야. 여기 나오는 애니메이션을 CSS로 똑같이 다시 만들 수 있게 분석해줘: 어떤 요소가 언제 시작해서 얼마 동안 어떤 속성(이동, 크기, 투명도 등)으로 움직이는지, 요소 사이 지연(stagger), easing 은 cubic-bezier 값으로. 의도된 등장·퇴장·전환이 아닌 반복 요소는 loops_or_ignored 에 따로 적어줘."
+    },
+    "h3": {
+      "video": "hardset/h3_lecture10_ko.mp4",
+      "prompt": "clip.mp4 는 10분짜리 강의 영상이야. 슬라이드가 바뀌는 시각(cuts_s), 각 슬라이드 화면에 적힌 글자 전부(slides), 내레이션 문장과 각 문장의 시작·끝 시각(speech)을 정리해줘."
+    }
+  }
+}

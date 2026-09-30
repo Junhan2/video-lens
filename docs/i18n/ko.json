@@ -1,0 +1,41 @@
+{
+  "series": {
+    "baseline": "모델 단독",
+    "skill": "video-lens 사용"
+  },
+  "table": {
+    "model": "모델",
+    "condition": "조건",
+    "mean_score": "평균 점수",
+    "worst_score": "최저 점수",
+    "perfect_runs": "만점 실행",
+    "cost": "실행당 평균 비용",
+    "time": "실행당 평균 시간",
+    "turns": "평균 턴 수"
+  },
+  "change": {
+    "lower": "{pct} 감소",
+    "higher": "{pct} 증가",
+    "same": "변화 없음"
+  },
+  "format": {
+    "decimal": ".",
+    "usd": "${n}",
+    "seconds": "{n}초",
+    "percent": "{n}%",
+    "of": "{a}/{b}"
+  },
+  "results": {
+    "note": "{date} 측정. 과제 {tasks}개 × {reps}회 = 조건마다 {runs}회, MCP 서버 없이 한 번에 하나씩 실행했습니다. 평균 점수, 비용, 시간, 턴 수는 모든 실행의 평균이고, 최저 점수는 가장 낮았던 한 번의 점수입니다.",
+    "change_line": "{model}에 video-lens 사용 시 비용 {cost}, 시간 {time}."
+  },
+  "setup": {
+    "line": "{model}: {harness}에서 실행, effort {effort}. {cost} {time}",
+    "cost_reported": "비용은 {harness}가 보고하는 API 환산값 `total_cost_usd`입니다.",
+    "time_reported": "시간은 {harness}가 보고하는 실행 시간입니다.",
+    "time_wall_clock": "시간은 실행 시작부터 끝까지 실제로 걸린 시간입니다."
+  },
+  "when": {
+    "use_long": "10분짜리 한국어 강의에서 {model}에 video-lens 사용 시 비용 {cost}, 시간 {time}(실행 {reps}회의 중앙값)."
+  }
+}

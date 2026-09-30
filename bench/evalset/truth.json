@@ -1,0 +1,1554 @@
+{
+  "schema": "video-eval-truth/1",
+  "created": "2026-09-27",
+  "generator": "gen.py (python3 gen.py regenerates every file and this truth)",
+  "renderer": "Google Chrome 153.0.8010.54, headless, DevTools pipe; each frame = all CSS animations paused at currentTime = t, then Page.captureScreenshot; encoded with ffmpeg libx264 crf 14 yuv420p bt709",
+  "renderer_notes": [
+    "Chrome rasterises a moving layer in 1/4 px steps and opacity in 1/255 steps, so a rendered position can differ from the CSS value by up to 0.125 px; measured on the source PNGs.",
+    "Near the end of an ease-out Chrome holds the layer at its last raster step for a few frames, then snaps it to the final position and re-rasterises it once as part of the page (in v1 two frames before end_s, while the CSS values are still 0.003 px / 0.0001 short of final); that step is where observed_in_file.last_change usually lands.",
+    "The composited layer's pixels differ by about 1% of (card - background) from the final flattened page, so opacity measured against the last frame reads up to +0.03 high late in the v1 fades (above 1.0 while the layer is held). Measured against the last layered frame on the high-contrast thumbnails it matches the CSS opacity within 0.02; the white card body is only ~10 grey levels from the background and cannot resolve opacity finer than ~0.04."
+  ],
+  "time_convention": "Seconds of presentation time (pts) from the first frame. In the CFR files frame n shows the page state at exactly t = n / fps. In the VFR file each kept frame shows the state at its own pts. start_s/end_s/duration_ms/delay_ms/easing are the authored CSS values (exact). observed_in_file gives what pixel differencing can actually see (threshold 8 grey levels, 20 pixels) and is where perfect measurements land when the easing tail is sub-pixel.",
+  "field_notes": {
+    "delay_ms": "offset from the first event of the same group (stagger delay); for the v2 exit it is the offset from the enter start",
+    "css_animation_delay_ms": "animation-delay as written in the page CSS (relative to t = 0)",
+    "peak_speed_px_s": "magnitude / duration x max slope of the easing curve (exact parametric derivative; for these ease-outs the max is p1y/p1x at x = 0)",
+    "observed_in_file.changed_frames": "counted on cv2's BGR decode (max channel > 8, >= 20 px); it can differ by 1 with another YUV->RGB matrix (v1 card2 frame 87 has 24 changed px via cv2, 18 via BT.709). first/last_change frames do not depend on it.",
+    "distractors": "moving things that must NOT be reported as intended entrance/exit/transition motion (they may be named as loops)"
+  },
+  "scoring_hints": {
+    "start_s": "+-1 frame (16.7 ms at 60 fps, 33.3 ms at 30 fps)",
+    "duration_ms": "+-1 frame of the CSS duration; a value between observed (last_change - start) and the CSS duration is 'observed-correct'",
+    "delay_ms": "+-1 frame",
+    "easing": "each control point +-0.1, or max |y_pred(x)-y_true(x)| <= 0.05 on x = 0..1 (progress_at_x has the truth curve)",
+    "audio_onset_s": "+-10 ms",
+    "sync_ms": "+-10 ms",
+    "cuts_s": "+-1 frame",
+    "narration_s": "+-150 ms",
+    "text": "exact after whitespace normalisation; Korean CER <= 5% as partial credit",
+    "distractors": "reporting a distractor as an intended event is a false positive"
+  },
+  "videos": [
+    {
+      "file": "v1_stagger.mp4",
+      "kind": "ui-motion",
+      "container": {
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "duration_s": 3.0,
+        "size_bytes": 147074,
+        "video": {
+          "codec": "h264",
+          "profile": "High",
+          "width": 1280,
+          "height": 800,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "60/1",
+          "avg_frame_rate": "60/1",
+          "time_base": "1/15360",
+          "nb_frames": 180,
+          "color_space": "bt709",
+          "first_pts_s": 0.0,
+          "last_pts_s": 2.983333
+        }
+      },
+      "summary": "Web dashboard 'Northwind'. At 1.0 s three project cards fade in while rising 40 px, 400 ms each, staggered 100 ms (cards 1, 2, 3 left to right). A text caret blinks in the search box.",
+      "events": [
+        {
+          "id": "card1-enter",
+          "element": "card 1 of 3 in the 'Recent projects' grid (\"Onboarding flow\")",
+          "selector": ".card:nth-child(1)",
+          "kind": "entrance",
+          "start_s": 1.0,
+          "end_s": 1.4,
+          "duration_ms": 400,
+          "delay_ms": 0,
+          "css_animation_delay_ms": 1000,
+          "easing": {
+            "css": "cubic-bezier(0.16, 1, 0.3, 1)",
+            "p1x": 0.16,
+            "p1y": 1,
+            "p2x": 0.3,
+            "p2y": 1,
+            "name": "ease-out (expo-like)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.4944,
+              "0.2": 0.7521,
+              "0.3": 0.8772,
+              "0.4": 0.9398,
+              "0.5": 0.9718,
+              "0.6": 0.988,
+              "0.7": 0.9957,
+              "0.8": 0.9989,
+              "0.9": 0.9999,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateY",
+              "from": 40,
+              "to": 0,
+              "unit": "px"
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "up (moves from 40 px below its resting place to 0)",
+          "magnitude_px": 40,
+          "peak_speed_px_s": 625.0,
+          "bbox_final": {
+            "x": 48,
+            "y": 220,
+            "w": 378.66,
+            "h": 340
+          },
+          "observed_in_file": {
+            "first_change_frame": 61,
+            "first_change_pts_s": 1.016667,
+            "last_still_before_pts_s": 1.0,
+            "last_change_frame": 82,
+            "last_change_pts_s": 1.366667,
+            "changed_frames": 21,
+            "box_xyxy": [
+              52,
+              200,
+              422,
+              640
+            ],
+            "note": "Pixels inside the card's own columns. The ease-out tail moves less than Chrome's 1/4 px raster step and 1/255 opacity step, so the pixels reach their final values ~2 frames before end_s."
+          }
+        },
+        {
+          "id": "card2-enter",
+          "element": "card 2 of 3 in the 'Recent projects' grid (\"Q4 launch page\")",
+          "selector": ".card:nth-child(2)",
+          "kind": "entrance",
+          "start_s": 1.1,
+          "end_s": 1.5,
+          "duration_ms": 400,
+          "delay_ms": 100,
+          "css_animation_delay_ms": 1100,
+          "easing": {
+            "css": "cubic-bezier(0.16, 1, 0.3, 1)",
+            "p1x": 0.16,
+            "p1y": 1,
+            "p2x": 0.3,
+            "p2y": 1,
+            "name": "ease-out (expo-like)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.4944,
+              "0.2": 0.7521,
+              "0.3": 0.8772,
+              "0.4": 0.9398,
+              "0.5": 0.9718,
+              "0.6": 0.988,
+              "0.7": 0.9957,
+              "0.8": 0.9989,
+              "0.9": 0.9999,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateY",
+              "from": 40,
+              "to": 0,
+              "unit": "px"
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "up (moves from 40 px below its resting place to 0)",
+          "magnitude_px": 40,
+          "peak_speed_px_s": 625.0,
+          "bbox_final": {
+            "x": 450.66,
+            "y": 220,
+            "w": 378.67,
+            "h": 340
+          },
+          "observed_in_file": {
+            "first_change_frame": 67,
+            "first_change_pts_s": 1.116667,
+            "last_still_before_pts_s": 1.1,
+            "last_change_frame": 88,
+            "last_change_pts_s": 1.466667,
+            "changed_frames": 21,
+            "box_xyxy": [
+              455,
+              200,
+              825,
+              640
+            ],
+            "note": "Pixels inside the card's own columns. The ease-out tail moves less than Chrome's 1/4 px raster step and 1/255 opacity step, so the pixels reach their final values ~2 frames before end_s."
+          }
+        },
+        {
+          "id": "card3-enter",
+          "element": "card 3 of 3 in the 'Recent projects' grid (\"Design tokens\")",
+          "selector": ".card:nth-child(3)",
+          "kind": "entrance",
+          "start_s": 1.2,
+          "end_s": 1.6,
+          "duration_ms": 400,
+          "delay_ms": 200,
+          "css_animation_delay_ms": 1200,
+          "easing": {
+            "css": "cubic-bezier(0.16, 1, 0.3, 1)",
+            "p1x": 0.16,
+            "p1y": 1,
+            "p2x": 0.3,
+            "p2y": 1,
+            "name": "ease-out (expo-like)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.4944,
+              "0.2": 0.7521,
+              "0.3": 0.8772,
+              "0.4": 0.9398,
+              "0.5": 0.9718,
+              "0.6": 0.988,
+              "0.7": 0.9957,
+              "0.8": 0.9989,
+              "0.9": 0.9999,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateY",
+              "from": 40,
+              "to": 0,
+              "unit": "px"
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "up (moves from 40 px below its resting place to 0)",
+          "magnitude_px": 40,
+          "peak_speed_px_s": 625.0,
+          "bbox_final": {
+            "x": 853.33,
+            "y": 220,
+            "w": 378.66,
+            "h": 340
+          },
+          "observed_in_file": {
+            "first_change_frame": 73,
+            "first_change_pts_s": 1.216667,
+            "last_still_before_pts_s": 1.2,
+            "last_change_frame": 94,
+            "last_change_pts_s": 1.566667,
+            "changed_frames": 20,
+            "box_xyxy": [
+              858,
+              200,
+              1227,
+              640
+            ],
+            "note": "Pixels inside the card's own columns. The ease-out tail moves less than Chrome's 1/4 px raster step and 1/255 opacity step, so the pixels reach their final values ~2 frames before end_s."
+          }
+        }
+      ],
+      "groups": [
+        {
+          "type": "stagger",
+          "members": [
+            "card1-enter",
+            "card2-enter",
+            "card3-enter"
+          ],
+          "stagger_ms": 100,
+          "order": "left to right",
+          "group_start_s": 1.0,
+          "group_end_s": 1.6,
+          "total_span_ms": 600
+        }
+      ],
+      "css_source": ".card{animation:card-in 400ms cubic-bezier(0.16,1,0.3,1) both} .card:nth-child(1){animation-delay:1000ms} .card:nth-child(2){animation-delay:1100ms} .card:nth-child(3){animation-delay:1200ms} @keyframes card-in{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}",
+      "expected_css_answer": {
+        "duration": "400ms",
+        "delays": [
+          "0ms",
+          "100ms",
+          "200ms"
+        ],
+        "timing_function": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "keyframes": "from {opacity: 0; transform: translateY(40px)} to {opacity: 1; transform: none}"
+      },
+      "distractors": [
+        {
+          "id": "caret-blink",
+          "element": "text caret after 'motion' in the header search box",
+          "selector": ".caret",
+          "kind": "blink loop (not an entrance or transition)",
+          "css": "animation: blink 1060ms step-end infinite",
+          "period_ms": 1060,
+          "toggle_interval_ms": 530,
+          "starts_visible": true,
+          "toggle_times_s": [
+            0.53,
+            1.06,
+            1.59,
+            2.12,
+            2.65
+          ],
+          "toggle_frames": [
+            32,
+            64,
+            96,
+            128,
+            159
+          ],
+          "bbox": {
+            "x": 990.55,
+            "y": 22.5,
+            "w": 2,
+            "h": 18
+          },
+          "must_not_report_as": "an intended entrance/exit/transition event; at most mention it as a blinking caret loop"
+        }
+      ],
+      "traps": [
+        "Toggles at 1.06 s and 1.59 s overlap the card animation window (1.0-1.6 s).",
+        "Cards 2 and 3 are still moving while card 1 settles; one bbox for the whole grid merges them."
+      ],
+      "verification": [
+        {
+          "check": "card1 chrome translateY vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card1 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card2 chrome translateY vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card2 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card3 chrome translateY vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card3 chrome opacity vs solver (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card1 source PNG frame 66 (t=1.1000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 7.02,
+          "expected": 6.9751,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card1 decoded mp4 frame 66 (t=1.1000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 7.11,
+          "expected": 6.9751,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card1 decoded frame 66 opacity from pixel mass",
+          "measured": 0.8306,
+          "expected": 0.8256,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card1 source PNG frame 72 (t=1.2000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 1.21,
+          "expected": 1.1288,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card1 decoded mp4 frame 72 (t=1.2000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 1.27,
+          "expected": 1.1288,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card1 decoded frame 72 opacity from pixel mass",
+          "measured": 0.9768,
+          "expected": 0.9718,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card2 source PNG frame 72 (t=1.2000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 7.05,
+          "expected": 6.9751,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card2 decoded mp4 frame 72 (t=1.2000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 6.83,
+          "expected": 6.9751,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card2 decoded frame 72 opacity from pixel mass",
+          "measured": 0.8053,
+          "expected": 0.8256,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card2 source PNG frame 78 (t=1.3000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 1.24,
+          "expected": 1.1288,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card2 decoded mp4 frame 78 (t=1.3000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 1.27,
+          "expected": 1.1288,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card2 decoded frame 78 opacity from pixel mass",
+          "measured": 0.9715,
+          "expected": 0.9718,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card3 source PNG frame 78 (t=1.3000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 7.05,
+          "expected": 6.9751,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card3 decoded mp4 frame 78 (t=1.3000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 6.86,
+          "expected": 6.9751,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card3 decoded frame 78 opacity from pixel mass",
+          "measured": 0.8236,
+          "expected": 0.8256,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "card3 source PNG frame 84 (t=1.4000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 1.24,
+          "expected": 1.1288,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card3 decoded mp4 frame 84 (t=1.4000s) translateY by sub-pixel shift fit (luma, border+thumb rows)",
+          "measured": 1.18,
+          "expected": 1.1288,
+          "tolerance": 0.25,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "card3 decoded frame 84 opacity from pixel mass",
+          "measured": 0.979,
+          "expected": 0.9718,
+          "tolerance": 0.03,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "caret toggle frames: chrome opacity vs decoded pixels",
+          "measured": [
+            32,
+            64,
+            96,
+            128,
+            159
+          ],
+          "expected": [
+            32,
+            64,
+            96,
+            128,
+            159
+          ],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "v2_modal_vfr.mp4",
+      "kind": "ui-motion",
+      "container": {
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "duration_s": 3.0,
+        "size_bytes": 106458,
+        "video": {
+          "codec": "h264",
+          "profile": "High",
+          "width": 1280,
+          "height": 800,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "60/1",
+          "avg_frame_rate": "9/1",
+          "time_base": "1/15360",
+          "nb_frames": 27,
+          "color_space": "bt709",
+          "first_pts_s": 0.0,
+          "last_pts_s": 2.983333
+        }
+      },
+      "summary": "Variable-frame-rate recording of a project list. A delete-confirmation modal scales up and fades in at 0.8 s (240 ms, ease-out), stays, then shrinks slightly and fades out at 2.0 s (160 ms, ease-in).",
+      "events": [
+        {
+          "id": "modal-enter",
+          "element": "confirmation modal 'Delete “Billing revamp”?' centred on the page",
+          "selector": ".modal",
+          "kind": "entrance",
+          "start_s": 0.8,
+          "end_s": 1.04,
+          "duration_ms": 240,
+          "delay_ms": 0,
+          "css_animation_delay_ms": 800,
+          "easing": {
+            "css": "cubic-bezier(0, 0, 0.2, 1)",
+            "p1x": 0,
+            "p1y": 0,
+            "p2x": 0.2,
+            "p2y": 1,
+            "name": "ease-out (Material decelerate)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.3038,
+              "0.2": 0.5,
+              "0.3": 0.645,
+              "0.4": 0.7553,
+              "0.5": 0.8392,
+              "0.6": 0.9021,
+              "0.7": 0.9474,
+              "0.8": 0.9776,
+              "0.9": 0.9946,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "scale",
+              "from": 0.92,
+              "to": 1,
+              "origin": "50% 50%"
+            },
+            {
+              "property": "opacity",
+              "from": 0,
+              "to": 1
+            }
+          ],
+          "direction": "grows from the centre",
+          "magnitude": "scale +0.08 (480x272 box grows from 441.6x250.2)",
+          "bbox_final": {
+            "x": 400,
+            "y": 264,
+            "w": 480,
+            "h": 272
+          },
+          "observed_in_file": {
+            "first_change_frame": 1,
+            "first_change_pts_s": 0.816667,
+            "last_still_before_pts_s": 0.0,
+            "last_change_frame": 15,
+            "last_change_pts_s": 1.05,
+            "changed_frames": 15,
+            "box_xyxy": [
+              360,
+              220,
+              920,
+              600
+            ]
+          }
+        },
+        {
+          "id": "modal-exit",
+          "element": "the same modal",
+          "selector": ".modal",
+          "kind": "exit",
+          "start_s": 2.0,
+          "end_s": 2.16,
+          "duration_ms": 160,
+          "delay_ms": 1200,
+          "delay_note": "delay_ms = time from enter start to exit start",
+          "css_animation_delay_ms": 2000,
+          "easing": {
+            "css": "cubic-bezier(0.4, 0, 1, 1)",
+            "p1x": 0.4,
+            "p1y": 0,
+            "p2x": 1,
+            "p2y": 1,
+            "name": "ease-in (Material accelerate)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.0184,
+              "0.2": 0.0662,
+              "0.3": 0.1359,
+              "0.4": 0.2232,
+              "0.5": 0.3248,
+              "0.6": 0.4388,
+              "0.7": 0.5638,
+              "0.8": 0.6988,
+              "0.9": 0.8438,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "scale",
+              "from": 1,
+              "to": 0.96,
+              "origin": "50% 50%"
+            },
+            {
+              "property": "opacity",
+              "from": 1,
+              "to": 0
+            }
+          ],
+          "direction": "shrinks toward the centre while fading out",
+          "magnitude": "scale -0.04",
+          "observed_in_file": {
+            "first_change_frame": 16,
+            "first_change_pts_s": 2.016667,
+            "last_still_before_pts_s": 1.05,
+            "last_change_frame": 25,
+            "last_change_pts_s": 2.166667,
+            "changed_frames": 10,
+            "box_xyxy": [
+              360,
+              220,
+              920,
+              600
+            ]
+          }
+        }
+      ],
+      "vfr": {
+        "source_fps": 60,
+        "source_frames": 180,
+        "method": "ffmpeg mpdecimate (defaults hi=64*12, lo=64*5, frac=0.33) on the 60 fps source, -fps_mode vfr; the final source frame is also kept so the file ends at 3.0 s",
+        "mpdecimate_kept_source_frames": [
+          0,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130
+        ],
+        "kept_frames": [
+          {
+            "pts_s": 0.0,
+            "source_frame": 0,
+            "scale": 0.92,
+            "opacity": 0.0
+          },
+          {
+            "pts_s": 0.816667,
+            "source_frame": 49,
+            "scale": 0.93827,
+            "opacity": 0.22837
+          },
+          {
+            "pts_s": 0.833333,
+            "source_frame": 50,
+            "scale": 0.95104,
+            "opacity": 0.38796
+          },
+          {
+            "pts_s": 0.85,
+            "source_frame": 51,
+            "scale": 0.9611,
+            "opacity": 0.51372
+          },
+          {
+            "pts_s": 0.866667,
+            "source_frame": 52,
+            "scale": 0.96929,
+            "opacity": 0.61617
+          },
+          {
+            "pts_s": 0.883333,
+            "source_frame": 53,
+            "scale": 0.97606,
+            "opacity": 0.70077
+          },
+          {
+            "pts_s": 0.9,
+            "source_frame": 54,
+            "scale": 0.98167,
+            "opacity": 0.77092
+          },
+          {
+            "pts_s": 0.916667,
+            "source_frame": 55,
+            "scale": 0.98632,
+            "opacity": 0.82894
+          },
+          {
+            "pts_s": 0.933333,
+            "source_frame": 56,
+            "scale": 0.99012,
+            "opacity": 0.87652
+          },
+          {
+            "pts_s": 0.95,
+            "source_frame": 57,
+            "scale": 0.9932,
+            "opacity": 0.91496
+          },
+          {
+            "pts_s": 0.966667,
+            "source_frame": 58,
+            "scale": 0.99562,
+            "opacity": 0.94527
+          },
+          {
+            "pts_s": 0.983333,
+            "source_frame": 59,
+            "scale": 0.99746,
+            "opacity": 0.96826
+          },
+          {
+            "pts_s": 1.0,
+            "source_frame": 60,
+            "scale": 0.99877,
+            "opacity": 0.98462
+          },
+          {
+            "pts_s": 1.016667,
+            "source_frame": 61,
+            "scale": 0.99959,
+            "opacity": 0.9949
+          },
+          {
+            "pts_s": 1.033333,
+            "source_frame": 62,
+            "scale": 0.99997,
+            "opacity": 0.99959
+          },
+          {
+            "pts_s": 1.05,
+            "source_frame": 63,
+            "scale": 1.0,
+            "opacity": 1.0
+          },
+          {
+            "pts_s": 2.016667,
+            "source_frame": 121,
+            "scale": 0.99921,
+            "opacity": 0.98016
+          },
+          {
+            "pts_s": 2.033333,
+            "source_frame": 122,
+            "scale": 0.99715,
+            "opacity": 0.9288
+          },
+          {
+            "pts_s": 2.05,
+            "source_frame": 123,
+            "scale": 0.99416,
+            "opacity": 0.85404
+          },
+          {
+            "pts_s": 2.066667,
+            "source_frame": 124,
+            "scale": 0.99043,
+            "opacity": 0.76083
+          },
+          {
+            "pts_s": 2.083333,
+            "source_frame": 125,
+            "scale": 0.9861,
+            "opacity": 0.6524
+          },
+          {
+            "pts_s": 2.1,
+            "source_frame": 126,
+            "scale": 0.98124,
+            "opacity": 0.53092
+          },
+          {
+            "pts_s": 2.116667,
+            "source_frame": 127,
+            "scale": 0.97591,
+            "opacity": 0.39784
+          },
+          {
+            "pts_s": 2.133333,
+            "source_frame": 128,
+            "scale": 0.97016,
+            "opacity": 0.25396
+          },
+          {
+            "pts_s": 2.15,
+            "source_frame": 129,
+            "scale": 0.96397,
+            "opacity": 0.09923
+          },
+          {
+            "pts_s": 2.166667,
+            "source_frame": 130,
+            "scale": 0.96,
+            "opacity": 0.0
+          },
+          {
+            "pts_s": 2.983333,
+            "source_frame": 179,
+            "scale": 0.96,
+            "opacity": 0.0
+          }
+        ],
+        "note": "Each kept frame shows the page state at its own pts. Frames absent from the file were identical (or nearly identical) to the previous kept frame."
+      },
+      "css_source": ".modal{transform-origin:50% 50%; animation: modal-in 240ms cubic-bezier(0,0,0.2,1) 800ms both, modal-out 160ms cubic-bezier(0.4,0,1,1) 2000ms forwards} @keyframes modal-in{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}} @keyframes modal-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.96)}}",
+      "expected_css_answer": {
+        "enter": "240ms cubic-bezier(0, 0, 0.2, 1); scale 0.92 -> 1, opacity 0 -> 1",
+        "exit": "160ms cubic-bezier(0.4, 0, 1, 1); scale 1 -> 0.96, opacity 1 -> 0",
+        "gap_between": "exit starts 960 ms after the enter animation ends"
+      },
+      "distractors": [],
+      "traps": [
+        "The frame before the first changed frame has pts 0.0 s: a tool that takes 'last still frame' as the start would report ~0 s instead of 0.8 s.",
+        "Frame gaps of 0.817 s (0.000 -> 0.817), 0.967 s (1.050 -> 2.017), 0.817 s (2.167 -> 2.983) are not pauses in the animation; the page was simply unchanged.",
+        "Every source frame whose CSS state changed is in the file (mpdecimate dropped only still frames). The CSS ends (1.04 s, 2.16 s) are not on the 60 fps grid, so the last changed frames are 1.05 s and 2.166667 s: durations measured from the true starts (250.0 ms, 166.7 ms) run up to one frame LONGER than the CSS durations (240 ms, 160 ms), not shorter."
+      ],
+      "verification": [
+        {
+          "check": "kept pts == mpdecimate decisions (+ final frame)",
+          "measured": [
+            0,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            179
+          ],
+          "expected": [
+            0,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            179
+          ],
+          "pass": true
+        },
+        {
+          "check": "decoded frame count == ffprobe pts count",
+          "measured": 27,
+          "expected": 27,
+          "pass": true
+        },
+        {
+          "check": "chrome scale vs solver (max abs err, all 180 source frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.0001,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "chrome opacity vs solver (max abs err, all 180 source frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.0001,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "reference kept frame is fully in (CSS opacity)",
+          "measured": 1.0,
+          "expected": 1.0,
+          "tolerance": 1e-06,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=0.8500s modal scale by least-squares fit (luma)",
+          "measured": 0.962,
+          "expected": 0.9611,
+          "tolerance": 0.002,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=0.8500s modal opacity from the same fit",
+          "measured": 0.5,
+          "expected": 0.5137,
+          "tolerance": 0.02,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=0.9000s modal scale by least-squares fit (luma)",
+          "measured": 0.981,
+          "expected": 0.9817,
+          "tolerance": 0.002,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=0.9000s modal opacity from the same fit",
+          "measured": 0.7693,
+          "expected": 0.7709,
+          "tolerance": 0.02,
+          "unit": "opacity",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=2.1000s modal scale by least-squares fit (luma)",
+          "measured": 0.981,
+          "expected": 0.9812,
+          "tolerance": 0.002,
+          "unit": "scale",
+          "pass": true
+        },
+        {
+          "check": "kept frame pts=2.1000s modal opacity from the same fit",
+          "measured": 0.5367,
+          "expected": 0.5309,
+          "tolerance": 0.02,
+          "unit": "opacity",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "v3_toast_sound.mp4",
+      "kind": "ui-motion+audio",
+      "container": {
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "duration_s": 3.0,
+        "size_bytes": 47318,
+        "video": {
+          "codec": "h264",
+          "profile": "High",
+          "width": 1280,
+          "height": 800,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "60/1",
+          "avg_frame_rate": "60/1",
+          "time_base": "1/15360",
+          "nb_frames": 180,
+          "color_space": "bt709",
+          "first_pts_s": 0.0,
+          "last_pts_s": 2.983333
+        },
+        "audio": {
+          "codec": "aac",
+          "sample_rate": 48000,
+          "channels": 2,
+          "duration_s": 3.0,
+          "start_time_s": 0.0
+        }
+      },
+      "summary": "Uploads page with a loading spinner that turns continuously. At 1.2 s a dark 'Changes saved' toast slides in from the right edge (300 ms, ease-out). A short click sound plays at 1.23 s, 30 ms after the slide starts.",
+      "events": [
+        {
+          "id": "toast-enter",
+          "element": "dark toast 'Changes saved' with an 'Undo' link, bottom-right corner",
+          "selector": ".toast",
+          "kind": "entrance",
+          "start_s": 1.2,
+          "end_s": 1.5,
+          "duration_ms": 300,
+          "delay_ms": 0,
+          "css_animation_delay_ms": 1200,
+          "easing": {
+            "css": "cubic-bezier(0.22, 1, 0.36, 1)",
+            "p1x": 0.22,
+            "p1y": 1,
+            "p2x": 0.36,
+            "p2y": 1,
+            "name": "ease-out (quart-like)",
+            "progress_at_x": {
+              "0.0": 0.0,
+              "0.1": 0.4011,
+              "0.2": 0.674,
+              "0.3": 0.8322,
+              "0.4": 0.9171,
+              "0.5": 0.9614,
+              "0.6": 0.9837,
+              "0.7": 0.9942,
+              "0.8": 0.9985,
+              "0.9": 0.9998,
+              "1.0": 1.0
+            }
+          },
+          "properties": [
+            {
+              "property": "transform",
+              "function": "translateX",
+              "from": 360,
+              "to": 0,
+              "unit": "px"
+            }
+          ],
+          "direction": "right to left (slides in from beyond the right edge of the viewport)",
+          "magnitude_px": 360,
+          "fully_offscreen_before_start": true,
+          "opacity_animated": false,
+          "peak_speed_px_s": 5454.5,
+          "bbox_final": {
+            "x": 936,
+            "y": 712,
+            "w": 320,
+            "h": 64
+          },
+          "observed_in_file": {
+            "first_change_frame": 73,
+            "first_change_pts_s": 1.216667,
+            "last_still_before_pts_s": 1.2,
+            "last_change_frame": 90,
+            "last_change_pts_s": 1.5,
+            "changed_frames": 18,
+            "box_xyxy": [
+              900,
+              696,
+              1280,
+              792
+            ]
+          }
+        }
+      ],
+      "audio": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "codec": "aac 192 kb/s",
+        "events": [
+          {
+            "id": "click",
+            "kind": "click",
+            "start_s": 1.23,
+            "description": "8 ms 2.5 kHz decaying sine burst (time constant 1.2 ms), peak 0.5 FS before AAC; digital silence everywhere else",
+            "decoded_onset_s_10pct_peak": 1.23002,
+            "decoded_onset_s_minus60dbfs": 1.22921,
+            "decoded_first_nonzero_s": 1.22533,
+            "decoded_peak": 0.4541,
+            "decoded_measured_on": "one channel of the decoded AAC (L and R are bit-identical); an ffmpeg '-ac 1' downmix is +3 dB (peak 0.6421, -60 dBFS onset 1.22888 s). The first non-zero sample is AAC pre-echo."
+          }
+        ],
+        "sync": {
+          "sound_minus_motion_ms": 30,
+          "meaning": "the click lags the toast motion start by 30 ms (sound 1.230 s vs motion 1.200 s); first visible toast pixels appear at frame 73 (t=1.2167 s)"
+        },
+        "silence_elsewhere": true
+      },
+      "css_source": ".toast{animation:toast-in 300ms cubic-bezier(0.22,1,0.36,1) 1200ms both} @keyframes toast-in{from{transform:translateX(360px)}to{transform:translateX(0)}} .spinner{animation:spin 800ms linear infinite} @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}",
+      "expected_css_answer": {
+        "duration": "300ms",
+        "timing_function": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "keyframes": "from {transform: translateX(360px)} to {transform: none}"
+      },
+      "distractors": [
+        {
+          "id": "spinner",
+          "element": "loading spinner (ring with one blue arc) left of 'Uploading 3 files…'",
+          "selector": ".spinner",
+          "kind": "continuous rotation loop (not an entrance or transition)",
+          "css": "animation: spin 800ms linear infinite",
+          "period_ms": 800,
+          "speed_deg_s": 450,
+          "direction": "clockwise",
+          "easing": "linear",
+          "angle_at_t0_deg": 0,
+          "runs_s": [
+            0.0,
+            3.0
+          ],
+          "bbox": {
+            "x": 282.37,
+            "y": 147.37,
+            "w": 45.25,
+            "h": 45.25
+          },
+          "must_not_report_as": "a discrete intended event with a start/end; may be reported as a looping spinner with an 800 ms period"
+        }
+      ],
+      "traps": [
+        "Every frame differs somewhere because of the spinner; a whole-frame change detector finds one 3-second event.",
+        "The toast's first visible frame is 73 (t=1.2167 s), not 1.2 s: at t=1.2 its 360 px offset puts it (and its shadow) beyond the right edge. Its border box first crosses the edge at frame 73 (t=1.2167 s)."
+      ],
+      "verification": [
+        {
+          "check": "chrome toast translateX vs solver (max abs err, all frames)",
+          "measured": 0.0004,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "chrome spinner angle vs 450 deg/s linear (max abs err, all frames)",
+          "measured": 0.0,
+          "expected": 0,
+          "tolerance": 0.01,
+          "unit": "deg",
+          "pass": true
+        },
+        {
+          "check": "decoded frame 78 (t=1.3000s) toast left edge (sub-pixel)",
+          "measured": 983.9323,
+          "expected": 983.9813,
+          "tolerance": 0.35,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "decoded frame 81 (t=1.3500s) toast left edge (sub-pixel)",
+          "measured": 949.8787,
+          "expected": 949.9023,
+          "tolerance": 0.35,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "decoded frame 84 (t=1.4000s) toast left edge (sub-pixel)",
+          "measured": 938.9492,
+          "expected": 939.0288,
+          "tolerance": 0.35,
+          "unit": "px",
+          "pass": true
+        },
+        {
+          "check": "decoded frame 0 spinner arc angle (0 = arc at top, clockwise)",
+          "measured": 0.059,
+          "expected": 0.0,
+          "tolerance": 3.0,
+          "unit": "deg",
+          "pass": true
+        },
+        {
+          "check": "decoded frame 10 spinner arc angle (0 = arc at top, clockwise)",
+          "measured": 75.743,
+          "expected": 75.0,
+          "tolerance": 3.0,
+          "unit": "deg",
+          "pass": true
+        },
+        {
+          "check": "decoded frame 30 spinner arc angle (0 = arc at top, clockwise)",
+          "measured": 224.228,
+          "expected": 225.0,
+          "tolerance": 3.0,
+          "unit": "deg",
+          "pass": true
+        },
+        {
+          "check": "decoded frame 100 spinner arc angle (0 = arc at top, clockwise)",
+          "measured": 29.402,
+          "expected": 30.0,
+          "tolerance": 3.0,
+          "unit": "deg",
+          "pass": true
+        },
+        {
+          "check": "decoded AAC click onset (first sample >= 10% of peak)",
+          "measured": 1.23,
+          "expected": 1.23,
+          "tolerance": 0.002,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "audio stream duration (ffprobe, edit list applied)",
+          "measured": 3.0,
+          "expected": 3.0,
+          "tolerance": 1e-06,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "decoded AAC sample count within one AAC frame of 3.0 s (encoder end padding)",
+          "measured": 144384,
+          "expected": [
+            144000,
+            145024
+          ],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "file": "v4_slides_ko.mp4",
+      "kind": "lecture (Korean)",
+      "container": {
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "duration_s": 20.0,
+        "size_bytes": 444776,
+        "video": {
+          "codec": "h264",
+          "profile": "High",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "time_base": "1/15360",
+          "nb_frames": 600,
+          "color_space": "bt709",
+          "first_pts_s": 0.0,
+          "last_pts_s": 19.966667
+        },
+        "audio": {
+          "codec": "aac",
+          "sample_rate": 48000,
+          "channels": 2,
+          "duration_s": 20.0,
+          "start_time_s": 0.0
+        }
+      },
+      "summary": "Three static lecture slides with Korean titles and one English line each, hard cuts at 6.5 s and 13.2 s, Korean narration (macOS voice Yuna) starting 0.5 s after each cut.",
+      "scenes": [
+        {
+          "index": 1,
+          "start_s": 0.0,
+          "end_s": 6.5,
+          "start_frame": 0,
+          "end_frame_exclusive": 195,
+          "accent_bar_color": "#4c6ef5"
+        },
+        {
+          "index": 2,
+          "start_s": 6.5,
+          "end_s": 13.2,
+          "start_frame": 195,
+          "end_frame_exclusive": 396,
+          "accent_bar_color": "#12b76a"
+        },
+        {
+          "index": 3,
+          "start_s": 13.2,
+          "end_s": 20.0,
+          "start_frame": 396,
+          "end_frame_exclusive": 600,
+          "accent_bar_color": "#f79009"
+        }
+      ],
+      "cuts_s": [
+        6.5,
+        13.2
+      ],
+      "cut_frames": [
+        195,
+        396
+      ],
+      "transition": "hard cut (no fade)",
+      "text": [
+        {
+          "slide": 1,
+          "title_ko": "화면 녹화로 모션 읽기",
+          "line_en": "Reading motion from screen recordings",
+          "footer": "1 / 3",
+          "visible_s": [
+            0.0,
+            6.5
+          ]
+        },
+        {
+          "slide": 2,
+          "title_ko": "프레임 차이로 타이밍 재기",
+          "line_en": "Timing from frame differences",
+          "footer": "2 / 3",
+          "visible_s": [
+            6.5,
+            13.2
+          ]
+        },
+        {
+          "slide": 3,
+          "title_ko": "글자와 음성은 따로 확인",
+          "line_en": "Check on-screen text and speech separately",
+          "footer": "3 / 3",
+          "visible_s": [
+            13.2,
+            20.0
+          ]
+        }
+      ],
+      "narration": [
+        {
+          "slide": 1,
+          "text": "오늘은 화면 녹화에서 움직임을 재는 방법을 알아보겠습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 0.5,
+          "end_s": 4.57,
+          "duration_s": 4.07,
+          "placed_start_s": 0.5,
+          "placed_end_s": 4.573
+        },
+        {
+          "slide": 2,
+          "text": "두 프레임의 차이를 계산하면 애니메이션이 시작하고 끝나는 시점을 알 수 있습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 7.0,
+          "end_s": 12.6,
+          "duration_s": 5.6,
+          "placed_start_s": 7.0,
+          "placed_end_s": 12.593
+        },
+        {
+          "slide": 3,
+          "text": "마지막으로 화면 속 글자와 음성을 따로 확인하면 내용을 놓치지 않습니다.",
+          "language": "ko",
+          "voice": "macOS say -v Yuna",
+          "start_s": 13.7,
+          "end_s": 18.58,
+          "duration_s": 4.88,
+          "placed_start_s": 13.7,
+          "placed_end_s": 18.582
+        }
+      ],
+      "audio": {
+        "sample_rate": 48000,
+        "channels": 2,
+        "codec": "aac 192 kb/s",
+        "speech_detector": "10 ms RMS windows above -45 dBFS on one channel of the decoded mp4 audio (L and R are identical; a '-ac 1' downmix is +3 dB); start = first active window in the slide, end = end of the last active window in the slide",
+        "ffmpeg_silencedetect_-45dB_0.4s": [
+          [
+            0.0,
+            0.5
+          ],
+          [
+            4.573,
+            7.0
+          ],
+          [
+            12.593,
+            13.7
+          ],
+          [
+            18.582,
+            20.011
+          ]
+        ]
+      },
+      "events": [],
+      "distractors": [],
+      "traps": [
+        "The spoken sentence and the slide title are different texts; a summary must not merge them.",
+        "No motion between cuts: slides are fully static, so no animation events should be reported.",
+        "x264 noise right after each I-frame changes a few title-glyph pixels between identical source frames: frame 1 (103 px > 8 grey, max 49), frame 196 (33 px > 8 grey, max 39), frame 199 (32 px > 8 grey, max 39), frame 200 (38 px > 8 grey, max 39). A detector at 8 grey / 20 px sees these as tiny events; they are codec noise, not motion."
+      ],
+      "verification": [
+        {
+          "check": "hard cuts found by consecutive-frame mean abs diff > 1.0",
+          "measured": [
+            195,
+            396
+          ],
+          "expected": [
+            195,
+            396
+          ],
+          "pass": true,
+          "max_diff_outside_cuts": 0.0048
+        },
+        {
+          "check": "slide 1 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 0.5,
+          "expected": 0.5,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 2 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 7.0,
+          "expected": 7.0,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 3 narration start (decoded, 10 ms RMS > -45 dBFS) vs placement",
+          "measured": 13.7,
+          "expected": 13.7,
+          "tolerance": 0.02,
+          "unit": "s",
+          "pass": true
+        },
+        {
+          "check": "slide 1 Vision OCR on decoded frame 97 finds every string exactly",
+          "measured": [
+            "화면 녹화로 모션 읽기",
+            "Reading motion from screen recordings",
+            "1/ 3"
+          ],
+          "expected": [
+            "화면 녹화로 모션 읽기",
+            "Reading motion from screen recordings",
+            "1 / 3"
+          ],
+          "pass": true
+        },
+        {
+          "check": "slide 2 Vision OCR on decoded frame 295 finds every string exactly",
+          "measured": [
+            "프레임 차이로 타이밍 재기",
+            "Timing from frame differences",
+            "2/ 3"
+          ],
+          "expected": [
+            "프레임 차이로 타이밍 재기",
+            "Timing from frame differences",
+            "2 / 3"
+          ],
+          "pass": true
+        },
+        {
+          "check": "slide 3 Vision OCR on decoded frame 498 finds every string exactly",
+          "measured": [
+            "글자와 음성은 따로 확인",
+            "Check on-screen text and speech separately",
+            "3/3"
+          ],
+          "expected": [
+            "글자와 음성은 따로 확인",
+            "Check on-screen text and speech separately",
+            "3 / 3"
+          ],
+          "pass": true
+        }
+      ]
+    }
+  ]
+}
