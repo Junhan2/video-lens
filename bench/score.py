@@ -265,6 +265,14 @@ def score_gist(answer):
     return rubric, 0, []
 
 
+# Path fragments that show which video skill a run actually executed (its scripts or files), not just its name in the prompt.
+SKILL_MARKERS = {"video-lens": ("video-lens/", "vl.py"), "watch": ("claude-video/",), "video-use": ("video-use/",)}
+
+
+def skills_in(payload):
+    return {name for name, marks in SKILL_MARKERS.items() if any(mark in payload for mark in marks)}
+
+
 def is_grok_log(log_path):
     with open(log_path) as fh:
         return '"available_commands"' in fh.readline()
@@ -272,7 +280,7 @@ def is_grok_log(log_path):
 
 def grok_metrics(log_path):
     """Grok Build CLI streaming-json: answer text arrives as `text` deltas, totals in the final `end` event."""
-    text, end, tool_calls, image_reads, leaked, skill_used = [], None, 0, 0, False, False
+    text, end, tool_calls, image_reads, leaked, skill_used, touched = [], None, 0, 0, False, False, set()
     for line in log_path.read_text().splitlines():
         try:
             event = json.loads(line)
@@ -292,14 +300,15 @@ def grok_metrics(log_path):
                 leaked = True
             if "vl.py" in payload:
                 skill_used = True
+            touched |= skills_in(payload)
     if end is None:
-        return None, tool_calls, image_reads, leaked, skill_used
+        return None, tool_calls, image_reads, leaked, skill_used, touched
     wall = log_path.parent / "wall.json"
     duration_ms = json.loads(wall.read_text())["wall_s"] * 1000 if wall.exists() else None
     result = {"type": "result", "subtype": "success" if end.get("stopReason") == "end_turn" else end.get("stopReason"),
               "result": "".join(text), "total_cost_usd": end.get("total_cost_usd"), "num_turns": end.get("num_turns"),
               "duration_ms": duration_ms, "usage": end.get("usage", {})}
-    return result, tool_calls, image_reads, leaked, skill_used
+    return result, tool_calls, image_reads, leaked, skill_used, touched
 
 
 # A run that touches the bench folder or an answer key is flagged as a holdout leak. "video-lens-bench" is the
@@ -310,7 +319,7 @@ LEAK_MARKS = ("video-lens-bench", str(BENCH), "truth.json")
 def run_metrics(log_path):
     if is_grok_log(log_path):
         return grok_metrics(log_path)
-    results, tool_calls, image_reads, leaked, skill_used = [], 0, 0, False, False
+    results, tool_calls, image_reads, leaked, skill_used, touched = [], 0, 0, False, False, set()
     for line in log_path.read_text().splitlines():
         try:
             event = json.loads(line)
@@ -331,7 +340,8 @@ def run_metrics(log_path):
                 leaked = True
             if "video-lens" in payload or block.get("name") == "Skill":
                 skill_used = True
-    return combine_results(results), tool_calls, image_reads, leaked, skill_used
+            touched |= skills_in(payload)
+    return combine_results(results), tool_calls, image_reads, leaked, skill_used, touched
 
 
 def combine_results(results):
@@ -364,7 +374,7 @@ def score_run(run_dir):
     log_path = run_dir / "run.jsonl"
     if not log_path.exists():
         return None
-    result, tool_calls, image_reads, leaked, skill_used = run_metrics(log_path)
+    result, tool_calls, image_reads, leaked, skill_used, touched = run_metrics(log_path)
     if result is None:
         return {"task": task, "arm": arm, "rep": rep, "status": "no result"}
     answer = extract_answer(result.get("result", ""))
@@ -387,7 +397,7 @@ def score_run(run_dir):
         "duration_s": round((result.get("duration_ms") or 0) / 1000, 1), "wall_s": wall,
         "input_tokens": usage.get("input_tokens", 0) + usage.get("cache_creation_input_tokens", 0) + usage.get("cache_read_input_tokens", 0),
         "output_tokens": usage.get("output_tokens"), "tool_calls": tool_calls, "image_reads": image_reads,
-        "skill_used": skill_used, "leaked": leaked, "notes": " | ".join(notes),
+        "skill_used": skill_used, "skills_touched": "+".join(sorted(touched)), "leaked": leaked, "notes": " | ".join(notes),
     }
 
 

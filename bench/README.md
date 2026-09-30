@@ -15,11 +15,12 @@ Published run: 2026-09-30, 9 tasks x 3 runs = 27 runs per condition, Claude Opus
 | `hardset/gen_hard.py` | Builds clips h1 to h3 and writes `truth_hard.json`. |
 | `clips.sha256` | SHA-256 of the seven clips the published runs used. |
 | `run_one.sh` | Runs one cell (task, arm, repetition) with `claude -p`. |
-| `run_final.sh` | Runs all 54 cells for one model, one at a time: skill arm first, then the baseline arm with the skill hidden. |
-| `final_bf.txt`, `final_a0f.txt`, `final_bs.txt`, `final_a0s.txt` | Cell lists, one `task arm rep` per line. |
+| `run_final.sh` | Runs all cells of one group (`opus`, `sonnet`, `grok`, `skills`), one at a time: the video-lens arm first, then the arms that must not see video-lens, with it hidden. |
+| `final_*.txt` | Cell lists, one `task arm rep` per line, one file per arm. |
 | `hide_skill.sh` | Locks the skill folder, its symlink and its cache for the baseline arm, and restores them. |
 | `paths.sh` | Paths shared by the scripts, each overridable by an environment variable. |
 | `score.py` | Scores every run folder against the answer keys and prints a per-cell summary. |
+| `build_benchmark.py` | Writes the scored runs of `results.csv` into `docs/data/benchmark.json` (overall means, per-task medians); `--check` only reports what would change. |
 | `results.csv` | The 108 published runs (4 conditions x 27), one row per run. |
 
 Not included: the video files (the generators rebuild them), the carousel recording used by the `orbit` and `gist` tasks (a private file), and the run logs.
@@ -32,6 +33,10 @@ Not included: the video files (the generators rebuild them), the carousel record
 | `bf` | Opus 5.5 | Skill: the prompt starts with `/video-lens`. |
 | `a0s` | Sonnet 5.5 | Baseline, as `a0f`. |
 | `bs` | Sonnet 5.5 | Skill, as `bf`. |
+| `g0` | Grok 4.7 | Baseline, as `a0f`, run in the Grok Build CLI (`--model grok-4.7 --reasoning-effort xhigh`). |
+| `gs` | Grok 4.7 | Skill, as `bf`, in the Grok Build CLI. |
+| `w` | Opus 5.5 | [/watch](https://github.com/bradautomates/claude-video) 0.1.3: the prompt starts with `/watch:watch`; video-lens is locked on disk. |
+| `vu` | Opus 5.5 | [video-use](https://github.com/browser-use/video-use): the prompt starts with `/video-use`, the skill is loaded for this run only (`--add-dir`); video-lens is locked on disk. |
 
 `run_one.sh` also accepts `b` (skills available but not named, Opus 5.5), which measured whether the skill triggers by itself: it did in 8 of 9 tasks. Those runs are not in `results.csv`. The codes `a0` and `bstar*` are earlier rounds' names for the `a0f` and `bf` conditions.
 
@@ -57,6 +62,9 @@ The prompts are in Korean, exactly as they were run. Every prompt ends with the 
 - Google Chrome at `/Applications/Google Chrome.app` (the generators drive it headless over the DevTools pipe).
 - ffmpeg and ffprobe, Python 3 with numpy and opencv-python. `swiftc` (Xcode Command Line Tools) is optional; the generators use it for an extra OCR check of the slides.
 - Claude Code (`claude`) signed in, and video-lens with its own requirements (see the main [README](../README.md)).
+- For `g0` and `gs`: the Grok Build CLI signed in.
+- For `w`: the /watch plugin (claude-video 0.1.3) with the Groq or OpenAI key it asks for.
+- For `vu`: a clone of video-use with its Python packages (`uv sync`) and `ELEVENLABS_API_KEY` in its `.env`.
 
 Tested with macOS 26.3, Python 3.13, ffmpeg 8.1, Chrome 153 and 154.
 
@@ -95,6 +103,8 @@ If you also installed video-lens from the plugin marketplace, remove or disable 
 | `VLB_PARKED_LINK` | `~/.vlb-hidden-skill-link` | Where that symlink waits while hidden. |
 | `VIDEO_LENS_USER_CACHE` | `~/.cache/video-lens` | The skill's shared cache (compiled Swift helpers). Also locked. |
 | `VLB_RUNS` | `~/vlb-runs` | One folder per run: `work/clip.mp4`, `run.jsonl`, `stderr.txt`, `wall.json`, `vlcache/`. |
+| `VIDEO_USE_DIR` | `~/Developer/video-use` | Your video-use clone, for the `vu` arm. |
+| `GROK_BIN` | `~/.grok/bin/grok` | The Grok Build CLI, for the `g0` and `gs` arms. |
 
 `hide_skill.sh` refuses to hide a folder that contains the bench. `run_one.sh` refuses to start a baseline run while the symlink exists or the skill folder or cache is readable.
 
@@ -103,6 +113,8 @@ If you also installed video-lens from the plugin marketplace, remove or disable 
 ```
 ./run_final.sh opus      # 27 skill cells, then 27 baseline cells
 ./run_final.sh sonnet
+./run_final.sh grok
+./run_final.sh skills    # 27 /watch cells, then 27 video-use cells
 ./run_one.sh v3 bf 1     # a single cell
 ```
 
@@ -119,9 +131,11 @@ claude -p "<prompt>" --model <claude-opus-5-5 | claude-sonnet-5-5> \
   [--disable-slash-commands]      # baseline arms only
 ```
 
-For the skill arms the prompt starts with `/video-lens `. `--strict-mcp-config` with no config file means no MCP servers. The stream is saved as `run.jsonl` and the wall-clock time as `wall.json`. A cell whose log already has a result is skipped, so an interrupted pass can be resumed.
+For the skill arms the prompt starts with `/video-lens `, for `w` with `/watch:watch ` and for `vu` with `/video-use `. `--strict-mcp-config` with no config file means no MCP servers. The stream is saved as `run.jsonl` and the wall-clock time as `wall.json`. A cell whose log already has a result is skipped, so an interrupted pass can be resumed.
 
-`run_final.sh` locks the skill before the baseline cells and restores it when it exits, whether it finishes, fails or is stopped.
+The Grok arms run `grok --model grok-4.7 --reasoning-effort xhigh -p "<prompt>" --output-format streaming-json --disallowed-tools use_tool,search_tool` instead; the two blocked tools are its MCP gateway, to match the Claude runs.
+
+`run_final.sh` locks video-lens before the cells that must not see it and restores it when it exits, whether it finishes, fails or is stopped.
 
 The published pass took about 5.2 hours and $41 API-equivalent for Opus 5.5, and about 3.1 hours and $28 for Sonnet 5.5.
 
@@ -131,6 +145,7 @@ The published pass took about 5.2 hours and $41 API-equivalent for Opus 5.5, and
 python3 score.py                    # per-cell summary: median score, worst run, median cost, turns, time, image reads
 python3 score.py --csv mine.csv     # one row per run, same columns as results.csv
 python3 score.py --detail           # every run as JSON, with a note per check
+python3 build_benchmark.py --check  # what the scored runs in results.csv would change in docs/data/benchmark.json
 ```
 
 The answer is the last `json` block in the run's final result. Each task yields a list of checks, and a run's score is `max(0, points - false positives) / number of checks`.
