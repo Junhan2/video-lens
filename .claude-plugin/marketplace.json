@@ -1,0 +1,14 @@
+{
+  "name": "video-lens",
+  "owner": {
+    "name": "Junhan2"
+  },
+  "description": "Local video analysis skill for Claude Code: measures UI motion to the frame and reads scenes, text and speech on your Mac.",
+  "plugins": [
+    {
+      "name": "video-lens",
+      "source": ".",
+      "description": "Measures video instead of eyeballing it: animation timing and easing as CSS, stagger, scene cuts, on-screen text, speech and audio sync, all on-device."
+    }
+  ]
+}
