@@ -1,17 +1,171 @@
 {
+  "meta": {
+    "title": "video-lens: Claude Code에서 영상 측정하기",
+    "description": "내 Mac에서 영상을 재는 Claude Code 스킬입니다. UI 애니메이션의 타이밍과 easing은 CSS로, 장면 전환, 화면 글자, 음성은 시각과 함께 알려 줍니다. 아무것도 업로드하지 않습니다."
+  },
+  "nav": {
+    "skip": "본문으로 건너뛰기",
+    "primary": "목차",
+    "why": "왜 필요한가",
+    "benchmarks": "벤치마크",
+    "when": "언제 쓰나",
+    "install": "설치",
+    "usage": "쓰는 법",
+    "how": "동작 방식",
+    "method": "측정 방법",
+    "limits": "한계",
+    "language": "언어",
+    "github": "GitHub",
+    "github_aria": "GitHub에서 video-lens 저장소 열기"
+  },
+  "hero": {
+    "eyebrow": "Claude Code 스킬 · macOS · MIT",
+    "pitch": "영상을 눈대중으로 보지 않고 직접 잽니다. 그래서 Claude가 언제, 얼마 동안, 어떻게라는 질문에 답할 수 있습니다. 모든 처리는 내 Mac에서 합니다.",
+    "lede": "Claude는 영상을 직접 보지 못합니다. video-lens는 영상을 프레임 단위로 재서 숫자와 글을 먼저 Claude에게 건네고, 눈으로 봐야 할 곳만 이미지로 보여 줍니다.",
+    "strip_aria": "프레임 30장짜리 두 줄입니다. 60 fps에서 300 ms 애니메이션은 18프레임에 걸칩니다. 초당 2프레임을 뽑으면 30장 중 한 장만 뽑히고, 그 한 장은 애니메이션이 시작되기 전에 있습니다.",
+    "strip_60": "60 fps, 모든 프레임",
+    "strip_2": "2 fps, 일부만 뽑음",
+    "strip_note": "60 fps에서 300 ms 애니메이션은 18프레임에 걸칩니다. 초당 2프레임을 뽑으면 그중 0장이나 1장만 잡힙니다.",
+    "summary": "같은 모델만 쓸 때와 비교한 video-lens 사용 결과(정답표로 채점한 과제 {tasks}개, 조건마다 {runs}회 실행):",
+    "summary_model": "{model}: 실행당 비용 {cost}, 실행당 시간 {time}, 평균 점수 {skill_mean}(모델 단독 {base_mean}).",
+    "cta_install": "설치",
+    "cta_install_aria": "설치 방법으로 이동",
+    "cta_github": "GitHub에서 보기",
+    "cta_github_aria": "GitHub에서 video-lens 저장소 열기"
+  },
+  "features": {
+    "title": "하는 일",
+    "motion_title": "UI 모션을 CSS로",
+    "motion_body": "움직이는 요소마다 시작, 지속 시간, cubic-bezier로 나타낸 easing, stagger(요소 사이 시차), 이동 거리를 프레임 단위로 재서 CSS로 적어 줍니다.",
+    "content_title": "강연과 데모를 시각과 함께",
+    "content_body": "장면 전환, 대표 프레임, 한국어와 영어 화면 글자(macOS Vision), 음성 받아쓰기, 소리와 화면의 싱크를 정리합니다.",
+    "local_title": "업로드 없음",
+    "local_body": "ffmpeg, OpenCV, macOS Vision, Apple 기기 내 음성 인식, whisper.cpp로 처리합니다. 영상과 오디오는 내 Mac 밖으로 나가지 않습니다."
+  },
+  "example": {
+    "title": "예: 3초짜리 토스트(잠깐 떴다 사라지는 알림) 녹화",
+    "body": "이 토스트는 headless Chrome(화면 없이 돌리는 Chrome)에서 실제 CSS로 렌더링했기 때문에 정답을 알고 있습니다.",
+    "col_what": "항목",
+    "col_measured": "video-lens",
+    "col_truth": "정답",
+    "row_duration": "지속 시간",
+    "row_easing": "Easing",
+    "duration_measured": "298 ms (범위 284~313)",
+    "duration_truth": "300 ms"
+  },
+  "why": {
+    "title": "왜 필요한가",
+    "watch_title": "/watch, video-use와 비교",
+    "watch_intro": "/watch(claude-video 0.1.3)는 영상이 무슨 내용인지 빠르게 훑어보는 데 맞춰져 있습니다. video-use는 대화로 영상을 편집합니다. 컷, 색 보정, 자막을 다룹니다. video-lens는 어떤 일이 언제, 얼마 동안, 어떻게 일어나는지 알아야 할 때 씁니다.",
+    "col_blank": "항목",
+    "col_watch": "/watch (claude-video 0.1.3)",
+    "col_video_use": "video-use (browser-use)",
+    "col_lens": "video-lens",
+    "row_frames": "보는 프레임",
+    "row_frames_watch": "초당 최대 2장, 전체 100장",
+    "row_frames_video_use": "요청한 구간마다 10장(가로 320 px), 요청할 때만",
+    "row_frames_lens": "모든 프레임",
+    "row_precision": "시간 정밀도",
+    "row_precision_watch": "초 단위",
+    "row_precision_video_use": "음성은 단어마다 시각이 붙음, 프레임은 요청한 시각에서만",
+    "row_precision_lens": "한 프레임(60 fps에서 16.7 ms)",
+    "row_anim": "300 ms 애니메이션",
+    "row_anim_watch": "0장 또는 1장",
+    "row_anim_video_use": "뽑은 프레임만 봄, 움직임은 재지 않음",
+    "row_anim_lens": "시작, 지속 시간, easing, CSS를 측정",
+    "row_speech": "음성",
+    "row_speech_watch": "영어 자막이 없으면 오디오를 Groq 또는 OpenAI Whisper로 업로드",
+    "row_speech_video_use": "오디오를 ElevenLabs Scribe로 업로드(유료 API 키)",
+    "row_speech_lens": "내 Mac에서 받아쓰기, 한국어 포함",
+    "row_scenes": "장면 전환과 화면 글자",
+    "row_scenes_watch": "감지 안 함",
+    "row_scenes_video_use": "감지 안 함",
+    "row_scenes_lens": "전환 시각과 슬라이드별 글자",
+    "watch_measured": "벤치마크에서 Opus는 /watch나 video-use를 쓸 때 video-lens를 쓸 때보다 평균 점수가 조금 높았습니다. 주된 이유는 스킬에 더해 자기가 짠 ffmpeg와 OpenCV 코드로 영상을 직접 쟀기 때문이고, 비용은 video-lens를 쓸 때의 두 배가 넘었습니다. 자세한 내용: [다른 영상 스킬과 비교](#skills-compare).",
+    "alone_title": "모델만 쓸 때와 비교",
+    "alone_body": "스킬이 없으면 Claude는 영상마다 ffmpeg와 Python 코드를 새로 짜서 잽니다. 잘 될 때가 많지만, 코드가 실행할 때마다 달라집니다.",
+    "alone_spread": "과제 \"{task}\": {model} 단독, 실행 {reps}회의 점수 중앙값 {median}, 최저 점수 {worst}.",
+    "alone_after": "video-lens는 그 대신 시험을 거친 처리 과정 하나를 돌립니다. 그래서 모든 실행이 같은 측정값에서 출발합니다.",
+    "alone_model": "{model}: 비용 {cost}, 시간 {time}, 평균 점수 {skill_mean}(모델 단독 {base_mean}), 최저 점수 {skill_worst}(모델 단독 {base_worst})."
+  },
+  "bench": {
+    "title": "벤치마크",
+    "intro": "정답표로 채점하는 과제 {tasks}개를 과제마다 {reps}회씩, 즉 조건마다 {runs}회 실행했고, {from}부터 {date}까지 측정했습니다. 모델마다 단독으로 실행한 경우(ffmpeg와 Python 코드를 직접 작성)와 video-lens와 함께 실행한 경우를 비교했습니다. 프롬프트는 같았고, MCP 서버는 쓰지 않았으며, 한 번에 하나씩 실행했습니다. 모델마다 쓴 실행 도구와 effort 수준은 [측정 방법](#method)에 있습니다.",
+    "close_scores": "두 조건 모두 대부분의 과제를 풀기 때문에 평균 점수는 서로 가깝습니다. 최저 점수는 한 번의 실행이 얼마나 크게 빗나갈 수 있는지 보여 줍니다.",
+    "grok_time": "video-lens를 쓴 Grok 4.7의 시간은 대략적인 값입니다. 측정 기간 중 일부 동안 이 실행들이 다른 무거운 작업과 같은 Mac을 나눠 썼고, 그중 한 번은 4.3시간이 걸렸습니다. 시간 중앙값은 446 s였고, 모델 단독은 778 s였습니다.",
+    "autotrigger": "스킬 조건의 실행은 프롬프트에 스킬 이름을 넣었습니다. 프롬프트에 이름을 넣지 않은 별도 시험에서 Opus 5.5는 과제 9개 중 8개에서 스스로 스킬을 골랐습니다.",
+    "method_link": "과제를 만들고 채점한 방법: [측정 방법](#method), [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)."
+  },
+  "skills": {
+    "title": "다른 영상 스킬과 비교",
+    "intro": "{model}에 영상 스킬을 하나씩 붙여, 같은 과제 {tasks}개와 같은 프롬프트로 조건마다 {runs}회, 한 번에 하나씩 실행했습니다. 실행마다 프롬프트에 해당 스킬 이름을 넣었고, 다른 스킬을 쓰는 실행에서는 video-lens를 숨겼습니다.",
+    "note": {
+      "watch": "/watch({version})는 초당 최대 2프레임을 보고, 음성은 Groq 또는 OpenAI Whisper API로 보냅니다.",
+      "video-use": "video-use({version})는 영상을 재는 용도가 아니라 편집하는 용도로 만들어졌습니다. 음성은 ElevenLabs Scribe로 보내고, 프레임을 필름처럼 이어 붙인 이미지를 봅니다. 이 과제들은 영상을 얼마나 잘 읽는지만 시험합니다."
+    },
+    "own_note": "자체 분석 코드: Opus가 스킬의 도구 말고도 ffmpeg, OpenCV, whisper 명령을 직접 짜서 돌린 실행입니다. /watch와 video-use 실행은 대부분 그랬고, 늘어난 비용과 시간은 여기서 나왔습니다. video-lens를 쓸 때는 대개 스킬이 잰 값만으로 충분했습니다.",
+    "per_task_title": "다른 영상 스킬을 쓴 {model}",
+    "pending": "실행이 진행 중입니다. 모든 실행이 끝나면 여기에 결과가 나옵니다.",
+    "cost_note": "비용은 Claude Code가 모델 사용분으로 보고한 금액만 셉니다. /watch(Groq 또는 OpenAI)와 video-use(ElevenLabs)가 부르는 음성 API는 각자의 키로 따로 청구되며, 여기에 포함되지 않습니다."
+  },
+  "chart": {
+    "cost_title": "실행당 평균 비용",
+    "cost_sub": "막대마다 {runs}회 실행의 평균, API 가격 기준 미국 달러. 낮을수록 좋습니다.",
+    "cost_caption": "{model}: video-lens 사용 시 {change}.",
+    "time_title": "실행당 평균 시간",
+    "time_sub": "막대마다 {runs}회 실행의 평균, 실행 시간(초). 낮을수록 좋습니다.",
+    "time_caption": "{model}: video-lens 사용 시 {change}.",
+    "accuracy_title": "정확도: 평균 점수와 최저 점수",
+    "accuracy_sub": "정답표 기준 0~1 점수, 줄마다 {runs}회 실행. 선은 최저 점수에서 평균까지 이어집니다.",
+    "accuracy_caption": "{model}: 1.0점을 받은 실행은 video-lens 사용 시 {runs}회 중 {skill_perfect}회, 모델 단독은 {runs}회 중 {base_perfect}회입니다.",
+    "tasks_title": "과제별",
+    "tasks_sub_time": "{model}, 실행 {reps}회의 실행당 시간 중앙값, 초.",
+    "tasks_sub_cost": "{model}, 실행 {reps}회의 실행당 비용 중앙값, 미국 달러.",
+    "tasks_sub_score": "{model}, 실행 {reps}회의 점수 중앙값과 최저 점수, 0~1.",
+    "model_label": "모델",
+    "metric_label": "지표",
+    "metric_time": "시간",
+    "metric_cost": "비용",
+    "metric_score": "점수",
+    "source": "video-lens 벤치마크, {from}부터 {date}까지 측정. junhan2.github.io/video-lens",
+    "keyboard_hint": "화살표 키로 값을 하나씩 읽을 수 있습니다. 표 보기에는 모든 값이 나옵니다.",
+    "show_table": "표 보기",
+    "hide_table": "표 숨기기",
+    "show_table_aria": "표 보기: {chart}",
+    "hide_table_aria": "표 숨기기: {chart}",
+    "loading": "벤치마크 데이터를 불러오는 중…",
+    "load_error": "벤치마크 데이터를 불러오지 못했습니다. 숫자는 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)에도 있습니다.",
+    "library_error": "그래프 라이브러리를 불러오지 못했습니다. 숫자는 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)에도 있습니다.",
+    "skills_title": "영상 스킬별 결과",
+    "skills_sub_score": "{model}, 정답표 기준 0~1 점수, 줄마다 {runs}회 실행. 선은 최저 점수에서 평균까지 이어집니다.",
+    "skills_sub_cost": "{model}, 막대마다 {runs}회 실행의 평균 비용, API 가격 기준 미국 달러. 낮을수록 좋습니다.",
+    "skills_sub_time": "{model}, 막대마다 {runs}회 실행의 평균 실행 시간, 초. 낮을수록 좋습니다."
+  },
   "series": {
     "baseline": "모델 단독",
-    "skill": "video-lens 사용"
+    "skill": "video-lens 사용",
+    "mean": "평균 점수",
+    "median": "점수 중앙값",
+    "worst": "최저 점수",
+    "watch": "/watch 사용",
+    "video-use": "video-use 사용"
   },
   "table": {
     "model": "모델",
     "condition": "조건",
+    "task": "과제",
     "mean_score": "평균 점수",
     "worst_score": "최저 점수",
-    "perfect_runs": "만점 실행",
+    "perfect_runs": "1.0점 실행",
     "cost": "실행당 평균 비용",
     "time": "실행당 평균 시간",
-    "turns": "평균 턴 수"
+    "turns": "평균 턴 수",
+    "median_score": "점수 중앙값",
+    "median_cost": "비용 중앙값",
+    "median_time": "시간 중앙값",
+    "id": "ID",
+    "change": "video-lens 사용 시 변화",
+    "own_analysis": "자체 분석 코드를 쓴 실행"
   },
   "change": {
     "lower": "{pct} 감소",
@@ -21,21 +175,145 @@
   "format": {
     "decimal": ".",
     "usd": "${n}",
-    "seconds": "{n}초",
+    "seconds": "{n} s",
     "percent": "{n}%",
     "of": "{a}/{b}"
   },
   "results": {
-    "note": "{date} 측정. 과제 {tasks}개 × {reps}회 = 조건마다 {runs}회, MCP 서버 없이 한 번에 하나씩 실행했습니다. 평균 점수, 비용, 시간, 턴 수는 모든 실행의 평균이고, 최저 점수는 가장 낮았던 한 번의 점수입니다.",
-    "change_line": "{model}에 video-lens 사용 시 비용 {cost}, 시간 {time}."
+    "note": "{from}부터 {date}까지 측정했습니다. 과제 {tasks}개 × {reps}회 = 조건마다 {runs}회이며, MCP 서버 없이 한 번에 하나씩 실행했습니다. 평균 점수, 비용, 시간, 턴 수는 모든 실행의 평균이고, 최저 점수는 가장 낮았던 한 번의 점수입니다.",
+    "change_line": "{model}에 video-lens를 쓰면 비용 {cost}, 시간 {time}.",
+    "per_task_note": "칸마다 실행 {reps}회의 중앙값입니다. 최저 점수는 {reps}회 중 가장 낮은 점수입니다."
   },
   "setup": {
     "line": "{model}: {harness}에서 실행, effort {effort}. {cost} {time}",
-    "cost_reported": "비용은 {harness}가 보고하는 API 환산값 `total_cost_usd`입니다.",
-    "time_reported": "시간은 {harness}가 보고하는 실행 시간입니다.",
+    "cost_reported": "비용은 {harness}에서 보고하는 API 환산 금액 `total_cost_usd`입니다.",
+    "time_reported": "시간은 {harness}에서 보고하는 실행 시간입니다.",
     "time_wall_clock": "시간은 실행 시작부터 끝까지 실제로 걸린 시간입니다."
   },
+  "tasks": {
+    "v1": {
+      "short": "카드 순차 등장",
+      "long": "카드 순차 등장(카드 3장, 60 fps, 이름 있는 곡선)"
+    },
+    "v2": {
+      "short": "모달 열기와 닫기",
+      "long": "모달 열기와 닫기(VFR 녹화)"
+    },
+    "v3": {
+      "short": "클릭 소리가 나는 토스트",
+      "long": "화면 밖에서 들어오는 토스트와 클릭 소리"
+    },
+    "h1": {
+      "short": "겹쳐 움직이는 6줄 목록",
+      "long": "겹쳐 움직이는 6줄 목록, 직접 만든 곡선, 30 fps, Retina"
+    },
+    "h2": {
+      "short": "색, 배지, 서랍",
+      "long": "색 변화, 살짝 넘쳤다 돌아오는 배지, 아래 서랍(VFR)"
+    },
+    "orbit": {
+      "short": "3D 캐러셀 녹화",
+      "long": "실제 3D 카드 캐러셀 녹화, 16.5 s(정답은 근사값)"
+    },
+    "v4": {
+      "short": "20초 한국어 강의",
+      "long": "20초짜리 한국어 강의, 슬라이드 3장"
+    },
+    "h3": {
+      "short": "10분 한국어 강의",
+      "long": "10분짜리 한국어 강의, 슬라이드 24장"
+    },
+    "gist": {
+      "short": "두 문장 요약",
+      "long": "영상 한 편을 두 문장으로 요약"
+    }
+  },
   "when": {
-    "use_long": "10분짜리 한국어 강의에서 {model}에 video-lens 사용 시 비용 {cost}, 시간 {time}(실행 {reps}회의 중앙값)."
+    "title": "언제 쓰나",
+    "use_title": "쓰면 좋은 경우",
+    "use_motion": "**UI 모션을 다시 만들거나 검토할 때.** 시작, 지속 시간, easing, stagger를 숫자와 CSS로 주고, 값마다 들어갈 수 있는 범위도 함께 줍니다. \"이 전환이 정말 400 ms ease-out인가?\" 같은 질문에 잰 값으로 답합니다.",
+    "use_long_title": "긴 녹화.",
+    "use_long": "10분짜리 한국어 강의에서 {model}에 video-lens를 쓰면 비용 {cost}, 시간 {time}(실행 {reps}회의 중앙값).",
+    "use_repeat": "**반복되는 모션.** 캐러셀과 반복 애니메이션은 한 묶음으로 한 번에 재고, 반복마다 시작 시각을 알려 줍니다.",
+    "use_private": "**비공개 강연과 회의.** 음성은 내 Mac에서 받아쓰고, 슬라이드 글자는 시각과 함께 나옵니다.",
+    "skip_title": "필요 없는 경우",
+    "skip_gist": "**짧은 영상의 대략적인 요약.** 모델만으로 충분하고, 스킬을 불러오면 비용이 조금 늘어납니다.",
+    "skip_os": "**Windows나 Linux.** video-lens는 macOS에서만 돌아갑니다.",
+    "skip_features": "**화자 구분, 언어 감지, 음악 템포.** 지원하지 않습니다."
+  },
+  "install": {
+    "title": "설치",
+    "step_plugin": "Claude Code에서:",
+    "step_deps": "터미널에서:",
+    "copy": "복사",
+    "copied": "복사됨",
+    "selected": "선택했습니다. ⌘C를 눌러 복사하세요.",
+    "copy_plugin_aria": "플러그인 설치 명령 복사",
+    "copy_deps_aria": "필요한 프로그램 설치 명령 복사",
+    "required_title": "필수",
+    "req_macos": "macOS. macOS 26, Apple Silicon에서 시험했습니다.",
+    "req_ffmpeg": "ffmpeg.",
+    "req_python": "opencv-python과 numpy가 설치된 Python 3. Python 3.13에서 시험했습니다. 패키지가 없으면 스킬이 실행할 pip 명령을 그대로 알려 줍니다.",
+    "req_xcode": "Xcode Command Line Tools. 화면 글자와 음성 인식 보조 프로그램을 빌드할 때 씁니다.",
+    "optional_title": "선택",
+    "opt_speech": "기기 내 음성 인식(Apple SpeechTranscriber)을 쓰려면 macOS 26.",
+    "opt_whisper": "whisper로 받아쓰려면 whisper-cpp와 ggml 모델(예: `ggml-large-v3-turbo-q5_0.bin`)을 `~/.local/share/whisper/`에 둡니다.",
+    "opt_chrome": "웹페이지에 선언된 CSS 애니메이션을 읽어 측정값과 비교하려면 Node 24와 Google Chrome.",
+    "opt_ytdlp": "URL로 영상을 분석하려면 yt-dlp."
+  },
+  "usage": {
+    "title": "쓰는 법",
+    "body": "평소처럼 물어보면 됩니다. 재야 하는 질문이면 Claude가 스킬을 고릅니다. 직접 부르려면 메시지를 `/video-lens`로 시작하세요.",
+    "examples_title": "프롬프트 예시",
+    "ex_motion": "이 화면 녹화의 애니메이션을 CSS로 다시 만들 수 있게 분석해 줘",
+    "ex_slides": "이 강의에서 슬라이드가 언제 나오고 무슨 내용인지 정리해 줘",
+    "ex_when": "12:00 무렵에 무슨 말을 했어?",
+    "ex_digest": "이 YouTube 강연을 장면별로 스크린샷과 함께 요약해 줘",
+    "tip": "여러 요소가 한꺼번에 움직이면 \"왼쪽 목록만\"처럼 볼 영역을 알려 주세요. 그러면 Claude가 `--roi`로 측정 범위를 좁힙니다.",
+    "digest_title": "장면 요약, 요청할 때만",
+    "digest_body": "스크린샷을 곁들인 장면별 요약을 요청하면 Claude가 `digest.md`와 파일 하나로 열리는 `digest.html`을 만듭니다. 장면마다 캡처 한 장, 무슨 일이 일어나는지 한두 줄, 나온 말, 그 순간으로 가는 링크가 들어갑니다. 챕터가 있는 YouTube 영상은 챕터대로 나눕니다. 챕터 21개짜리 66분 한국어 강연에서는 Mac에서 약 4분이 걸렸습니다(내려받기, 분석, 요약 포함). 일반 분석에서는 이 요약을 만들지 않습니다."
+  },
+  "how": {
+    "title": "동작 방식",
+    "intro": "명령 하나, `vl.py analyze`가 영상을 재고 최대 6,000자의 텍스트 보고서를 출력합니다. Claude는 이 보고서를 먼저 읽고, 다음으로 설명이 붙은 이미지 몇 장을 보고, 꼭 필요할 때만 프레임을 한 장씩 봅니다.",
+    "s1_title": "영상 정보 읽기",
+    "s1_body": "ffprobe가 스트림, 프레임 레이트, 프레임마다의 시각을 읽습니다. 그래서 프레임 레이트가 바뀌는 녹화도 실제 타이밍을 그대로 지킵니다.",
+    "s2_title": "오디오",
+    "s2_body": "소리가 나는 구간과 소리가 시작되는 지점을 찾습니다. 소리 없는 2분 이하 영상은 모션 모드로, 더 긴 영상은 내용 모드로 가고, 소리가 있는 짧은 영상은 두 모드를 모두 거칩니다.",
+    "s3_title": "음성과 내용",
+    "s3_body": "자막이나 기기 내 받아쓰기(Apple SpeechTranscriber 또는 whisper.cpp), 장면 전환, 대표 프레임, macOS Vision으로 읽은 화면 글자를 얻습니다.",
+    "s4_title": "모션",
+    "s4_body": "OpenCV가 움직이는 요소를 찾아 프레임마다 따라갑니다. 시작, 지속 시간, easing(이름 있는 곡선 또는 cubic-bezier), stagger, 이동 거리를 맞춰 내고 CSS로 적습니다.",
+    "s5_title": "싱크",
+    "s5_body": "소리와 화면의 시작 지점을 짝지어 둘 사이의 어긋남을 구합니다.",
+    "s6_title": "보고서",
+    "s6_body": "범위와 신뢰도가 붙은 텍스트 보고서, 타임라인, 그리고 타이밍 표시와 설명이 붙은 프레임 모음 이미지를 냅니다.",
+    "reading": "Claude가 읽는 순서: 보고서, 그다음 타임라인이나 텍스트 검색, 그다음 전체 개요 이미지, 그다음 프레임 모음 이미지, 마지막으로 단일 프레임."
+  },
+  "method": {
+    "title": "측정 방법",
+    "keys": "**정답표.** UI 과제는 실제 CSS 애니메이션을 headless Chrome에서 프레임마다 렌더링한 것이어서, 정답은 적힌 CSS 그대로입니다. 강의는 macOS 음성 합성으로 읽었습니다. 캐러셀은 실제 화면 녹화이고 정답은 근사값입니다.",
+    "same": "**같은 조건.** 두 조건 모두 프롬프트, 모델, effort가 같고, MCP 서버 없이 한 번에 하나씩 실행했습니다. 스킬 조건의 실행은 프롬프트를 스킬 이름(Claude Code에서는 `/video-lens`)으로 시작합니다. 프롬프트마다 정해진 형식의 JSON 답을 요구하고, 스크립트가 이 답을 정답표와 맞춰 채점합니다.",
+    "hidden": "**모델 단독 조건에서는 스킬을 숨김.** 모델 단독 실행은 스킬을 하나도 불러오지 않고, 스킬 폴더도 읽을 수 없습니다. 초기에 모델 단독 실행 하나가 디스크에서 video-lens를 찾아 실행한 일이 있어 이 조치를 더했습니다.",
+    "score": "**점수.** 답마다 정답표와 항목별로 맞춰 봅니다. 한 실행의 점수는 통과한 항목 수에서 잘못 잡은 항목 수를 빼고, 전체 항목 수로 나눈 값입니다. 0 밑으로는 내려가지 않습니다.",
+    "tolerance": "**허용 오차.** 시작과 지속 시간은 ±1 프레임, easing은 실제 곡선과 0.05 이내, 소리는 ±10 ms, 말의 시각은 ±150 ms 이내입니다.",
+    "setup_title": "모델별 실행 조건.",
+    "tasks_title": "과제 {tasks}개",
+    "more": "전체 방법, 과제별 숫자, 주의할 점: [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md). 실행을 다시 해 볼 수 있는 스크립트: [bench/](https://github.com/Junhan2/video-lens/blob/main/bench/README.md)."
+  },
+  "limits": {
+    "title": "한계",
+    "merge": "여러 요소가 한꺼번에 움직이면 첫 분석에서 한 상자로 합쳐지거나 여러 조각으로 나뉠 수 있습니다. `--roi`로 영역을 좁히면 해결됩니다. 벤치마크에서 Opus 5.5는 이 일을 스스로 했고, Sonnet 5.5는 그보다 덜 자주 했습니다.",
+    "backgrounds": "사진이나 그라데이션 배경 위의 모션, 잡음이 많은 실제 음성은 충분히 시험하지 않았습니다.",
+    "features": "화자 구분, 언어 자동 감지, 음악 템포는 지원하지 않습니다.",
+    "fps": "30 fps 녹화는 시간 해상도가 절반입니다. 가능하면 60 fps로 녹화하세요.",
+    "os": "macOS 전용이며, macOS 26과 Apple Silicon에서 시험했습니다."
+  },
+  "footer": {
+    "version": "video-lens {version} · MIT 라이선스",
+    "github": "GitHub",
+    "benchmark": "벤치마크 방법",
+    "changelog": "변경 기록",
+    "charts": "그래프는 Chart.js로 그렸습니다"
   }
 }

@@ -1,0 +1,319 @@
+{
+  "meta": {
+    "title": "video-lens: Videos in Claude Code vermessen",
+    "description": "Ein Skill für Claude Code, der Videos auf Ihrem Mac vermisst: Timing und Easing von UI-Animationen als CSS, Szenenwechsel, Text im Bild und Sprache mit Zeitstempeln. Nichts wird hochgeladen."
+  },
+  "nav": {
+    "skip": "Zum Inhalt springen",
+    "primary": "Abschnitte",
+    "why": "Warum",
+    "benchmarks": "Benchmarks",
+    "when": "Einsatzzweck",
+    "install": "Installation",
+    "usage": "Verwendung",
+    "how": "Funktionsweise",
+    "method": "Messmethode",
+    "limits": "Grenzen",
+    "language": "Sprache",
+    "github": "GitHub",
+    "github_aria": "Das Repository von video-lens auf GitHub öffnen"
+  },
+  "hero": {
+    "eyebrow": "Skill für Claude Code · macOS · MIT",
+    "pitch": "Vermisst Videos, statt sie nach Augenmaß zu beurteilen, damit Claude beantworten kann, wann, wie lange und wie etwas geschieht. Alles läuft auf Ihrem Mac.",
+    "lede": "Claude kann keine Videos ansehen. video-lens vermisst sie Bild für Bild, gibt Claude zuerst Zahlen und Text und zeigt Bilder nur dort, wo ein Blick nötig ist.",
+    "strip_aria": "Zwei Reihen mit je 30 Einzelbildern. Bei 60 fps erstreckt sich eine 300-ms-Animation über 18 Einzelbilder. Bei 2 Bildern pro Sekunde wird von den 30 nur ein Einzelbild erfasst, und es liegt vor dem Beginn der Animation.",
+    "strip_60": "60 fps, jedes Einzelbild",
+    "strip_2": "2 fps, Stichproben",
+    "strip_note": "Eine 300-ms-Animation erstreckt sich bei 60 fps über 18 Einzelbilder. Wer 2 Bilder pro Sekunde abtastet, erfasst davon 0 oder 1.",
+    "summary": "Mit video-lens im Vergleich zum selben Modell allein ({tasks} Aufgaben, bewertet anhand von Musterlösungen, {runs} Durchläufe pro Bedingung):",
+    "summary_model": "{model}: Kosten pro Durchlauf {cost}, Zeit pro Durchlauf {time}, mittlere Punktzahl {skill_mean} gegenüber {base_mean}.",
+    "cta_install": "Installieren",
+    "cta_install_aria": "Zur Installationsanleitung",
+    "cta_github": "Auf GitHub ansehen",
+    "cta_github_aria": "Das Repository von video-lens auf GitHub öffnen"
+  },
+  "features": {
+    "title": "Was video-lens leistet",
+    "motion_title": "UI-Bewegung als CSS",
+    "motion_body": "Beginn, Dauer, Easing als cubic-bezier, Staffelung und Wegstrecke jedes animierten Elements, bildgenau und als CSS ausgeschrieben.",
+    "content_title": "Vorträge und Demos mit Zeitstempeln",
+    "content_body": "Szenenwechsel, Schlüsselbilder, koreanischer und englischer Text im Bild (macOS Vision), ein Transkript der Sprache und die Synchronität von Ton und Bild.",
+    "local_title": "Nichts wird hochgeladen",
+    "local_body": "ffmpeg, OpenCV, macOS Vision, Apples Spracherkennung auf dem Gerät und whisper.cpp. Video und Ton bleiben auf Ihrem Mac."
+  },
+  "example": {
+    "title": "Beispiel: Aufnahme einer Toast-Meldung, 3 Sekunden lang",
+    "body": "Die Toast-Meldung wurde aus echtem CSS in Headless Chrome gerendert, die richtige Antwort ist also bekannt.",
+    "col_what": "Messgröße",
+    "col_measured": "video-lens",
+    "col_truth": "Musterlösung",
+    "row_duration": "Dauer",
+    "row_easing": "Easing",
+    "duration_measured": "298 ms (Bereich 284 bis 313)",
+    "duration_truth": "300 ms"
+  },
+  "why": {
+    "title": "Warum",
+    "watch_title": "Vergleich mit /watch und video-use",
+    "watch_intro": "/watch (claude-video 0.1.3) ist für einen schnellen Blick darauf gedacht, worum es in einem Video geht. video-use bearbeitet Videos im Dialog: Schnitte, Farbe und Untertitel. video-lens ist für die Fragen gedacht, wann etwas geschieht, wie lange und auf welche Weise.",
+    "col_blank": "Merkmal",
+    "col_watch": "/watch (claude-video 0.1.3)",
+    "col_video_use": "video-use (browser-use)",
+    "col_lens": "video-lens",
+    "row_frames": "Betrachtete Einzelbilder",
+    "row_frames_watch": "Höchstens 2 pro Sekunde, insgesamt 100",
+    "row_frames_video_use": "10 Einzelbilder pro angefordertem Abschnitt, 320 px breit, wenn es sie anfordert",
+    "row_frames_lens": "Jedes Einzelbild",
+    "row_precision": "Zeitliche Genauigkeit",
+    "row_precision_watch": "Ganze Sekunden",
+    "row_precision_video_use": "Zeitstempel pro Wort bei Sprache; Einzelbilder zu den angeforderten Zeitpunkten",
+    "row_precision_lens": "Ein Einzelbild (16,7 ms bei 60 fps)",
+    "row_anim": "Eine 300-ms-Animation",
+    "row_anim_watch": "0 oder 1 Einzelbild",
+    "row_anim_video_use": "Nur die abgetasteten Einzelbilder; Bewegung wird nicht gemessen",
+    "row_anim_lens": "Beginn, Dauer, Easing und CSS gemessen",
+    "row_speech": "Sprache",
+    "row_speech_watch": "Ton wird zu Groq oder OpenAI Whisper hochgeladen, sofern keine englischen Untertitel vorhanden sind",
+    "row_speech_video_use": "Ton wird zu ElevenLabs Scribe hochgeladen (kostenpflichtiger API-Schlüssel)",
+    "row_speech_lens": "Auf Ihrem Mac transkribiert, Koreanisch eingeschlossen",
+    "row_scenes": "Szenenwechsel und Text im Bild",
+    "row_scenes_watch": "Nicht erkannt",
+    "row_scenes_video_use": "Nicht erkannt",
+    "row_scenes_lens": "Zeitpunkte der Schnitte und der Text jeder Folie",
+    "watch_measured": "Im Benchmark erzielte Opus mit /watch oder video-use im Mittel eine etwas höhere Punktzahl als mit video-lens, vor allem, weil das Modell den Clip zusätzlich zum Skill mit eigenem ffmpeg- und OpenCV-Code selbst vermaß, und es kostete mehr als doppelt so viel. Details: [Vergleich mit anderen Video-Skills](#skills-compare).",
+    "alone_title": "Vergleich mit dem Modell allein",
+    "alone_body": "Ohne den Skill schreibt Claude für jedes Video neuen ffmpeg- und Python-Code und misst damit. Das klappt oft, aber der Code ist bei jedem Durchlauf ein anderer.",
+    "alone_spread": "Aufgabe „{task}“: {model} allein kam über {reps} Durchläufe auf eine Punktzahl von {median} im Median und im schlechtesten Durchlauf auf {worst}.",
+    "alone_after": "video-lens führt stattdessen eine einzige, getestete Verarbeitungskette aus, sodass jeder Durchlauf von denselben Messwerten ausgeht.",
+    "alone_model": "{model}: Kosten {cost}, Zeit {time}, mittlere Punktzahl {skill_mean} gegenüber {base_mean}, schlechtester Durchlauf {skill_worst} gegenüber {base_worst}."
+  },
+  "bench": {
+    "title": "Benchmarks",
+    "intro": "{tasks} Aufgaben, bewertet anhand von Musterlösungen, je {reps} Durchläufe, also {runs} Durchläufe pro Bedingung, Messzeitraum {from} bis {date}. Jedes Modell lief allein (mit selbst geschriebenem ffmpeg- und Python-Code) und mit video-lens, mit demselben Prompt, ohne MCP-Server und mit einem Durchlauf nach dem anderen. Mit welchem Werkzeug und welcher Effort-Stufe jedes Modell lief, steht unter [So haben wir gemessen](#method).",
+    "close_scores": "Beide Bedingungen lösen die meisten Aufgaben, daher liegen die mittleren Punktzahlen nah beieinander. Der schlechteste Durchlauf zeigt, wie weit ein einzelner Durchlauf danebenliegen kann.",
+    "grok_time": "Die Zeit von Grok 4.7 mit video-lens ist nur ein grober Wert: Diese Durchläufe teilten sich den Mac während eines Teils der Messreihe mit anderer rechenintensiver Arbeit, und einer davon dauerte 4,3 Stunden. Der Median der Laufzeit lag bei 446 s, gegenüber 778 s für das Modell allein.",
+    "autotrigger": "In den Skill-Durchläufen wurde der Skill im Prompt genannt. In einem separaten Test, bei dem der Prompt ihn nicht nannte, wählte Opus 5.5 ihn bei 8 von 9 Aufgaben von sich aus.",
+    "method_link": "Wie die Aufgaben erstellt und bewertet wurden: [So haben wir gemessen](#method) und [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)."
+  },
+  "skills": {
+    "title": "Vergleich mit anderen Video-Skills",
+    "intro": "{model} mit jedem Video-Skill bei denselben {tasks} Aufgaben und Prompts, {runs} Durchläufe pro Bedingung, ein Durchlauf nach dem anderen. Jeder Durchlauf nannte seinen Skill im Prompt, und video-lens war für die Durchläufe der anderen Skills verborgen.",
+    "note": {
+      "watch": "/watch ({version}) betrachtet bis zu 2 Einzelbilder pro Sekunde und schickt Sprache an die API von Groq oder OpenAI Whisper.",
+      "video-use": "video-use ({version}) ist zum Bearbeiten von Videos gebaut, nicht zum Vermessen. Es schickt Sprache an ElevenLabs Scribe und betrachtet Filmstreifen aus Einzelbildern. Diese Aufgaben prüfen nur, wie gut es ein Video erfasst."
+    },
+    "own_note": "Eigener Analysecode: Durchläufe, in denen Opus neben den Werkzeugen des Skills auch eigene ffmpeg-, OpenCV- oder whisper-Befehle schrieb und ausführte. Die meisten Durchläufe mit /watch und video-use taten das, und dorthin gingen ihre zusätzlichen Kosten und ihre zusätzliche Zeit. Mit video-lens reichten die Messungen des Skills meist aus.",
+    "per_task_title": "{model} mit anderen Video-Skills",
+    "pending": "Die Durchläufe laufen noch. Die Ergebnisse erscheinen hier, sobald alle Durchläufe abgeschlossen sind.",
+    "cost_note": "Die Kosten umfassen nur, was Claude Code für das Modell meldet. Die Sprach-APIs, die /watch (Groq oder OpenAI) und video-use (ElevenLabs) aufrufen, werden über deren eigene Schlüssel abgerechnet und sind nicht enthalten."
+  },
+  "chart": {
+    "cost_title": "Mittlere Kosten pro Durchlauf",
+    "cost_sub": "Mittelwert aus {runs} Durchläufen pro Balken, US-Dollar zu API-Preisen. Niedriger ist besser.",
+    "cost_caption": "{model}: mit video-lens {change}.",
+    "time_title": "Mittlere Zeit pro Durchlauf",
+    "time_sub": "Mittelwert aus {runs} Durchläufen pro Balken, Laufzeit in Sekunden. Niedriger ist besser.",
+    "time_caption": "{model}: mit video-lens {change}.",
+    "accuracy_title": "Genauigkeit: mittlere Punktzahl und schlechtester Durchlauf",
+    "accuracy_sub": "Punktzahl von 0 bis 1 gegenüber der Musterlösung, {runs} Durchläufe pro Zeile. Jede Linie reicht vom schlechtesten Durchlauf bis zum Mittelwert.",
+    "accuracy_caption": "{model}: {skill_perfect} von {runs} Durchläufen erreichten mit video-lens 1,0, allein {base_perfect} von {runs}.",
+    "tasks_title": "Pro Aufgabe",
+    "tasks_sub_time": "{model}, Median der Zeit pro Durchlauf über {reps} Durchläufe, in Sekunden.",
+    "tasks_sub_cost": "{model}, Median der Kosten pro Durchlauf über {reps} Durchläufe, in US-Dollar.",
+    "tasks_sub_score": "{model}, Median der Punktzahl über {reps} Durchläufe und der schlechteste Durchlauf, 0 bis 1.",
+    "model_label": "Modell",
+    "metric_label": "Messgröße",
+    "metric_time": "Zeit",
+    "metric_cost": "Kosten",
+    "metric_score": "Punktzahl",
+    "source": "Benchmark von video-lens, Messzeitraum {from} bis {date}. junhan2.github.io/video-lens",
+    "keyboard_hint": "Mit den Pfeiltasten können Sie jeden Wert ablesen. Die Tabellenansicht listet alle Werte auf.",
+    "show_table": "Tabelle anzeigen",
+    "hide_table": "Tabelle ausblenden",
+    "show_table_aria": "Tabelle anzeigen: {chart}",
+    "hide_table_aria": "Tabelle ausblenden: {chart}",
+    "loading": "Benchmark-Daten werden geladen…",
+    "load_error": "Die Benchmark-Daten konnten nicht geladen werden. Die Zahlen stehen auch in [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
+    "library_error": "Die Diagrammbibliothek konnte nicht geladen werden. Die Zahlen stehen auch in [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
+    "skills_title": "Mit jedem Video-Skill",
+    "skills_sub_score": "{model}, Punktzahl von 0 bis 1 gegenüber der Musterlösung, {runs} Durchläufe pro Zeile. Jede Linie reicht vom schlechtesten Durchlauf bis zum Mittelwert.",
+    "skills_sub_cost": "{model}, mittlere Kosten aus {runs} Durchläufen pro Balken, US-Dollar zu API-Preisen. Niedriger ist besser.",
+    "skills_sub_time": "{model}, mittlere Laufzeit aus {runs} Durchläufen pro Balken, in Sekunden. Niedriger ist besser."
+  },
+  "series": {
+    "baseline": "Modell allein",
+    "skill": "Mit video-lens",
+    "mean": "Mittlere Punktzahl",
+    "median": "Median der Punktzahl",
+    "worst": "Schlechtester Durchlauf",
+    "watch": "Mit /watch",
+    "video-use": "Mit video-use"
+  },
+  "table": {
+    "model": "Modell",
+    "condition": "Bedingung",
+    "task": "Aufgabe",
+    "mean_score": "Mittlere Punktzahl",
+    "worst_score": "Schlechtester Durchlauf",
+    "perfect_runs": "Durchläufe mit 1,0",
+    "cost": "Mittlere Kosten pro Durchlauf",
+    "time": "Mittlere Zeit pro Durchlauf",
+    "turns": "Mittlere Zahl der Runden",
+    "median_score": "Median der Punktzahl",
+    "median_cost": "Median der Kosten",
+    "median_time": "Median der Zeit",
+    "id": "ID",
+    "change": "Änderung mit video-lens",
+    "own_analysis": "Durchläufe mit eigenem Analysecode"
+  },
+  "change": {
+    "lower": "{pct} niedriger",
+    "higher": "{pct} höher",
+    "same": "unverändert"
+  },
+  "format": {
+    "decimal": ",",
+    "usd": "{n} $",
+    "seconds": "{n} s",
+    "percent": "{n} %",
+    "of": "{a}/{b}"
+  },
+  "results": {
+    "note": "Messzeitraum {from} bis {date}. {tasks} Aufgaben × {reps} Durchläufe = {runs} Durchläufe pro Bedingung, ohne MCP-Server, ein Durchlauf nach dem anderen. Mittlere Punktzahl, Kosten, Zeit und Runden sind Mittelwerte über alle Durchläufe; der schlechteste Durchlauf ist die niedrigste einzelne Punktzahl.",
+    "change_line": "{model} mit video-lens: Kosten {cost}, Zeit {time}.",
+    "per_task_note": "Median aus {reps} Durchläufen pro Zelle; der schlechteste Durchlauf ist der niedrigste der {reps} Werte."
+  },
+  "setup": {
+    "line": "{model}: ausgeführt in {harness}, Effort-Stufe {effort}. {cost} {time}",
+    "cost_reported": "Die Kosten sind der API-äquivalente Wert `total_cost_usd`, den {harness} meldet.",
+    "time_reported": "Die Zeit ist die Laufzeit, die {harness} meldet.",
+    "time_wall_clock": "Die Zeit ist die real verstrichene Dauer des Durchlaufs."
+  },
+  "tasks": {
+    "v1": {
+      "short": "Gestaffelte Karten",
+      "long": "Gestaffelte Karten (3 Karten, 60 fps, benannte Kurve)"
+    },
+    "v2": {
+      "short": "Modaldialog ein- und ausblenden",
+      "long": "Modaldialog ein- und ausblenden (VFR-Aufnahme)"
+    },
+    "v3": {
+      "short": "Toast mit Klickgeräusch",
+      "long": "Toast von außerhalb des Bildschirms mit Klickgeräusch"
+    },
+    "h1": {
+      "short": "Überlappende Liste mit 6 Zeilen",
+      "long": "Überlappende Liste mit 6 Zeilen, eigene Kurve, 30 fps, Retina"
+    },
+    "h2": {
+      "short": "Farbe, Badge, Drawer",
+      "long": "Farbwechsel, Badge mit Überschwingen, Drawer von unten (VFR)"
+    },
+    "orbit": {
+      "short": "Aufnahme eines 3D-Karussells",
+      "long": "Echte Aufnahme eines 3D-Kartenkarussells, 16,5 s (ungefähre Musterlösung)"
+    },
+    "v4": {
+      "short": "20-s-Vortrag auf Koreanisch",
+      "long": "20 Sekunden langer Vortrag auf Koreanisch, 3 Folien"
+    },
+    "h3": {
+      "short": "10-min-Vortrag auf Koreanisch",
+      "long": "10 Minuten langer Vortrag auf Koreanisch, 24 Folien"
+    },
+    "gist": {
+      "short": "Zusammenfassung in zwei Sätzen",
+      "long": "Zusammenfassung eines Clips in zwei Sätzen"
+    }
+  },
+  "when": {
+    "title": "Wann sich video-lens eignet",
+    "use_title": "Geeignet für",
+    "use_motion": "**UI-Bewegung nachbauen oder prüfen.** Beginn, Dauer, Easing und Staffelung als Zahlen und CSS, jeweils mit dem Bereich, in dem der Wert liegen kann. Fragen wie „Ist dieser Übergang wirklich 400 ms ease-out?“ bekommen eine gemessene Antwort.",
+    "use_long_title": "Lange Aufnahmen.",
+    "use_long": "Beim 10 Minuten langen Vortrag auf Koreanisch, {model} mit video-lens: Kosten {cost}, Zeit {time} (Median aus {reps} Durchläufen).",
+    "use_repeat": "**Wiederholte Bewegung.** Karussells und Schleifen werden einmal als Gruppe gemessen, mit der Startzeit jeder Wiederholung.",
+    "use_private": "**Vertrauliche Vorträge und Besprechungen.** Die Sprache wird auf Ihrem Mac transkribiert, und der Text der Folien kommt mit Zeitstempeln.",
+    "skip_title": "Nicht nötig für",
+    "skip_gist": "**Schneller Überblick über einen kurzen Clip.** Das schafft das Modell allein, und das Laden des Skills erhöht die Kosten ein wenig.",
+    "skip_os": "**Windows oder Linux.** video-lens läuft nur unter macOS.",
+    "skip_features": "**Sprecherzuordnung, Bestimmung der Sprache oder Musiktempo.** Das wird nicht unterstützt."
+  },
+  "install": {
+    "title": "Installation",
+    "step_plugin": "In Claude Code:",
+    "step_deps": "Im Terminal:",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "selected": "Ausgewählt. Drücken Sie ⌘C zum Kopieren.",
+    "copy_plugin_aria": "Befehle zur Installation des Plugins kopieren",
+    "copy_deps_aria": "Befehle zur Installation der Abhängigkeiten kopieren",
+    "required_title": "Erforderlich",
+    "req_macos": "macOS. Getestet unter macOS 26 mit Apple Silicon.",
+    "req_ffmpeg": "ffmpeg.",
+    "req_python": "Python 3 mit opencv-python und numpy. Getestet mit Python 3.13. Fehlt ein Paket, gibt der Skill den genauen pip-Befehl aus.",
+    "req_xcode": "Xcode Command Line Tools, um die Hilfsprogramme für Text im Bild und Sprache zu bauen.",
+    "optional_title": "Optional",
+    "opt_speech": "macOS 26 für Spracherkennung auf dem Gerät (Apple SpeechTranscriber).",
+    "opt_whisper": "whisper-cpp und ein ggml-Modell (zum Beispiel `ggml-large-v3-turbo-q5_0.bin`) in `~/.local/share/whisper/`, um mit whisper zu transkribieren.",
+    "opt_chrome": "Node 24 und Google Chrome, um die deklarierten CSS-Animationen einer Webseite auszulesen und mit der Messung zu vergleichen.",
+    "opt_ytdlp": "yt-dlp, um ein Video über eine URL zu analysieren."
+  },
+  "usage": {
+    "title": "Verwendung",
+    "body": "Fragen Sie wie gewohnt. Claude wählt den Skill, wenn eine Frage eine Messung erfordert. Um ihn direkt aufzurufen, beginnen Sie Ihre Nachricht mit `/video-lens`.",
+    "examples_title": "Beispiel-Prompts",
+    "ex_motion": "Analysiere die Animation in dieser Bildschirmaufnahme, damit ich sie in CSS nachbauen kann",
+    "ex_slides": "Liste auf, wann in diesem Vortrag welche Folie erscheint und was darauf steht",
+    "ex_when": "Was wurde ungefähr bei 12:00 gesagt?",
+    "ex_digest": "Fasse diesen YouTube-Vortrag Szene für Szene mit Screenshots zusammen",
+    "tip": "Wenn sich mehrere Elemente gleichzeitig bewegen, nennen Sie den Bereich, zum Beispiel „nur die Liste links“. Claude grenzt die Messung dann mit `--roi` ein.",
+    "digest_title": "Szenenübersicht, nur auf Anfrage",
+    "digest_body": "Bitten Sie um eine Zusammenfassung Szene für Szene mit Screenshots, dann schreibt Claude `digest.md` und eine eigenständige `digest.html`: ein Standbild pro Szene, ein oder zwei Zeilen dazu, was passiert, was gesagt wurde, und einen Link zu genau dieser Stelle. Ein YouTube-Video mit Kapiteln wird nach seinen Kapiteln aufgeteilt. Bei einem 66 Minuten langen Vortrag auf Koreanisch mit 21 Kapiteln dauerte das auf dem Mac etwa 4 Minuten (Download, Analyse und Übersicht). Gewöhnliche Analysen erzeugen nie eine solche Übersicht."
+  },
+  "how": {
+    "title": "Funktionsweise",
+    "intro": "Ein einziger Befehl, `vl.py analyze`, vermisst das Video und gibt einen Textbericht von höchstens 6000 Zeichen aus. Claude liest zuerst diesen Bericht, dann einige beschriftete Bilder und Einzelbilder nur dann, wenn es nötig ist.",
+    "s1_title": "Einlesen",
+    "s1_body": "ffprobe liest die Datenströme, die Bildrate und den Zeitstempel jedes Einzelbilds, sodass Aufnahmen mit variabler Bildrate ihr echtes Timing behalten.",
+    "s2_title": "Ton",
+    "s2_body": "Tonaktivität und Toneinsätze. Ein stiller Clip von bis zu 2 Minuten geht in den Bewegungsmodus, ein längerer in den Inhaltsmodus, ein kurzer Clip mit Ton bekommt beides.",
+    "s3_title": "Sprache und Inhalt",
+    "s3_body": "Untertitel oder ein auf dem Gerät erstelltes Transkript (Apple SpeechTranscriber oder whisper.cpp), Szenenwechsel, Schlüsselbilder und Text im Bild mit macOS Vision.",
+    "s4_title": "Bewegung",
+    "s4_body": "OpenCV findet die bewegten Elemente und verfolgt sie Bild für Bild. Beginn, Dauer, Easing (eine benannte Kurve oder cubic-bezier), Staffelung und Wegstrecke werden durch Kurvenanpassung ermittelt und als CSS ausgegeben.",
+    "s5_title": "Synchronität",
+    "s5_body": "Der Versatz zwischen Ton und Bild, bestimmt aus gepaarten Einsatzpunkten.",
+    "s6_title": "Bericht",
+    "s6_body": "Ein Textbericht mit Bereichen und Konfidenz, eine Zeitleiste und beschriftete Kontaktbögen mit Zeitdiagrammen.",
+    "reading": "Lesereihenfolge für Claude: Bericht, dann Zeitleiste oder Textsuche, dann das Übersichtsbild, dann Kontaktbögen, dann Einzelbilder."
+  },
+  "method": {
+    "title": "So haben wir gemessen",
+    "keys": "**Musterlösungen.** Die UI-Aufgaben sind echte CSS-Animationen, Bild für Bild in Headless Chrome gerendert, die richtige Antwort ist also das CSS, wie es geschrieben steht. Die Vorträge sind mit der Sprachausgabe von macOS vertont. Das Karussell ist eine echte Bildschirmaufnahme mit einer ungefähren Musterlösung.",
+    "same": "**Gleiche Bedingungen.** Gleicher Prompt, gleiches Modell und gleiche Effort-Stufe in beiden Bedingungen, keine MCP-Server, ein Durchlauf nach dem anderen. Skill-Durchläufe beginnen den Prompt mit dem Namen des Skills (`/video-lens` in Claude Code). Jeder Prompt verlangt eine JSON-Antwort in einem festen Format, die ein Skript gegen die Musterlösung bewertet.",
+    "hidden": "**Skill in den Vergleichsdurchläufen verborgen.** Vergleichsdurchläufe laden keine Skills und können den Ordner des Skills nicht lesen. Das kam hinzu, nachdem ein früher Vergleichsdurchlauf video-lens auf dem Datenträger gefunden und ausgeführt hatte.",
+    "score": "**Punktzahl.** Jede Antwort wird Punkt für Punkt mit der Musterlösung abgeglichen. Die Punktzahl eines Durchlaufs ist die Zahl der bestandenen Prüfungen minus falsch positive Angaben, geteilt durch die Zahl der Prüfungen, nie unter 0.",
+    "tolerance": "**Toleranzen.** Beginn und Dauer innerhalb von ±1 Einzelbild, Easing mit höchstens 0,05 Abweichung von der tatsächlichen Kurve, Töne innerhalb von ±10 ms, Zeitangaben der Sprache innerhalb von ±150 ms.",
+    "setup_title": "Einrichtung pro Modell.",
+    "tasks_title": "Die {tasks} Aufgaben",
+    "more": "Vollständige Methode, Zahlen pro Aufgabe und Einschränkungen: [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md). Skripte, um die Durchläufe zu reproduzieren: [bench/](https://github.com/Junhan2/video-lens/blob/main/bench/README.md)."
+  },
+  "limits": {
+    "title": "Grenzen",
+    "merge": "Mehrere gleichzeitig bewegte Elemente können im ersten Durchgang zu einem Rahmen verschmelzen oder in Bruchstücke zerfallen. Eine Eingrenzung des Bereichs mit `--roi` behebt das. Im Benchmark tat Opus 5.5 das von sich aus; Sonnet 5.5 tat es seltener.",
+    "backgrounds": "Bewegung vor Foto- oder Verlaufshintergründen und verrauschte Sprache aus echten Aufnahmen sind zu wenig getestet.",
+    "features": "Keine Sprecherzuordnung, keine automatische Bestimmung der Sprache, kein Musiktempo.",
+    "fps": "Aufnahmen mit 30 fps halbieren die zeitliche Auflösung. Nehmen Sie nach Möglichkeit mit 60 fps auf.",
+    "os": "Nur macOS, getestet unter macOS 26 mit Apple Silicon."
+  },
+  "footer": {
+    "version": "video-lens {version} · MIT-Lizenz",
+    "github": "GitHub",
+    "benchmark": "Benchmark-Methode",
+    "changelog": "Änderungsprotokoll",
+    "charts": "Diagramme erstellt mit Chart.js"
+  }
+}

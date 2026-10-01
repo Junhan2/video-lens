@@ -1,6 +1,41 @@
 {
   "default": "en",
   "languages": [
-    { "code": "en", "name": "English" }
+    {
+      "code": "en",
+      "name": "English"
+    },
+    {
+      "code": "ko",
+      "name": "한국어"
+    },
+    {
+      "code": "ja",
+      "name": "日本語"
+    },
+    {
+      "code": "zh-CN",
+      "name": "简体中文"
+    },
+    {
+      "code": "zh-TW",
+      "name": "繁體中文"
+    },
+    {
+      "code": "es",
+      "name": "Español"
+    },
+    {
+      "code": "pt-BR",
+      "name": "Português (Brasil)"
+    },
+    {
+      "code": "de",
+      "name": "Deutsch"
+    },
+    {
+      "code": "fr",
+      "name": "Français"
+    }
   ]
 }

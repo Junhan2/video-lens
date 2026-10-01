@@ -1,0 +1,319 @@
+{
+  "meta": {
+    "title": "video-lens：在 Claude Code 裡量測影片",
+    "description": "在你的 Mac 上量測影片的 Claude Code 技能：把 UI 動畫的時序與 easing 寫成 CSS，並為場景切換、畫面文字和語音附上時間戳記。不會上傳任何東西。"
+  },
+  "nav": {
+    "skip": "跳到主要內容",
+    "primary": "章節",
+    "why": "為什麼",
+    "benchmarks": "基準測試",
+    "when": "使用時機",
+    "install": "安裝",
+    "usage": "使用方式",
+    "how": "運作方式",
+    "method": "量測方法",
+    "limits": "限制",
+    "language": "語言",
+    "github": "GitHub",
+    "github_aria": "在 GitHub 上開啟 video-lens 儲存庫"
+  },
+  "hero": {
+    "eyebrow": "Claude Code 技能 · macOS · MIT",
+    "pitch": "用量測取代目測來看影片，讓 Claude 能回答何時發生、持續多久、怎麼發生。一切都在你的 Mac 上執行。",
+    "lede": "Claude 沒辦法觀看影片。video-lens 逐格量測影片，先把數字和文字交給 Claude，只在需要親眼確認的地方才提供圖片。",
+    "strip_aria": "兩列，每列 30 個影格。在 60 fps 下，300 ms 的動畫涵蓋 18 個影格。若每秒只取樣 2 個影格，這 30 個影格中只會取到 1 個，而且落在動畫開始之前。",
+    "strip_60": "60 fps，全部影格",
+    "strip_2": "2 fps，取樣",
+    "strip_note": "在 60 fps 下，300 ms 的動畫橫跨 18 個影格。每秒取樣 2 個影格，只會抓到其中 0 或 1 個。",
+    "summary": "搭配 video-lens，與只用同一個模型相比（{tasks} 個以標準答案評分的任務，每種條件 {runs} 次執行）：",
+    "summary_model": "{model}：每次執行成本{cost}，每次執行時間{time}，平均分數 {skill_mean}（只用模型為 {base_mean}）。",
+    "cta_install": "安裝",
+    "cta_install_aria": "前往安裝說明",
+    "cta_github": "在 GitHub 上查看",
+    "cta_github_aria": "在 GitHub 上開啟 video-lens 儲存庫"
+  },
+  "features": {
+    "title": "功能",
+    "motion_title": "把 UI 動態寫成 CSS",
+    "motion_body": "每個動畫元素的起始時間、持續時間、以 cubic-bezier 表示的 easing、錯開時間（stagger）與移動距離，精確到影格，並寫成 CSS。",
+    "content_title": "附時間戳記的演講與示範影片",
+    "content_body": "場景切換、關鍵影格、韓文與英文畫面文字（macOS Vision）、語音逐字稿，以及聲音與畫面的同步。",
+    "local_title": "不上傳任何東西",
+    "local_body": "ffmpeg、OpenCV、macOS Vision、Apple 裝置端語音辨識與 whisper.cpp。影片和音訊都留在你的 Mac 上。"
+  },
+  "example": {
+    "title": "範例：一段 3 秒的 toast 通知錄影",
+    "body": "這個 toast 是在 headless Chrome 中用真實 CSS 渲染出來的，所以正確答案是已知的。",
+    "col_what": "量測項目",
+    "col_measured": "video-lens",
+    "col_truth": "標準答案",
+    "row_duration": "持續時間",
+    "row_easing": "Easing",
+    "duration_measured": "298 ms（範圍 284 至 313）",
+    "duration_truth": "300 ms"
+  },
+  "why": {
+    "title": "為什麼",
+    "watch_title": "與 /watch 和 video-use 比較",
+    "watch_intro": "/watch（claude-video 0.1.3）適合快速了解一部影片大概在講什麼。video-use 透過對話來剪輯影片：剪接、調色和字幕。video-lens 則是用在想知道某件事何時發生、持續多久、怎麼發生的時候。",
+    "col_blank": "比較項目",
+    "col_watch": "/watch (claude-video 0.1.3)",
+    "col_video_use": "video-use (browser-use)",
+    "col_lens": "video-lens",
+    "row_frames": "看過的影格",
+    "row_frames_watch": "每秒最多 2 個，總共 100 個",
+    "row_frames_video_use": "在它要求時，每個指定範圍 10 個影格，寬 320 px",
+    "row_frames_lens": "每一個影格",
+    "row_precision": "時間精度",
+    "row_precision_watch": "整秒",
+    "row_precision_video_use": "語音有逐字的時間戳記；影格則取在它要求的時間點",
+    "row_precision_lens": "一個影格（60 fps 下為 16.7 ms）",
+    "row_anim": "一段 300 ms 的動畫",
+    "row_anim_watch": "0 或 1 個影格",
+    "row_anim_video_use": "只有它取樣到的影格；不量測動態",
+    "row_anim_lens": "量測起始時間、持續時間、easing，並產生 CSS",
+    "row_speech": "語音",
+    "row_speech_watch": "除非已有英文字幕，否則把音訊上傳到 Groq 或 OpenAI Whisper",
+    "row_speech_video_use": "把音訊上傳到 ElevenLabs Scribe（需付費 API 金鑰）",
+    "row_speech_lens": "在你的 Mac 上轉寫，包括韓語",
+    "row_scenes": "場景切換與畫面文字",
+    "row_scenes_watch": "不偵測",
+    "row_scenes_video_use": "不偵測",
+    "row_scenes_lens": "切換的時間點，以及每張投影片上的文字",
+    "watch_measured": "在基準測試中，Opus 搭配 /watch 或 video-use 的平均分數比搭配 video-lens 略高一些，主要是因為它除了使用技能之外，還另外用自己寫的 ffmpeg 和 OpenCV 程式碼量測影片；而它的成本是搭配 video-lens 時的兩倍以上。詳見：[與其他影片技能比較](#skills-compare)。",
+    "alone_title": "與只用模型比較",
+    "alone_body": "沒有這個技能時，Claude 每遇到一部影片，都會重新寫一套 ffmpeg 和 Python 程式碼來量測。這樣常常行得通，但每次執行寫出的程式碼都不一樣。",
+    "alone_spread": "任務「{task}」：{model} 單獨執行 {reps} 次，分數中位數為 {median}，最差的一次為 {worst}。",
+    "alone_after": "video-lens 則是改跑同一條經過測試的處理流程，所以每次執行都從相同的量測結果出發。",
+    "alone_model": "{model}：成本{cost}，時間{time}，平均分數 {skill_mean}（只用模型為 {base_mean}），最差一次 {skill_worst}（只用模型為 {base_worst}）。"
+  },
+  "bench": {
+    "title": "基準測試",
+    "intro": "{tasks} 個以標準答案評分的任務，每個跑 {reps} 次，所以每種條件共 {runs} 次執行，量測期間為 {from} 至 {date}。每個模型都分別單獨執行（自己寫 ffmpeg 和 Python）以及搭配 video-lens 執行，使用相同的提示詞、不啟用 MCP 伺服器，而且一次只跑一個。各模型使用的工具與 effort 等級請見[量測方法](#method)。",
+    "close_scores": "兩種條件都能解出大部分任務，所以平均分數彼此很接近。最差的一次則顯示單次執行可能出錯到什麼程度。",
+    "grok_time": "Grok 4.7 搭配 video-lens 的時間只是粗略的數字：在這輪測試的部分時間裡，這些執行和其他繁重的工作共用同一台 Mac，其中一次花了 4.3 小時。它的時間中位數是 446 s，只用模型時是 778 s。",
+    "autotrigger": "使用技能的執行都會在提示詞中指名該技能。在另一項提示詞沒有指名技能的測試中，Opus 5.5 在 9 個任務中有 8 個自行選用了它。",
+    "method_link": "任務如何建立與評分：[量測方法](#method) 和 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)。"
+  },
+  "skills": {
+    "title": "與其他影片技能比較",
+    "intro": "{model} 分別搭配各個影片技能，執行相同的 {tasks} 個任務與提示詞，每種條件 {runs} 次，一次只跑一個。每次執行都在提示詞中指名所用的技能，而在其他技能的執行中，video-lens 是隱藏起來的。",
+    "note": {
+      "watch": "/watch（{version}）每秒最多看 2 個影格，並把語音送到 Groq 或 OpenAI Whisper API。",
+      "video-use": "video-use（{version}）是為了剪輯影片而設計，不是為了量測。它把語音送到 ElevenLabs Scribe，並以影格膠卷條（filmstrip）的方式看畫面。這些任務只測試它讀懂影片的能力。"
+    },
+    "own_note": "自寫分析程式：除了技能本身的工具之外，Opus 還自己寫並執行 ffmpeg、OpenCV 或 whisper 指令的執行次數。大多數 /watch 和 video-use 的執行都這麼做了，多出來的成本和時間就是花在這裡。搭配 video-lens 時，技能的量測結果通常就已足夠。",
+    "per_task_title": "{model} 搭配其他影片技能",
+    "pending": "仍在執行中。所有執行完成後，結果會顯示在這裡。",
+    "cost_note": "成本只計算 Claude Code 為模型回報的金額。/watch（Groq 或 OpenAI）與 video-use（ElevenLabs）呼叫的語音 API，是用它們各自的金鑰計費，不包含在內。"
+  },
+  "chart": {
+    "cost_title": "每次執行的平均成本",
+    "cost_sub": "每條長條是 {runs} 次執行的平均值，以 API 價格計算的美元。越低越好。",
+    "cost_caption": "{model}：搭配 video-lens 後{change}。",
+    "time_title": "每次執行的平均時間",
+    "time_sub": "每條長條是 {runs} 次執行的平均值，執行時間以秒計。越低越好。",
+    "time_caption": "{model}：搭配 video-lens 後{change}。",
+    "accuracy_title": "準確度：平均分數與最差一次",
+    "accuracy_sub": "對照標準答案給出 0 到 1 的分數，每列 {runs} 次執行。每條線從最差一次延伸到平均值。",
+    "accuracy_caption": "{model}：搭配 video-lens 時，{runs} 次中有 {skill_perfect} 次得到 1.0 分；只用模型時為 {runs} 次中 {base_perfect} 次。",
+    "tasks_title": "各任務",
+    "tasks_sub_time": "{model}，{reps} 次執行中每次執行時間的中位數，單位為秒。",
+    "tasks_sub_cost": "{model}，{reps} 次執行中每次執行成本的中位數，單位為美元。",
+    "tasks_sub_score": "{model}，{reps} 次執行的分數中位數與最差一次，範圍 0 到 1。",
+    "model_label": "模型",
+    "metric_label": "指標",
+    "metric_time": "時間",
+    "metric_cost": "成本",
+    "metric_score": "分數",
+    "source": "video-lens 基準測試，量測期間 {from} 至 {date}。junhan2.github.io/video-lens",
+    "keyboard_hint": "用方向鍵逐一讀取各個數值。表格檢視會列出所有數值。",
+    "show_table": "顯示表格",
+    "hide_table": "隱藏表格",
+    "show_table_aria": "顯示表格：{chart}",
+    "hide_table_aria": "隱藏表格：{chart}",
+    "loading": "正在載入基準測試資料…",
+    "load_error": "無法載入基準測試資料。這些數字也列在 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md) 中。",
+    "library_error": "無法載入圖表函式庫。這些數字也列在 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md) 中。",
+    "skills_title": "搭配各個影片技能",
+    "skills_sub_score": "{model}，對照標準答案給出 0 到 1 的分數，每列 {runs} 次執行。每條線從最差一次延伸到平均值。",
+    "skills_sub_cost": "{model}，每條長條是 {runs} 次執行的平均成本，以 API 價格計算的美元。越低越好。",
+    "skills_sub_time": "{model}，每條長條是 {runs} 次執行的平均執行時間，單位為秒。越低越好。"
+  },
+  "series": {
+    "baseline": "只用模型",
+    "skill": "搭配 video-lens",
+    "mean": "平均分數",
+    "median": "分數中位數",
+    "worst": "最差一次",
+    "watch": "搭配 /watch",
+    "video-use": "搭配 video-use"
+  },
+  "table": {
+    "model": "模型",
+    "condition": "條件",
+    "task": "任務",
+    "mean_score": "平均分數",
+    "worst_score": "最差一次",
+    "perfect_runs": "得 1.0 分的次數",
+    "cost": "每次平均成本",
+    "time": "每次平均時間",
+    "turns": "平均回合數",
+    "median_score": "分數中位數",
+    "median_cost": "成本中位數",
+    "median_time": "時間中位數",
+    "id": "ID",
+    "change": "搭配 video-lens 的變化",
+    "own_analysis": "自寫分析程式的次數"
+  },
+  "change": {
+    "lower": "降低 {pct}",
+    "higher": "增加 {pct}",
+    "same": "沒有變化"
+  },
+  "format": {
+    "decimal": ".",
+    "usd": "US${n}",
+    "seconds": "{n} s",
+    "percent": "{n}%",
+    "of": "{a}/{b}"
+  },
+  "results": {
+    "note": "量測期間 {from} 至 {date}。{tasks} 個任務 × {reps} 次 = 每種條件 {runs} 次執行，不啟用 MCP 伺服器，一次只跑一個。平均分數、成本、時間與回合數是所有執行的平均值；最差一次是單次執行中最低的分數。",
+    "change_line": "{model} 搭配 video-lens：成本{cost}，時間{time}。",
+    "per_task_note": "每格是 {reps} 次執行的中位數；最差一次是這 {reps} 次中最低的分數。"
+  },
+  "setup": {
+    "line": "{model}：在 {harness} 中執行，effort 為 {effort}。{cost}{time}",
+    "cost_reported": "成本是 {harness} 回報的 API 等值金額 `total_cost_usd`。",
+    "time_reported": "時間是 {harness} 回報的執行時間。",
+    "time_wall_clock": "時間是該次執行從開始到結束實際經過的時間。"
+  },
+  "tasks": {
+    "v1": {
+      "short": "卡片錯開動畫",
+      "long": "卡片錯開動畫（3 張卡片、60 fps、具名曲線）"
+    },
+    "v2": {
+      "short": "對話框進場與退場",
+      "long": "對話框進場與退場（VFR 錄影）"
+    },
+    "v3": {
+      "short": "帶點擊音效的 toast",
+      "long": "從畫面外進場、帶點擊音效的 toast"
+    },
+    "h1": {
+      "short": "重疊的 6 列清單",
+      "long": "重疊的 6 列清單、自訂曲線、30 fps、Retina"
+    },
+    "h2": {
+      "short": "顏色、徽章、抽屜",
+      "long": "顏色變化、回彈徽章、底部抽屜（VFR）"
+    },
+    "orbit": {
+      "short": "3D 輪播錄影",
+      "long": "真實的 3D 卡片輪播錄影，16.5 s（標準答案為近似值）"
+    },
+    "v4": {
+      "short": "20 秒韓語講座",
+      "long": "20 秒的韓語講座，3 張投影片"
+    },
+    "h3": {
+      "short": "10 分鐘韓語講座",
+      "long": "10 分鐘的韓語講座，24 張投影片"
+    },
+    "gist": {
+      "short": "兩句話摘要",
+      "long": "用兩句話摘要一段影片"
+    }
+  },
+  "when": {
+    "title": "使用時機",
+    "use_title": "適合用在",
+    "use_motion": "**重建或審查 UI 動態。** 以數字和 CSS 給出起始時間、持續時間、easing 與 stagger，每個值都附上它可能落在的範圍。像「這個轉場真的是 400 ms ease-out 嗎？」這類問題，會得到實際量測的答案。",
+    "use_long_title": "長時間錄影。",
+    "use_long": "在 10 分鐘的韓語講座上，{model} 搭配 video-lens：成本{cost}，時間{time}（{reps} 次執行的中位數）。",
+    "use_repeat": "**重複的動態。** 輪播和循環動畫會當作一組量測一次，並列出每次重複的起始時間。",
+    "use_private": "**不公開的演講與會議。** 語音在你的 Mac 上轉寫，投影片文字也附有時間戳記。",
+    "skip_title": "以下情況用不到它",
+    "skip_gist": "**快速掌握短片大意。** 只用模型就能處理，而載入技能會多花一點成本。",
+    "skip_os": "**Windows 或 Linux。** video-lens 只能在 macOS 上執行。",
+    "skip_features": "**說話者標記、語言偵測或音樂節拍。** 這些都不支援。"
+  },
+  "install": {
+    "title": "安裝",
+    "step_plugin": "在 Claude Code 中：",
+    "step_deps": "在終端機中：",
+    "copy": "複製",
+    "copied": "已複製",
+    "selected": "已選取。按 ⌘C 複製。",
+    "copy_plugin_aria": "複製外掛的安裝指令",
+    "copy_deps_aria": "複製相依套件的安裝指令",
+    "required_title": "必要",
+    "req_macos": "macOS。已在搭載 Apple Silicon 的 macOS 26 上測試。",
+    "req_ffmpeg": "ffmpeg。",
+    "req_python": "Python 3，並裝有 opencv-python 與 numpy。已在 Python 3.13 上測試。若缺少套件，技能會印出確切的 pip 指令。",
+    "req_xcode": "Xcode Command Line Tools，用來建置畫面文字與語音的輔助程式。",
+    "optional_title": "選用",
+    "opt_speech": "macOS 26，用於裝置端語音辨識（Apple SpeechTranscriber）。",
+    "opt_whisper": "whisper-cpp 與一個 ggml 模型（例如 `ggml-large-v3-turbo-q5_0.bin`），放在 `~/.local/share/whisper/`，用 whisper 轉寫時需要。",
+    "opt_chrome": "Node 24 與 Google Chrome，用來讀取網頁宣告的 CSS 動畫，並與量測結果比較。",
+    "opt_ytdlp": "yt-dlp，用來分析網址上的影片。"
+  },
+  "usage": {
+    "title": "使用方式",
+    "body": "照平常的方式提問就好。問題需要量測時，Claude 會自動選用這個技能。若要直接呼叫，請以 `/video-lens` 作為訊息的開頭。",
+    "examples_title": "提示詞範例",
+    "ex_motion": "分析這段螢幕錄影裡的動畫，讓我能用 CSS 重做出來",
+    "ex_slides": "列出這場講座中每張投影片出現的時間和上面寫了什麼",
+    "ex_when": "12:00 左右講了什麼？",
+    "ex_digest": "把這部 YouTube 演講逐場景摘要，並附上截圖",
+    "tip": "若有好幾個元素同時移動，請指出要看的範圍，例如「只看左邊的清單」。Claude 就會用 `--roi` 縮小量測範圍。",
+    "digest_title": "逐場景摘要，只在你要求時產生",
+    "digest_body": "要求附截圖的逐場景摘要時，Claude 會寫出 `digest.md` 和一個獨立完整的 `digest.html`：每個場景一張截圖、用一兩行說明發生了什麼、說了什麼，以及跳到該時間點的連結。有章節的 YouTube 影片會依章節切分。一場 66 分鐘、有 21 個章節的韓語演講，在 Mac 上大約花了 4 分鐘（下載、分析和摘要）。一般的分析從不產生摘要。"
+  },
+  "how": {
+    "title": "運作方式",
+    "intro": "只要一個指令 `vl.py analyze`，就會量測影片並輸出最多 6,000 個字元的文字報告。Claude 先讀這份報告，再看幾張有標註的圖片，只在必要時才看單一影格。",
+    "s1_title": "探測",
+    "s1_body": "ffprobe 讀取串流、影格率與每個影格的時間戳記，讓可變影格率的錄影保有真實的時間。",
+    "s2_title": "音訊",
+    "s2_body": "聲音活動與起音點。2 分鐘以內的安靜片段進入動態模式，較長的進入內容模式，有聲音的短片段則兩者都做。",
+    "s3_title": "語音與內容",
+    "s3_body": "字幕或裝置端逐字稿（Apple SpeechTranscriber 或 whisper.cpp）、場景切換、關鍵影格，以及用 macOS Vision 辨識的畫面文字。",
+    "s4_title": "動態",
+    "s4_body": "OpenCV 找出移動的元素，並逐格追蹤。起始時間、持續時間、easing（具名曲線或 cubic-bezier）、stagger 和移動距離經過擬合後寫成 CSS。",
+    "s5_title": "同步",
+    "s5_body": "根據成對的起音點，算出聲音與畫面之間的偏移。",
+    "s6_title": "報告",
+    "s6_body": "附範圍與可信度的文字報告、時間軸，以及附時間對照圖的標註影格縮圖表。",
+    "reading": "Claude 的閱讀順序：報告，接著是時間軸或文字搜尋，然後是總覽圖，再來是影格縮圖表，最後才是單一影格。"
+  },
+  "method": {
+    "title": "量測方法",
+    "keys": "**標準答案。** UI 任務是在 headless Chrome 中逐格渲染的真實 CSS 動畫，所以正確答案就是 CSS 裡寫的值。講座使用 macOS 文字轉語音配上旁白。輪播是真實的螢幕錄影，標準答案為近似值。",
+    "same": "**相同條件。** 兩種條件使用相同的提示詞、模型與 effort，不啟用 MCP 伺服器，一次只跑一個。使用技能的執行，提示詞以技能名稱開頭（在 Claude Code 中是 `/video-lens`）。每個提示詞都要求以固定格式的 JSON 作答，再由腳本對照標準答案評分。",
+    "hidden": "**對照組看不到技能。** 對照組的執行不載入任何技能，也無法讀取技能所在的資料夾。這項限制是在早期一次對照組執行於磁碟上找到 video-lens 並執行它之後才加上的。",
+    "score": "**分數。** 每個答案都逐項對照標準答案檢查。一次執行的分數是通過的檢查數減去誤報數，再除以檢查總數，最低為 0。",
+    "tolerance": "**容許誤差。** 起始時間與持續時間在 ±1 個影格內，easing 與真實曲線相差 0.05 以內，聲音在 ±10 ms 內，語音時間在 ±150 ms 內。",
+    "setup_title": "各模型的設定。",
+    "tasks_title": "{tasks} 個任務",
+    "more": "完整方法、各任務的數字與注意事項：[BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)。重現這些執行的腳本：[bench/](https://github.com/Junhan2/video-lens/blob/main/bench/README.md)。"
+  },
+  "limits": {
+    "title": "限制",
+    "merge": "好幾個元素同時移動時，第一輪分析可能會把它們合併成一個框，或拆成好幾塊碎片。用 `--roi` 縮小範圍就能解決。在基準測試中，Opus 5.5 自行這麼做了；Sonnet 5.5 這麼做的次數比較少。",
+    "backgrounds": "照片或漸層背景上的動態，以及嘈雜的真實環境語音，測試都還不夠充分。",
+    "features": "不支援說話者標記、語言自動偵測或音樂節拍。",
+    "fps": "30 fps 的錄影會讓時間解析度減半。可以的話，請以 60 fps 錄影。",
+    "os": "僅支援 macOS，已在搭載 Apple Silicon 的 macOS 26 上測試。"
+  },
+  "footer": {
+    "version": "video-lens {version} · MIT 授權",
+    "github": "GitHub",
+    "benchmark": "基準測試方法",
+    "changelog": "更新紀錄",
+    "charts": "圖表以 Chart.js 繪製"
+  }
+}

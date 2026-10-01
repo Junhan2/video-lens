@@ -1,0 +1,319 @@
+{
+  "meta": {
+    "title": "video-lens: mide videos en Claude Code",
+    "description": "Una skill de Claude Code que mide videos en tu Mac: tiempos y easing de animaciones de interfaz como CSS, cortes de escena, texto en pantalla y habla con marcas de tiempo. No se sube nada."
+  },
+  "nav": {
+    "skip": "Saltar al contenido",
+    "primary": "Secciones",
+    "why": "Por qué",
+    "benchmarks": "Benchmarks",
+    "when": "Cuándo usarla",
+    "install": "Instalación",
+    "usage": "Uso",
+    "how": "Cómo funciona",
+    "method": "Cómo medimos",
+    "limits": "Limitaciones",
+    "language": "Idioma",
+    "github": "GitHub",
+    "github_aria": "Abrir el repositorio de video-lens en GitHub"
+  },
+  "hero": {
+    "eyebrow": "Skill de Claude Code · macOS · MIT",
+    "pitch": "Mide el video en lugar de calcularlo a ojo, para que Claude pueda responder cuándo, durante cuánto tiempo y cómo. Todo se ejecuta en tu Mac.",
+    "lede": "Claude no puede ver videos. video-lens los mide fotograma a fotograma, le entrega a Claude primero números y texto, y solo muestra imágenes donde hace falta mirar.",
+    "strip_aria": "Dos filas de 30 fotogramas. A 60 fps, una animación de 300 ms abarca 18 fotogramas. A 2 fotogramas por segundo solo se muestrea uno de los 30, y cae antes de que empiece la animación.",
+    "strip_60": "60 fps, todos los fotogramas",
+    "strip_2": "2 fps, muestreado",
+    "strip_note": "Una animación de 300 ms a 60 fps abarca 18 fotogramas. Muestrear 2 fotogramas por segundo capta 0 o 1 de ellos.",
+    "summary": "Con video-lens, frente al mismo modelo por sí solo ({tasks} tareas evaluadas con claves de respuestas, {runs} ejecuciones por condición):",
+    "summary_model": "{model}: costo por ejecución {cost}, tiempo por ejecución {time}, puntuación media {skill_mean} frente a {base_mean}.",
+    "cta_install": "Instalar",
+    "cta_install_aria": "Ir a las instrucciones de instalación",
+    "cta_github": "Ver en GitHub",
+    "cta_github_aria": "Abrir el repositorio de video-lens en GitHub"
+  },
+  "features": {
+    "title": "Qué hace",
+    "motion_title": "Movimiento de interfaz como CSS",
+    "motion_body": "Inicio, duración, easing como cubic-bezier, escalonamiento y desplazamiento de cada elemento animado, con precisión de fotograma, escritos como CSS.",
+    "content_title": "Charlas y demos con marcas de tiempo",
+    "content_body": "Cortes de escena, fotogramas clave, texto en pantalla en coreano e inglés (macOS Vision), una transcripción del habla y la sincronía entre audio y video.",
+    "local_title": "No se sube nada",
+    "local_body": "ffmpeg, OpenCV, macOS Vision, el reconocimiento de voz en el dispositivo de Apple y whisper.cpp. El video y el audio no salen de tu Mac."
+  },
+  "example": {
+    "title": "Ejemplo: una grabación de 3 segundos de un toast",
+    "body": "El toast se renderizó a partir de CSS real en Chrome headless, así que se sabe cuál es la respuesta correcta.",
+    "col_what": "Medida",
+    "col_measured": "video-lens",
+    "col_truth": "Respuesta correcta",
+    "row_duration": "Duración",
+    "row_easing": "Easing",
+    "duration_measured": "298 ms (rango de 284 a 313)",
+    "duration_truth": "300 ms"
+  },
+  "why": {
+    "title": "Por qué",
+    "watch_title": "Comparación con /watch y video-use",
+    "watch_intro": "/watch (claude-video 0.1.3) está pensado para ver rápidamente de qué trata un video. video-use edita videos conversando: cortes, color y subtítulos. video-lens sirve para saber cuándo ocurre algo, durante cuánto tiempo y cómo.",
+    "col_blank": "Aspecto",
+    "col_watch": "/watch (claude-video 0.1.3)",
+    "col_video_use": "video-use (browser-use)",
+    "col_lens": "video-lens",
+    "row_frames": "Fotogramas que revisa",
+    "row_frames_watch": "Como máximo 2 por segundo, 100 en total",
+    "row_frames_video_use": "10 fotogramas por rango solicitado, de 320 px de ancho, cuando los pide",
+    "row_frames_lens": "Todos los fotogramas",
+    "row_precision": "Precisión temporal",
+    "row_precision_watch": "Segundos enteros",
+    "row_precision_video_use": "Marcas de tiempo por palabra para el habla; fotogramas en los momentos que pide",
+    "row_precision_lens": "Un fotograma (16.7 ms a 60 fps)",
+    "row_anim": "Una animación de 300 ms",
+    "row_anim_watch": "0 o 1 fotogramas",
+    "row_anim_video_use": "Solo los fotogramas que muestrea; el movimiento no se mide",
+    "row_anim_lens": "Inicio, duración, easing y CSS medidos",
+    "row_speech": "Habla",
+    "row_speech_watch": "El audio se sube a Groq u OpenAI Whisper, salvo que haya subtítulos en inglés",
+    "row_speech_video_use": "El audio se sube a ElevenLabs Scribe (clave de API de pago)",
+    "row_speech_lens": "Se transcribe en tu Mac, también en coreano",
+    "row_scenes": "Cortes de escena y texto en pantalla",
+    "row_scenes_watch": "No se detectan",
+    "row_scenes_video_use": "No se detectan",
+    "row_scenes_lens": "El momento de cada corte y el texto de cada diapositiva",
+    "watch_measured": "En el benchmark, Opus con /watch o video-use obtuvo en promedio una puntuación un poco más alta que con video-lens, sobre todo porque, además de usar la skill, midió el clip por su cuenta con su propio código de ffmpeg y OpenCV, y costó más del doble. Detalles: [Frente a otras skills de video](#skills-compare).",
+    "alone_title": "Comparación con el modelo por sí solo",
+    "alone_body": "Sin la skill, Claude escribe código nuevo de ffmpeg y Python para cada video y mide con él. A menudo funciona, pero el código cambia en cada ejecución.",
+    "alone_spread": "Tarea \"{task}\": {model} por sí solo obtuvo una puntuación mediana de {median} en {reps} ejecuciones y {worst} en su peor ejecución.",
+    "alone_after": "video-lens, en cambio, ejecuta un único pipeline ya probado, así que cada ejecución parte de las mismas mediciones.",
+    "alone_model": "{model}: costo {cost}, tiempo {time}, puntuación media {skill_mean} frente a {base_mean}, peor ejecución {skill_worst} frente a {base_worst}."
+  },
+  "bench": {
+    "title": "Benchmarks",
+    "intro": "{tasks} tareas evaluadas con claves de respuestas, {reps} ejecuciones de cada una, es decir, {runs} ejecuciones por condición, medidas del {from} al {date}. Cada modelo se ejecutó por sí solo (escribiendo su propio código de ffmpeg y Python) y con video-lens, con el mismo prompt, sin servidores MCP y una ejecución a la vez. La herramienta y el nivel de esfuerzo con que se ejecutó cada modelo están en [Cómo medimos](#method).",
+    "close_scores": "Ambas condiciones resuelven la mayoría de las tareas, así que las puntuaciones medias quedan cerca unas de otras. La peor ejecución muestra hasta qué punto puede salir mal una sola ejecución.",
+    "grok_time": "El tiempo de Grok 4.7 con video-lens es aproximado: durante parte de la ronda, esas ejecuciones compartieron máquina con otras tareas pesadas, y una de ellas tardó 4.3 horas. Su tiempo mediano fue de 446 s, frente a 778 s por sí solo.",
+    "autotrigger": "En las ejecuciones con la skill, el prompt la nombraba. En una prueba aparte en la que el prompt no la nombraba, Opus 5.5 la eligió por su cuenta en 8 de 9 tareas.",
+    "method_link": "Cómo se construyeron y evaluaron las tareas: [Cómo medimos](#method) y [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)."
+  },
+  "skills": {
+    "title": "Frente a otras skills de video",
+    "intro": "{model} con cada skill de video en las mismas {tasks} tareas y con los mismos prompts, {runs} ejecuciones por condición, una ejecución a la vez. Cada ejecución nombraba su skill en el prompt, y video-lens quedó oculta en las ejecuciones de las otras skills.",
+    "note": {
+      "watch": "/watch ({version}) revisa hasta 2 fotogramas por segundo y envía el habla a la API de Groq o de OpenAI Whisper.",
+      "video-use": "video-use ({version}) está hecho para editar videos, no para medirlos. Envía el habla a ElevenLabs Scribe y revisa tiras de fotogramas. Estas tareas solo evalúan qué tan bien lee un video."
+    },
+    "own_note": "Código de análisis propio: ejecuciones en las que Opus, además de usar las herramientas de la skill, escribió y ejecutó sus propios comandos de ffmpeg, OpenCV o whisper. La mayoría de las ejecuciones con /watch y video-use lo hicieron, y ahí se fueron su costo y su tiempo adicionales. Con video-lens, las mediciones de la skill solían bastar.",
+    "per_task_title": "{model} con otras skills de video",
+    "pending": "Hay ejecuciones en curso. Los resultados aparecerán aquí cuando terminen todas.",
+    "cost_note": "El costo solo incluye lo que Claude Code informa para el modelo. Las API de voz a las que llaman /watch (Groq u OpenAI) y video-use (ElevenLabs) se facturan a sus propias claves y no están incluidas."
+  },
+  "chart": {
+    "cost_title": "Costo medio por ejecución",
+    "cost_sub": "Media de {runs} ejecuciones por barra, en dólares estadounidenses a precios de API. Menos es mejor.",
+    "cost_caption": "{model}: {change} con video-lens.",
+    "time_title": "Tiempo medio por ejecución",
+    "time_sub": "Media de {runs} ejecuciones por barra, duración de la ejecución en segundos. Menos es mejor.",
+    "time_caption": "{model}: {change} con video-lens.",
+    "accuracy_title": "Precisión: puntuación media y peor ejecución",
+    "accuracy_sub": "Puntuación de 0 a 1 frente a la clave de respuestas, {runs} ejecuciones por fila. Cada línea va de la peor ejecución a la media.",
+    "accuracy_caption": "{model}: {skill_perfect} de {runs} ejecuciones obtuvieron 1.0 con video-lens, y {base_perfect} de {runs} con el modelo por sí solo.",
+    "tasks_title": "Por tarea",
+    "tasks_sub_time": "{model}, tiempo mediano por ejecución en {reps} ejecuciones, en segundos.",
+    "tasks_sub_cost": "{model}, costo mediano por ejecución en {reps} ejecuciones, en dólares estadounidenses.",
+    "tasks_sub_score": "{model}, puntuación mediana en {reps} ejecuciones y peor ejecución, de 0 a 1.",
+    "model_label": "Modelo",
+    "metric_label": "Medida",
+    "metric_time": "Tiempo",
+    "metric_cost": "Costo",
+    "metric_score": "Puntuación",
+    "source": "Benchmark de video-lens, medido del {from} al {date}. junhan2.github.io/video-lens",
+    "keyboard_hint": "Usa las teclas de flecha para leer cada valor. La vista de tabla muestra todos los valores.",
+    "show_table": "Mostrar tabla",
+    "hide_table": "Ocultar tabla",
+    "show_table_aria": "Mostrar tabla: {chart}",
+    "hide_table_aria": "Ocultar tabla: {chart}",
+    "loading": "Cargando los datos del benchmark…",
+    "load_error": "No se pudieron cargar los datos del benchmark. Las cifras también están en [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
+    "library_error": "No se pudo cargar la biblioteca de gráficos. Las cifras también están en [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
+    "skills_title": "Con cada skill de video",
+    "skills_sub_score": "{model}, puntuación de 0 a 1 frente a la clave de respuestas, {runs} ejecuciones por fila. Cada línea va de la peor ejecución a la media.",
+    "skills_sub_cost": "{model}, costo medio de {runs} ejecuciones por barra, en dólares estadounidenses a precios de API. Menos es mejor.",
+    "skills_sub_time": "{model}, duración media de {runs} ejecuciones por barra, en segundos. Menos es mejor."
+  },
+  "series": {
+    "baseline": "Modelo por sí solo",
+    "skill": "Con video-lens",
+    "mean": "Puntuación media",
+    "median": "Puntuación mediana",
+    "worst": "Peor ejecución",
+    "watch": "Con /watch",
+    "video-use": "Con video-use"
+  },
+  "table": {
+    "model": "Modelo",
+    "condition": "Condición",
+    "task": "Tarea",
+    "mean_score": "Puntuación media",
+    "worst_score": "Peor ejecución",
+    "perfect_runs": "Ejecuciones con 1.0",
+    "cost": "Costo medio por ejecución",
+    "time": "Tiempo medio por ejecución",
+    "turns": "Turnos medios",
+    "median_score": "Puntuación mediana",
+    "median_cost": "Costo mediano",
+    "median_time": "Tiempo mediano",
+    "id": "ID",
+    "change": "Cambio con video-lens",
+    "own_analysis": "Ejecuciones con código de análisis propio"
+  },
+  "change": {
+    "lower": "un {pct} menor",
+    "higher": "un {pct} mayor",
+    "same": "sin cambios"
+  },
+  "format": {
+    "decimal": ".",
+    "usd": "{n} US$",
+    "seconds": "{n} s",
+    "percent": "{n} %",
+    "of": "{a}/{b}"
+  },
+  "results": {
+    "note": "Medido del {from} al {date}. {tasks} tareas × {reps} ejecuciones = {runs} ejecuciones por condición, sin servidores MCP, una ejecución a la vez. La puntuación media, el costo, el tiempo y los turnos son medias de todas las ejecuciones; la peor ejecución es la puntuación individual más baja.",
+    "change_line": "{model} con video-lens: costo {cost}, tiempo {time}.",
+    "per_task_note": "Mediana de {reps} ejecuciones por celda; la peor ejecución es la más baja de las {reps}."
+  },
+  "setup": {
+    "line": "{model}: ejecutado en {harness}, esfuerzo {effort}. {cost} {time}",
+    "cost_reported": "El costo es el `total_cost_usd`, equivalente a precios de API, que informa {harness}.",
+    "time_reported": "El tiempo es la duración de la ejecución que informa {harness}.",
+    "time_wall_clock": "El tiempo es la duración real transcurrida de la ejecución."
+  },
+  "tasks": {
+    "v1": {
+      "short": "Escalonamiento de tarjetas",
+      "long": "Escalonamiento de tarjetas (3 tarjetas, 60 fps, curva con nombre)"
+    },
+    "v2": {
+      "short": "Entrada y salida de un modal",
+      "long": "Entrada y salida de un modal (grabación VFR)"
+    },
+    "v3": {
+      "short": "Toast con sonido de clic",
+      "long": "Toast fuera de pantalla con sonido de clic"
+    },
+    "h1": {
+      "short": "Lista de 6 filas solapadas",
+      "long": "Lista de 6 filas solapadas, curva personalizada, 30 fps, Retina"
+    },
+    "h2": {
+      "short": "Color, insignia, panel",
+      "long": "Cambio de color, insignia con overshoot, panel inferior deslizante (VFR)"
+    },
+    "orbit": {
+      "short": "Grabación de carrusel 3D",
+      "long": "Grabación real de un carrusel 3D de tarjetas, 16.5 s (clave de respuestas aproximada)"
+    },
+    "v4": {
+      "short": "Clase de 20 s en coreano",
+      "long": "Clase de 20 segundos en coreano, 3 diapositivas"
+    },
+    "h3": {
+      "short": "Clase de 10 min en coreano",
+      "long": "Clase de 10 minutos en coreano, 24 diapositivas"
+    },
+    "gist": {
+      "short": "Resumen en dos frases",
+      "long": "Resumen de un clip en dos frases"
+    }
+  },
+  "when": {
+    "title": "Cuándo usarla",
+    "use_title": "Úsala para",
+    "use_motion": "**Recrear o revisar el movimiento de una interfaz.** Inicio, duración, easing y escalonamiento como números y CSS, cada uno con el rango en el que podría estar. Preguntas como \"¿esta transición es realmente de 400 ms ease-out?\" reciben una respuesta medida.",
+    "use_long_title": "Grabaciones largas.",
+    "use_long": "En la clase de 10 minutos en coreano, {model} con video-lens: costo {cost}, tiempo {time} (mediana de {reps} ejecuciones).",
+    "use_repeat": "**Movimiento repetido.** Los carruseles y bucles se miden una sola vez como grupo, con el momento de inicio de cada repetición.",
+    "use_private": "**Charlas y reuniones privadas.** El habla se transcribe en tu Mac, y el texto de las diapositivas viene con marcas de tiempo.",
+    "skip_title": "No la necesitas para",
+    "skip_gist": "**Captar rápido la idea general de un clip corto.** El modelo por sí solo lo resuelve, y cargar la skill añade un poco de costo.",
+    "skip_os": "**Windows o Linux.** video-lens solo funciona en macOS.",
+    "skip_features": "**Etiquetas de hablante, detección de idioma o tempo musical.** No se admiten."
+  },
+  "install": {
+    "title": "Instalación",
+    "step_plugin": "En Claude Code:",
+    "step_deps": "En una terminal:",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "selected": "Seleccionado. Presiona ⌘C para copiar.",
+    "copy_plugin_aria": "Copiar los comandos de instalación del plugin",
+    "copy_deps_aria": "Copiar los comandos de instalación de las dependencias",
+    "required_title": "Obligatorio",
+    "req_macos": "macOS. Probado en macOS 26 con Apple Silicon.",
+    "req_ffmpeg": "ffmpeg.",
+    "req_python": "Python 3 con opencv-python y numpy. Probado con Python 3.13. Si falta un paquete, la skill muestra el comando de pip exacto.",
+    "req_xcode": "Xcode Command Line Tools, para compilar las herramientas auxiliares de texto en pantalla y de voz.",
+    "optional_title": "Opcional",
+    "opt_speech": "macOS 26 para el reconocimiento de voz en el dispositivo (Apple SpeechTranscriber).",
+    "opt_whisper": "whisper-cpp y un modelo ggml (por ejemplo, `ggml-large-v3-turbo-q5_0.bin`) en `~/.local/share/whisper/`, para transcribir con whisper.",
+    "opt_chrome": "Node 24 y Google Chrome, para leer las animaciones CSS declaradas de una página web y compararlas con la medición.",
+    "opt_ytdlp": "yt-dlp, para analizar un video desde una URL."
+  },
+  "usage": {
+    "title": "Uso",
+    "body": "Pregunta como siempre. Claude elige la skill cuando una pregunta requiere medir. Para invocarla directamente, empieza tu mensaje con `/video-lens`.",
+    "examples_title": "Prompts de ejemplo",
+    "ex_motion": "Analiza la animación de esta grabación de pantalla para que pueda recrearla en CSS",
+    "ex_slides": "Enumera cuándo aparece cada diapositiva en esta clase y qué dice",
+    "ex_when": "¿Qué se dijo alrededor del minuto 12:00?",
+    "ex_digest": "Resume esta charla de YouTube escena por escena con capturas de pantalla",
+    "tip": "Cuando varios elementos se mueven a la vez, indica la zona, por ejemplo \"solo la lista de la izquierda\". Así Claude acota la medición con `--roi`.",
+    "digest_title": "Resumen por escenas, solo si lo pides",
+    "digest_body": "Pide un resumen escena por escena con capturas de pantalla y Claude escribe `digest.md` y un `digest.html` autocontenido: una captura por escena, una o dos líneas sobre lo que ocurre, lo que se dijo y un enlace a ese momento. Un video de YouTube con capítulos se divide por sus capítulos. Con una charla de 66 minutos en coreano y 21 capítulos, esto tardó unos 4 minutos en el Mac (descarga, análisis y resumen). Los análisis normales nunca generan uno."
+  },
+  "how": {
+    "title": "Cómo funciona",
+    "intro": "Un solo comando, `vl.py analyze`, mide el video y genera un informe de texto de 6000 caracteres como máximo. Claude lee eso primero, luego unas pocas imágenes etiquetadas y, solo cuando hace falta, fotogramas sueltos.",
+    "s1_title": "Inspección",
+    "s1_body": "ffprobe lee los flujos, la tasa de fotogramas y la marca de tiempo de cada fotograma, así que las grabaciones con tasa de fotogramas variable conservan sus tiempos reales.",
+    "s2_title": "Audio",
+    "s2_body": "Actividad sonora e inicios de cada sonido. Un clip silencioso de hasta 2 minutos pasa al modo movimiento; uno más largo, al modo contenido; un clip corto con sonido recibe ambos.",
+    "s3_title": "Habla y contenido",
+    "s3_body": "Subtítulos o una transcripción en el dispositivo (Apple SpeechTranscriber o whisper.cpp), cortes de escena, fotogramas clave y texto en pantalla con macOS Vision.",
+    "s4_title": "Movimiento",
+    "s4_body": "OpenCV encuentra los elementos en movimiento y los sigue fotograma a fotograma. El inicio, la duración, el easing (una curva con nombre o cubic-bezier), el escalonamiento y el desplazamiento se ajustan y se escriben como CSS.",
+    "s5_title": "Sincronía",
+    "s5_body": "El desfase entre sonido e imagen, a partir de inicios de sonido emparejados.",
+    "s6_title": "Informe",
+    "s6_body": "Un informe de texto con rangos y nivel de confianza, una línea de tiempo y hojas de contactos etiquetadas con mapas de tiempos.",
+    "reading": "Orden de lectura para Claude: el informe, luego la línea de tiempo o la búsqueda de texto, después la imagen general, luego las hojas de contactos y, por último, fotogramas sueltos."
+  },
+  "method": {
+    "title": "Cómo medimos",
+    "keys": "**Claves de respuestas.** Las tareas de interfaz son animaciones CSS reales renderizadas fotograma a fotograma en Chrome headless, así que la verdad es el CSS tal como está escrito. Las clases están narradas con la síntesis de voz de macOS. El carrusel es una grabación de pantalla real con una clave aproximada.",
+    "same": "**Mismas condiciones.** Mismo prompt, modelo y esfuerzo en ambas condiciones, sin servidores MCP, una ejecución a la vez. En las ejecuciones con la skill, el prompt empieza con el nombre de la skill (`/video-lens` en Claude Code). Cada prompt pide una respuesta JSON en un formato fijo que un script puntúa frente a la clave.",
+    "hidden": "**Skill oculta en la línea base.** Las ejecuciones de línea base no cargan ninguna skill y no pueden leer la carpeta de la skill. Esto se añadió después de que una de las primeras ejecuciones de línea base encontrara video-lens en el disco y la ejecutara.",
+    "score": "**Puntuación.** Cada respuesta se comprueba punto por punto frente a la clave. La puntuación de una ejecución es el número de comprobaciones superadas menos los falsos positivos, dividido entre el número de comprobaciones, y nunca baja de 0.",
+    "tolerance": "**Tolerancias.** Inicio y duración dentro de ±1 fotograma, easing a no más de 0.05 de la curva real, sonidos dentro de ±10 ms, tiempos del habla dentro de ±150 ms.",
+    "setup_title": "Configuración por modelo.",
+    "tasks_title": "Las {tasks} tareas",
+    "more": "Método completo, cifras por tarea y salvedades: [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md). Scripts para reproducir las ejecuciones: [bench/](https://github.com/Junhan2/video-lens/blob/main/bench/README.md)."
+  },
+  "limits": {
+    "title": "Limitaciones",
+    "merge": "Cuando varios elementos se mueven a la vez, en la primera pasada pueden salir fusionados en un solo recuadro o partidos en fragmentos. Acotar la zona con `--roi` lo soluciona. En el benchmark, Opus 5.5 lo hizo por su cuenta; Sonnet 5.5 lo hizo con menos frecuencia.",
+    "backgrounds": "El movimiento sobre fondos de foto o con degradado y el habla real con ruido están poco probados.",
+    "features": "Sin etiquetas de hablante, detección automática de idioma ni tempo musical.",
+    "fps": "Las grabaciones a 30 fps reducen a la mitad la resolución temporal. Graba a 60 fps cuando puedas.",
+    "os": "Solo macOS, probado en macOS 26 con Apple Silicon."
+  },
+  "footer": {
+    "version": "video-lens {version} · Licencia MIT",
+    "github": "GitHub",
+    "benchmark": "Método del benchmark",
+    "changelog": "Registro de cambios",
+    "charts": "Gráficos hechos con Chart.js"
+  }
+}
