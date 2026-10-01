@@ -81,7 +81,9 @@ function fillComputedText() {
     skill_worst: fmt.score(model.overall.skill.worst_score), base_worst: fmt.score(model.overall.baseline.worst_score),
   }]));
 
-  setRich('bench-intro', 'bench.intro', { ...counts, date: formatDate(i18n.code, data.measured_on) });
+  setRich('bench-intro', 'bench.intro', {
+    ...counts, from: formatDate(i18n.code, data.measured_from), date: formatDate(i18n.code, data.measured_on),
+  });
 
   const lecture = lead.per_task.h3;
   if (lecture) {

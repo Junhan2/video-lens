@@ -1,5 +1,6 @@
 {
- "measured_on": "2026-09-30",
+ "measured_from": "2026-09-29",
+ "measured_on": "2026-10-01",
  "skill_version": "1.0.0 (pre-release build)",
  "runs_per_condition": 27,
  "tasks_count": 9,
@@ -501,7 +502,156 @@
     "cost": "reported",
     "time": "wall_clock"
    },
-   "status": "pending"
+   "overall": {
+    "baseline": {
+     "runs": 27,
+     "mean_score": 0.819,
+     "worst_score": 0.0,
+     "perfect_runs": 14,
+     "cost_usd": 0.444,
+     "time_s": 785.0,
+     "turns": 23.3,
+     "own_analysis_runs": 27
+    },
+    "skill": {
+     "runs": 27,
+     "mean_score": 0.942,
+     "worst_score": 0.667,
+     "perfect_runs": 14,
+     "cost_usd": 0.324,
+     "time_s": 1055.9,
+     "turns": 17.7,
+     "own_analysis_runs": 11
+    }
+   },
+   "per_task": {
+    "v1": {
+     "baseline": {
+      "median_score": 1.0,
+      "worst_score": 0.8,
+      "median_cost_usd": 0.402,
+      "median_time_s": 793.0
+     },
+     "skill": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.271,
+      "median_time_s": 397.0
+     }
+    },
+    "v2": {
+     "baseline": {
+      "median_score": 0.875,
+      "worst_score": 0.0,
+      "median_cost_usd": 0.448,
+      "median_time_s": 885.0
+     },
+     "skill": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.393,
+      "median_time_s": 949.0
+     }
+    },
+    "v3": {
+     "baseline": {
+      "median_score": 0.833,
+      "worst_score": 0.667,
+      "median_cost_usd": 0.373,
+      "median_time_s": 750.0
+     },
+     "skill": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.239,
+      "median_time_s": 401.0
+     }
+    },
+    "h1": {
+     "baseline": {
+      "median_score": 0.6,
+      "worst_score": 0.2,
+      "median_cost_usd": 0.577,
+      "median_time_s": 899.0
+     },
+     "skill": {
+      "median_score": 0.967,
+      "worst_score": 0.933,
+      "median_cost_usd": 0.507,
+      "median_time_s": 924.0
+     }
+    },
+    "h2": {
+     "baseline": {
+      "median_score": 0.917,
+      "worst_score": 0.0,
+      "median_cost_usd": 0.341,
+      "median_time_s": 655.0
+     },
+     "skill": {
+      "median_score": 0.833,
+      "worst_score": 0.667,
+      "median_cost_usd": 0.299,
+      "median_time_s": 558.0
+     }
+    },
+    "orbit": {
+     "baseline": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.664,
+      "median_time_s": 992.0
+     },
+     "skill": {
+      "median_score": 0.8,
+      "worst_score": 0.8,
+      "median_cost_usd": 0.245,
+      "median_time_s": 422.0
+     }
+    },
+    "v4": {
+     "baseline": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.249,
+      "median_time_s": 458.0
+     },
+     "skill": {
+      "median_score": 0.975,
+      "worst_score": 0.975,
+      "median_cost_usd": 0.31,
+      "median_time_s": 288.0
+     }
+    },
+    "h3": {
+     "baseline": {
+      "median_score": 0.85,
+      "worst_score": 0.838,
+      "median_cost_usd": 0.815,
+      "median_time_s": 1559.0
+     },
+     "skill": {
+      "median_score": 0.898,
+      "worst_score": 0.898,
+      "median_cost_usd": 0.582,
+      "median_time_s": 746.0
+     }
+    },
+    "gist": {
+     "baseline": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.076,
+      "median_time_s": 97.0
+     },
+     "skill": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.072,
+      "median_time_s": 77.0
+     }
+    }
+   }
   }
  },
  "skills": {

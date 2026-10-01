@@ -174,6 +174,12 @@ def add_views(commands):
     rows.add_argument("--kind", required=True, choices=("motion", "elements", "events", "keyframes", "text", "shots"))
     rows.add_argument("--from", dest="start", type=positive(int), default=1, metavar="N")
     rows.add_argument("--count", type=positive(int), default=30)
+    digest = commands.add_parser("digest", help="on request only: one capture per scene, then notes from captions")
+    digest.add_argument("out")
+    step = digest.add_mutually_exclusive_group()
+    step.add_argument("--scenes", type=positive(int), metavar="N",
+                      help="at most N scenes (default: the chapters, else 6 + 2 per 10 min, at most 30)")
+    step.add_argument("--captions", metavar="FILE", help='{"S01": "...", ...}: writes digest.md and digest.html')
 
 
 def parse_args(argv=None):

@@ -24,6 +24,14 @@ LRU_CAP_BYTES = 2 * 1024 ** 3
 STAGE_FORMAT = "v1"
 KEY_PATTERN = re.compile(r"^[0-9a-f]{16}$")
 PARTIAL_DOWNLOAD_SUFFIXES = (".part", ".ytdl", ".temp")
+INFO_JSON_SUFFIX = ".info.json"             # yt-dlp's metadata beside a download: title, link, chapters
+YTDLP_ARGS = ("--no-playlist", "--quiet", "--no-warnings", "--no-progress", "--write-info-json",
+              "-f", "bv*[height<=1080]+ba/b[height<=1080]/b", "--merge-output-format", "mp4")
+# YouTube can answer 403 mid-download on the default clients' HD streams (2026-09: android_vr itag 399); the
+# web_embedded client's streams still download. Alone: with `default,web_embedded` the same failing stream is picked.
+RETRY_CLIENT_ARGS = ("--extractor-args", "youtube:player_client=web_embedded")
+HAND_DOWNLOAD_HINT = ("Check the URL, or download it with `yt-dlp --write-info-json URL` and pass the video file "
+                      "(the .info.json beside it keeps the title and chapters)")
 META_NAME = "meta.json"
 PACKETS_NAME = "packets.v1.npy"
 
@@ -308,25 +316,47 @@ def list_entries(root):
 
 
 def download_url(url, root=None):
-    """yt-dlp download (<= 1080p) to `<root>/downloads/<sha1(url)[:16]>.<ext>`, reused when already present."""
+    """yt-dlp download (<= 1080p) to `<root>/downloads/<sha1(url)[:16]>.<ext>`, reused when already present. yt-dlp's
+    info JSON is kept beside it (`info_json_path`) for the scene digest. A failed try is retried once with the
+    web_embedded client; a final failure leaves no file of this URL behind."""
     folder = (Path(root) if root else cache_root()) / "downloads"
     folder.mkdir(parents=True, exist_ok=True)
     stem = hashlib.sha1(url.encode()).hexdigest()[:16]
     existing = finished_downloads(folder, stem)
     if existing:
-        os.utime(existing[0])
+        for path in (existing[0], info_json_path(existing[0])):
+            if path.exists():
+                os.utime(path)          # the LRU purges by last use: the info JSON must not age apart from its video
         return existing[0]
     if shutil.which("yt-dlp") is None:
         raise VlError(EXIT_DEPENDENCY, "yt-dlp not found (needed for URL input)", "Install yt-dlp or pass a local file")
-    result = subprocess.run(["yt-dlp", "--no-playlist", "--quiet", "--no-warnings", "--no-progress",
-                             "-f", "bv*[height<=1080]+ba/b[height<=1080]/b", "--merge-output-format", "mp4",
-                             "-o", str(folder / f"{stem}.%(ext)s"), url], capture_output=True, text=True)
+    output = str(folder / f"{stem}.%(ext)s")
+    result = subprocess.run(["yt-dlp", *YTDLP_ARGS, "-o", output, url], capture_output=True, text=True)
+    if result.returncode != 0 or not finished_downloads(folder, stem):
+        remove_download(folder, stem)   # the retry must not resume or keep the failed client's streams
+        result = subprocess.run(["yt-dlp", *YTDLP_ARGS, *RETRY_CLIENT_ARGS, "-o", output, url],
+                                capture_output=True, text=True)
     downloaded = finished_downloads(folder, stem)
     if result.returncode != 0 or not downloaded:
+        remove_download(folder, stem)
         reason = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else f"exit {result.returncode}"
-        raise VlError(EXIT_INPUT, f"download failed: {reason}", "Check the URL, or download the video and pass the file")
+        raise VlError(EXIT_INPUT, f"download failed: {reason}", HAND_DOWNLOAD_HINT)
     return downloaded[0]
 
 
+def remove_download(folder, stem):
+    """Every file of one URL's download: partial and finished format streams (a finished `<stem>.f137.mp4` would
+    later pass for the download) and the info JSON."""
+    for path in folder.glob(f"{stem}.*"):
+        path.unlink(missing_ok=True)
+
+
 def finished_downloads(folder, stem):
-    return [f for f in sorted(folder.glob(f"{stem}.*")) if f.suffix not in PARTIAL_DOWNLOAD_SUFFIXES]
+    """The downloaded video; partial files and the info JSON beside it share its stem."""
+    return [f for f in sorted(folder.glob(f"{stem}.*"))
+            if f.suffix not in PARTIAL_DOWNLOAD_SUFFIXES and not f.name.endswith(INFO_JSON_SUFFIX)]
+
+
+def info_json_path(video_path):
+    """`<stem>.info.json` beside a video: what yt-dlp's --write-info-json writes for `-o <stem>.%(ext)s`."""
+    return Path(video_path).with_suffix(INFO_JSON_SUFFIX)

@@ -148,7 +148,7 @@ def results_block(data, labels):
                         cost=labels.change(model["overall"]["baseline"]["cost_usd"], model["overall"]["skill"]["cost_usd"]),
                         time=labels.change(model["overall"]["baseline"]["time_s"], model["overall"]["skill"]["time_s"]))
                for model in models]
-    note = labels.t("results.note", date=data["measured_on"], tasks=data["tasks_count"],
+    note = labels.t("results.note", date=data["measured_on"], tasks=data["tasks_count"], **{"from": data["measured_from"]},
                     reps=data["runs_per_task"], runs=data["runs_per_condition"])
     setups = [setup_line(data, model, labels) for model in models]
     return "\n\n".join([table(header, rows, 2), bullets(changes), note, bullets(setups)])
@@ -302,7 +302,8 @@ def page_content(data, labels):
         "why-models": items(labels.t("why.alone_model", model=model["label"], cost=overall(model, "cost_usd"),
                                      time=overall(model, "time_s"), **scores(model, "mean"), **scores(model, "worst"))
                             for model in models),
-        "bench-intro": labels.t("bench.intro", **counts, date=long_date(data["measured_on"])),
+        "bench-intro": labels.t("bench.intro", **counts, date=long_date(data["measured_on"]),
+                                **{"from": long_date(data["measured_from"])}),
         "when-long": long_lecture(data, labels),
         "method-setup": items(setup_line(data, model, labels) for model in models),
         "method-tasks-title": labels.t("method.tasks_title", **counts),

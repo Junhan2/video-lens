@@ -47,6 +47,22 @@ to fit ends in `+N rows: vl.py rows OUT --kind K --from N`; run it only if you n
   that frame: `vl.py frame OUT --t T --roi x,y,w,h`.
 - Cite times as mm:ss. Say what was measured (times, OCR, transcript) and what is your inference.
 
+### Scene digest (only on request)
+Run it only when the user asks for captures or a scene-by-scene summary ("장면별로 캡처해서 정리해줘"), never by
+default. It needs a content (or both) analysis in OUT.
+1. `vl.py digest OUT [--scenes N]`: scenes are the chapters of a URL that has them (or of a file downloaded with
+   `yt-dlp --write-info-json`), else screen states merged at cuts to N (default 6 + 2 per 10 min, at most 30). It writes
+   one frame per scene (the screen state shown longest in it) and numbered sheets, and prints per scene the time,
+   chapter, on-screen headline and first sentence, plus each sheet's token cost. Menu bars, clocks and watermarks are
+   left out of the scene text.
+2. Read the sheets (a single frame only when its cell is unclear). Write `OUT/digest/captions.json` as
+   `{"S01": "...", ...}`: 1-2 plain lines per scene in the user's language, from what you see and the scene's text and
+   speech (all in `OUT/digest/digest.json`). Do not invent what neither shows.
+3. `vl.py digest OUT --captions OUT/digest/captions.json` writes `digest.md` and a self-contained `digest.html`. A
+   missing or unknown scene id is refused (exit 2): fix the captions and rerun. A rebuild whose scenes moved sets the
+   old captions aside as `captions.stale.json`: write them again for the new scenes.
+Tell the user where both files are, and copy them where the user asks (`digest.md` needs `frames/` beside it).
+
 ## 4. Motion: measure first, look second
 1. Read the element table. Noise and micro events are only counted; ignore them unless asked.
    0 motion events but the user saw motion: rerun with `--roi x,y,w,h` or `--pix-threshold 5`.

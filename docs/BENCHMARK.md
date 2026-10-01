@@ -2,7 +2,7 @@
 
 The question: given the same video question, how do accuracy, cost and time compare between a model working alone (writing its own ffmpeg and Python) and the same model using video-lens?
 
-Interactive charts: <https://junhan2.github.io/video-lens/#benchmarks>. Scripts, prompts, answer-key generators and per-run results for all 108 runs (`results.csv`): [bench/](../bench/README.md).
+Interactive charts: <https://junhan2.github.io/video-lens/#benchmarks>. Scripts, prompts, answer-key generators and per-run results for all 216 published runs (`results.csv`): [bench/](../bench/README.md).
 
 ## Contents
 
@@ -27,14 +27,18 @@ Interactive charts: <https://junhan2.github.io/video-lens/#benchmarks>. Scripts,
 | Claude Opus 5.5 | With video-lens | 0.956 | 0.800 | 15/27 | $0.663 | 265.1 s | 10.1 |
 | Claude Sonnet 5.5 | Model alone | 0.970 | 0.600 | 22/27 | $0.626 | 287.9 s | 20.9 |
 | Claude Sonnet 5.5 | With video-lens | 0.940 | 0.625 | 15/27 | $0.408 | 121.8 s | 10.0 |
+| Grok 4.7 | Model alone | 0.819 | 0.000 | 14/27 | $0.444 | 785.0 s | 23.3 |
+| Grok 4.7 | With video-lens | 0.942 | 0.667 | 14/27 | $0.324 | 1055.9 s | 17.7 |
 
 - Claude Opus 5.5 with video-lens: cost 23% lower, time 37% lower.
 - Claude Sonnet 5.5 with video-lens: cost 35% lower, time 58% lower.
+- Grok 4.7 with video-lens: cost 27% lower, time 35% higher.
 
-Measured 2026-09-30. 9 tasks × 3 runs = 27 runs per condition, no MCP servers, one run at a time. Mean score, cost, time and turns are means over all runs; the worst run is the lowest single score.
+Measured 2026-09-29 to 2026-10-01. 9 tasks × 3 runs = 27 runs per condition, no MCP servers, one run at a time. Mean score, cost, time and turns are means over all runs; the worst run is the lowest single score.
 
 - Claude Opus 5.5: run in Claude Code, effort high. Cost is the API-equivalent `total_cost_usd` that Claude Code reports. Time is the run duration that Claude Code reports.
 - Claude Sonnet 5.5: run in Claude Code, effort high. Cost is the API-equivalent `total_cost_usd` that Claude Code reports. Time is the run duration that Claude Code reports.
+- Grok 4.7: run in Grok Build CLI, effort xhigh. Cost is the API-equivalent `total_cost_usd` that Grok Build CLI reports. Time is the wall-clock duration of the run.
 
 <!-- results:end -->
 
@@ -71,21 +75,23 @@ Clip sizes, distractors and the number of checks per task: [bench/README.md, Tas
 
 ## Conditions
 
-- Measured on 2026-09-30 with the video-lens 1.0.0 pre-release build. Release 1.0.1 only changes the message printed when numpy or OpenCV is missing.
-- Claude Opus 5.5 and Claude Sonnet 5.5 in Claude Code, effort high.
-- Two conditions per model: **model alone** (no skills load and video-lens is locked on disk) and **with video-lens** (the prompt starts with `/video-lens`).
-- 9 tasks × 3 runs = 27 runs per condition, 108 runs in all.
-- Cost is `total_cost_usd` as Claude Code reports it: tokens priced at API rates. Time is the run duration Claude Code reports.
+- Measured from 2026-09-29 to 2026-10-01 with the video-lens 1.0.0 pre-release build. Release 1.0.1 only changes the message printed when numpy or OpenCV is missing; 1.1.0 adds the on-request scene digest and a retry for YouTube downloads, and the tasks use neither.
+- Claude Opus 5.5 and Claude Sonnet 5.5 in Claude Code, effort high. Grok 4.7 in the Grok Build CLI 1.0.40, reasoning effort xhigh.
+- Two conditions per model: **model alone** (no skills load and video-lens is locked on disk) and **with video-lens** (the prompt starts with `/video-lens`). Opus 5.5 also ran with /watch and with video-use; see [Other video skills](#other-video-skills).
+- 9 tasks × 3 runs = 27 runs per condition, 8 conditions, 216 runs in all.
+- Cost is `total_cost_usd` as Claude Code or the Grok CLI reports it: tokens priced at API rates. Time is the run duration Claude Code reports; for Grok it is the wall-clock time of the run.
 - Overall figures are means over each condition's 27 runs; per-task figures are medians over 3 runs, with the lowest of the 3 as the worst run.
 
 ## Fairness measures
 
-- Same prompt, same model, effort high, in both conditions.
+- Same prompt and model in every condition of a model; effort high for Claude, xhigh for Grok.
 - No MCP servers in any run.
 - One run at a time, never in parallel.
 - The model alone loads no skills and cannot read the skill's folder, symlink or cache. This was added after an early baseline run found video-lens on disk and ran it.
+- For Grok, "no skills" needs more than hiding video-lens: Grok also loads Claude plugins, `~/.claude/skills`, `~/.agents/skills` and its own skills. A first Grok baseline pass that hid only video-lens used /watch in 8 of 27 runs, so it was discarded and rerun with all of them turned off; the first line of every rerun log lists no skill.
+- /watch runs wrote their frames to a fixed folder they chose; it is cleared before each /watch run. video-use is loaded only for its own runs (`--add-dir`) and never installed globally.
 - Every run starts in an empty folder holding only the clip, and every skill run with an empty analysis cache.
-- Every run was checked for access to the answer keys; none was flagged.
+- Every run was checked for access to the answer keys; none was flagged. Three baseline runs (one Sonnet, two Grok) reused a whisper model file that an earlier Opus run had downloaded into its own folder; no run read another run's answer.
 
 ## Scoring and tolerances
 
@@ -153,6 +159,29 @@ The full rules, including half points for near-miss text, are in [bench/README.m
 |  | With video-lens | 0.895 | 0.883 | $0.505 | 124.4 s |
 | Two-sentence summary of a clip | Model alone | 1.000 | 1.000 | $0.176 | 29.6 s |
 |  | With video-lens | 1.000 | 1.000 | $0.200 | 16.9 s |
+
+### Grok 4.7
+
+| Task | Condition | Median score | Worst run | Median cost | Median time |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Card stagger (3 cards, 60 fps, named curve) | Model alone | 1.000 | 0.800 | $0.402 | 793.0 s |
+|  | With video-lens | 1.000 | 1.000 | $0.271 | 397.0 s |
+| Modal enter and exit (VFR recording) | Model alone | 0.875 | 0.000 | $0.448 | 885.0 s |
+|  | With video-lens | 1.000 | 1.000 | $0.393 | 949.0 s |
+| Off-screen toast with a click sound | Model alone | 0.833 | 0.667 | $0.373 | 750.0 s |
+|  | With video-lens | 1.000 | 1.000 | $0.239 | 401.0 s |
+| Overlapping 6-row list, custom curve, 30 fps, Retina | Model alone | 0.600 | 0.200 | $0.577 | 899.0 s |
+|  | With video-lens | 0.967 | 0.933 | $0.507 | 924.0 s |
+| Colour change, overshoot badge, bottom drawer (VFR) | Model alone | 0.917 | 0.000 | $0.341 | 655.0 s |
+|  | With video-lens | 0.833 | 0.667 | $0.299 | 558.0 s |
+| Real 3D card carousel recording, 16.5 s (approximate answer key) | Model alone | 1.000 | 1.000 | $0.664 | 992.0 s |
+|  | With video-lens | 0.800 | 0.800 | $0.245 | 422.0 s |
+| 20-second Korean lecture, 3 slides | Model alone | 1.000 | 1.000 | $0.249 | 458.0 s |
+|  | With video-lens | 0.975 | 0.975 | $0.310 | 288.0 s |
+| 10-minute Korean lecture, 24 slides | Model alone | 0.850 | 0.838 | $0.815 | 1559.0 s |
+|  | With video-lens | 0.898 | 0.898 | $0.582 | 746.0 s |
+| Two-sentence summary of a clip | Model alone | 1.000 | 1.000 | $0.076 | 97.0 s |
+|  | With video-lens | 1.000 | 1.000 | $0.072 | 77.0 s |
 
 Median of 3 runs per cell; worst run is the lowest of the 3.
 
@@ -240,9 +269,11 @@ Median of 3 runs per cell; worst run is the lowest of the 3.
 - **The model alone is strong on these tasks.** Mean scores are close in both conditions and can go either way; read the worst run and the per-task table before drawing conclusions about accuracy.
 - **Synthetic answer keys.** Clean CSS renders and text-to-speech narration. Photo or gradient backgrounds, many elements moving at once, and noisy real speech are under-tested. Only `orbit` is a real recording, and its key is approximate, so its score difference says little about accuracy.
 - **Short tasks can cost more with the skill.** Loading the skill has a fixed cost that a short task does not win back.
-- **Costs are API-equivalent.** The runs used a Claude subscription; nothing was billed per token.
+- **Costs are API-equivalent.** The runs used Claude and Grok subscriptions; nothing was billed per token. video-use's ElevenLabs speech-to-text ran on free-plan credits and is not in the cost figures.
+- **Grok's times are rough.** The Grok runs with video-lens shared the Mac with other heavy work for part of the pass, and one of them took 4.3 hours (27 turns, $0.46). Their mean time is 1,055.9 s against 785.0 s alone; the medians are 446 s and 778 s.
+- **The other video skills mostly measured with Opus's own code.** With /watch and with video-use, Opus also ran its own ffmpeg, OpenCV or whisper commands in 24 and 27 of 27 runs (26 alone, 2 with video-lens), so their scores reflect that combined work and its cost.
 - **The skill runs name the skill.** How often it triggers without being named was measured separately: 8 of 9 tasks on Opus 5.5.
-- **The author's Claude Code setup was loaded.** Apart from MCP servers, the runs used the author's user-level configuration and plugins. A different setup will shift the numbers.
+- **The author's setup was loaded.** Apart from MCP servers, the Claude runs used the author's user-level configuration and plugins, and the Grok runs read the same `CLAUDE.md` instructions. A different setup will shift the numbers.
 
 ## Reproduce
 

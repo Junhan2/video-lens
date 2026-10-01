@@ -18,6 +18,7 @@ decimals, content times 3. Paths inside `analysis.json` are relative to OUT, exc
 | `zoom/*.jpg`, `zoom/Mxx_<el>_<pct>.png` | L2, L3 | written by `vl.py zoom`: the grid (`Read this`), then optional native element crops (none for elements wider than half the frame) |
 | `frames/f_<t>_<roi>.png` | L3 | written by `vl.py frame`: native pixels, downscaled only above 1932 px |
 | `keyframes/Knnn.jpg` | source | keyframe exports (1280 px wide at most); read the sheets instead |
+| `digest/` | on request | written by `vl.py digest` (never by analyze): `digest.json` (per scene: span, chapter, `frame` (the keyframe state on screen longest in the scene; among those shown at least half as long, the one with the most text; a black frame without text only as a last resort), `headline`, `ocr` lines tallest first, the first `speech` sentences, YouTube `link`; `chrome` counts the lines left out as screen furniture: wholly in the top or bottom 5 %, text in a quarter of the scenes (at least 3) or persistent, and misreads in the same place, with the recurring texts), `frames/Sxx.jpg` (one per scene at source size, at most 1932 px per side), `sheet_NN.jpg` (4x4 scenes, id and mm:ss range under each cell); with `--captions`: `digest.md` (frames linked) and `digest.html` (frames embedded); a rebuild whose scene spans changed moves `captions.json` to `captions.stale.json` |
 | `analysis.json` | data | everything below; do not Read it whole, use `vl.py rows` and `vl.py text` |
 | `status.json` | progress | `{stage, done, total, eta_s, started_at}` while a run is going |
 

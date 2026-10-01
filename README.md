@@ -1,7 +1,7 @@
 <!-- Language bar. List only README files that exist. Translators: add your link before the marker below,
      in the same form, e.g. · <a href="README.ja.md">日本語</a> -->
 <p align="center">
-  <b>English</b> · <a href="README.ko.md">한국어</a>
+  <b>English</b> · <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.es.md">Español</a> · <a href="README.pt-BR.md">Português (Brasil)</a> · <a href="README.de.md">Deutsch</a> · <a href="README.fr.md">Français</a>
   <!-- i18n:languages -->
 </p>
 
@@ -121,11 +121,16 @@ Ask as usual. Claude picks the skill when a question needs measuring. To call it
 Analyse the animation in this screen recording so I can rebuild it in CSS
 List when each slide appears in this lecture and what it says
 What was said around 12:00?
+Summarise this YouTube talk scene by scene with screenshots
 ```
 
 In a test where the prompt did not name the skill, Opus 5.5 chose it on its own in 8 of 9 tasks.
 
 When several elements move at once, name the area, for example "only the list on the left". Claude then narrows the measurement with `--roi`.
+
+### Scene digest, only when you ask
+
+Ask for a scene-by-scene summary with screenshots and Claude writes `digest.md` and a self-contained `digest.html`: one capture per scene, one or two lines on what happens, what was said, and a link to that moment. A YouTube video with chapters is split by its chapters. On a 66-minute Korean talk with 21 chapters this took about 4 minutes on the Mac (download, analysis and digest). Ordinary analyses never make one.
 
 ## How it works
 
@@ -159,16 +164,22 @@ flowchart LR
 | Claude Opus 5.5 | With video-lens | 0.956 | 0.800 | 15/27 | $0.663 | 265.1 s | 10.1 |
 | Claude Sonnet 5.5 | Model alone | 0.970 | 0.600 | 22/27 | $0.626 | 287.9 s | 20.9 |
 | Claude Sonnet 5.5 | With video-lens | 0.940 | 0.625 | 15/27 | $0.408 | 121.8 s | 10.0 |
+| Grok 4.7 | Model alone | 0.819 | 0.000 | 14/27 | $0.444 | 785.0 s | 23.3 |
+| Grok 4.7 | With video-lens | 0.942 | 0.667 | 14/27 | $0.324 | 1055.9 s | 17.7 |
 
 - Claude Opus 5.5 with video-lens: cost 23% lower, time 37% lower.
 - Claude Sonnet 5.5 with video-lens: cost 35% lower, time 58% lower.
+- Grok 4.7 with video-lens: cost 27% lower, time 35% higher.
 
-Measured 2026-09-30. 9 tasks × 3 runs = 27 runs per condition, no MCP servers, one run at a time. Mean score, cost, time and turns are means over all runs; the worst run is the lowest single score.
+Measured 2026-09-29 to 2026-10-01. 9 tasks × 3 runs = 27 runs per condition, no MCP servers, one run at a time. Mean score, cost, time and turns are means over all runs; the worst run is the lowest single score.
 
 - Claude Opus 5.5: run in Claude Code, effort high. Cost is the API-equivalent `total_cost_usd` that Claude Code reports. Time is the run duration that Claude Code reports.
 - Claude Sonnet 5.5: run in Claude Code, effort high. Cost is the API-equivalent `total_cost_usd` that Claude Code reports. Time is the run duration that Claude Code reports.
+- Grok 4.7: run in Grok Build CLI, effort xhigh. Cost is the API-equivalent `total_cost_usd` that Grok Build CLI reports. Time is the wall-clock duration of the run.
 
 <!-- results:end -->
+
+Grok 4.7's time with video-lens is rough: those runs shared the Mac with other heavy work for part of the pass, and one of them took 4.3 hours. Its median time was 446 s against 778 s alone.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/charts/tasks-dark.png">

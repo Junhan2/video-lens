@@ -13,6 +13,14 @@
 <link rel="canonical" href="https://junhan2.github.io/video-lens/">
 <!-- hreflang:start -->
 <link rel="alternate" hreflang="en" href="https://junhan2.github.io/video-lens/">
+<link rel="alternate" hreflang="ko" href="https://junhan2.github.io/video-lens/?lang=ko">
+<link rel="alternate" hreflang="ja" href="https://junhan2.github.io/video-lens/?lang=ja">
+<link rel="alternate" hreflang="zh-CN" href="https://junhan2.github.io/video-lens/?lang=zh-CN">
+<link rel="alternate" hreflang="zh-TW" href="https://junhan2.github.io/video-lens/?lang=zh-TW">
+<link rel="alternate" hreflang="es" href="https://junhan2.github.io/video-lens/?lang=es">
+<link rel="alternate" hreflang="pt-BR" href="https://junhan2.github.io/video-lens/?lang=pt-BR">
+<link rel="alternate" hreflang="de" href="https://junhan2.github.io/video-lens/?lang=de">
+<link rel="alternate" hreflang="fr" href="https://junhan2.github.io/video-lens/?lang=fr">
 <link rel="alternate" hreflang="x-default" href="https://junhan2.github.io/video-lens/">
 <!-- hreflang:end -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0b'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23eb6834' stroke-width='3.5'/%3E%3C/svg%3E">
@@ -77,6 +85,7 @@
       <ul id="hero-models">
         <li>Claude Opus 5.5: cost per run 23% lower, time per run 37% lower, mean score 0.956 against 0.949.</li>
         <li>Claude Sonnet 5.5: cost per run 35% lower, time per run 58% lower, mean score 0.940 against 0.970.</li>
+        <li>Grok 4.7: cost per run 27% lower, time per run 35% higher, mean score 0.942 against 0.819.</li>
       </ul>
     </div>
     <div class="actions">
@@ -133,11 +142,12 @@
       <div class="card">
         <h3 data-i18n="why.alone_title">Compared with the model alone</h3>
         <p data-i18n="why.alone_body">Without the skill, Claude writes new ffmpeg and Python code for each video and measures with it. That often works, but the code differs every run.</p>
-        <p id="why-spread">Task "Overlapping 6-row list": Claude Opus 5.5 alone had a median score of 1.000 over 3 runs and 0.167 in its worst run.</p>
+        <p id="why-spread">Task "Modal enter and exit": Grok 4.7 alone had a median score of 0.875 over 3 runs and 0.000 in its worst run.</p>
         <p data-i18n="why.alone_after">video-lens runs one tested pipeline instead, so every run starts from the same measurements.</p>
         <ul class="list" id="why-models">
           <li>Claude Opus 5.5: cost 23% lower, time 37% lower, mean score 0.956 against 0.949, worst run 0.800 against 0.167.</li>
           <li>Claude Sonnet 5.5: cost 35% lower, time 58% lower, mean score 0.940 against 0.970, worst run 0.625 against 0.600.</li>
+          <li>Grok 4.7: cost 27% lower, time 35% higher, mean score 0.942 against 0.819, worst run 0.667 against 0.000.</li>
         </ul>
       </div>
       <div class="card">
@@ -172,7 +182,7 @@
 
   <section class="wrap section" id="benchmarks" aria-labelledby="bench-title">
     <h2 id="bench-title" data-i18n="bench.title">Benchmarks</h2>
-    <p class="section-lede" id="bench-intro">9 tasks scored against answer keys, 3 runs each, so 27 runs per condition, measured on September 30, 2026. Each model ran alone (writing its own ffmpeg and Python) and with video-lens, with the same prompt, no MCP servers and one run at a time. The tool and effort level each model ran with are under <a href="#method">How we measured</a>.</p>
+    <p class="section-lede" id="bench-intro">9 tasks scored against answer keys, 3 runs each, so 27 runs per condition, measured from September 29, 2026 to October 1, 2026. Each model ran alone (writing its own ffmpeg and Python) and with video-lens, with the same prompt, no MCP servers and one run at a time. The tool and effort level each model ran with are under <a href="#method">How we measured</a>.</p>
     <noscript><p class="note">The charts need JavaScript. Every number is also in <a href="https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md">BENCHMARK.md</a>.</p></noscript>
     <div class="chart-grid">
       <figure class="chart-card" id="chart-cost" data-chart="cost"><p class="chart-loading" data-i18n="chart.loading">Loading the benchmark data…</p></figure>
@@ -181,6 +191,7 @@
       <figure class="chart-card wide" id="chart-tasks" data-chart="tasks"><p class="chart-loading" data-i18n="chart.loading">Loading the benchmark data…</p></figure>
     </div>
     <p class="note" data-i18n="bench.close_scores">Both conditions solve most tasks, so mean scores sit close together. The worst run shows how far a single run can go wrong.</p>
+    <p class="note" data-i18n="bench.grok_time">Grok 4.7's time with video-lens is rough: those runs shared the Mac with other heavy work for part of the pass, and one of them took 4.3 hours. Its median time was 446 s against 778 s alone.</p>
     <p class="note" data-i18n="bench.autotrigger">Skill runs named the skill in the prompt. In a separate test where the prompt did not name it, Opus 5.5 chose it on its own in 8 of 9 tasks.</p>
     <div class="block skills-compare" id="skills-compare" hidden>
       <h3 id="skills-title" data-i18n="skills.title">Against other video skills</h3>
@@ -268,9 +279,14 @@ xcode-select --install</pre>
         <li data-i18n="usage.ex_motion">Analyse the animation in this screen recording so I can rebuild it in CSS</li>
         <li data-i18n="usage.ex_slides">List when each slide appears in this lecture and what it says</li>
         <li data-i18n="usage.ex_when">What was said around 12:00?</li>
+        <li data-i18n="usage.ex_digest">Summarise this YouTube talk scene by scene with screenshots</li>
       </ul>
     </div>
     <p class="note" data-i18n="usage.tip">When several elements move at once, name the area, for example "only the list on the left". Claude then narrows the measurement with <code>--roi</code>.</p>
+    <div class="block">
+      <h3 data-i18n="usage.digest_title">Scene digest, only when you ask</h3>
+      <p data-i18n="usage.digest_body">Ask for a scene-by-scene summary with screenshots and Claude writes <code>digest.md</code> and a self-contained <code>digest.html</code>: one capture per scene, one or two lines on what happens, what was said, and a link to that moment. A YouTube video with chapters is split by its chapters. On a 66-minute Korean talk with 21 chapters this took about 4 minutes on the Mac (download, analysis and digest). Ordinary analyses never make one.</p>
+    </div>
   </section>
 
   <section class="wrap section" id="how" aria-labelledby="how-title">
@@ -299,6 +315,7 @@ xcode-select --install</pre>
         <ul class="list sublist" id="method-setup">
           <li>Claude Opus 5.5: run in Claude Code, effort high. Cost is the API-equivalent <code>total_cost_usd</code> that Claude Code reports. Time is the run duration that Claude Code reports.</li>
           <li>Claude Sonnet 5.5: run in Claude Code, effort high. Cost is the API-equivalent <code>total_cost_usd</code> that Claude Code reports. Time is the run duration that Claude Code reports.</li>
+          <li>Grok 4.7: run in Grok Build CLI, effort xhigh. Cost is the API-equivalent <code>total_cost_usd</code> that Grok Build CLI reports. Time is the wall-clock duration of the run.</li>
         </ul>
       </li>
     </ul>
@@ -338,7 +355,7 @@ xcode-select --install</pre>
 
 <footer class="site-footer">
   <div class="wrap">
-    <span id="footer-version" data-version="1.0.1">video-lens 1.0.1 · MIT License</span>
+    <span id="footer-version" data-version="1.1.0">video-lens 1.1.0 · MIT License</span>
     <a href="https://github.com/Junhan2/video-lens" data-i18n="footer.github">GitHub</a>
     <a href="https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md" data-i18n="footer.benchmark">Benchmark method</a>
     <a href="https://github.com/Junhan2/video-lens/blob/main/CHANGELOG.md" data-i18n="footer.changelog">Changelog</a>

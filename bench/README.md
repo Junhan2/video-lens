@@ -4,7 +4,7 @@ This folder holds everything needed to rerun the benchmark behind the numbers in
 
 The question it answers: given the same video question, how do accuracy, cost and time compare between a model working alone (writing its own ffmpeg and Python) and the same model using video-lens?
 
-Published run: 2026-09-30, 9 tasks x 3 runs = 27 runs per condition, Claude Opus 5.5 and Claude Sonnet 5.5, skill version 1.0.0 (pre-release build), Claude Code 2.1.284 and 2.1.285, macOS 26 on Apple Silicon.
+Published runs: 2026-09-29 to 2026-10-01, 9 tasks x 3 runs = 27 runs per condition, 8 conditions, 216 runs: Claude Opus 5.5 (alone, with video-lens, with /watch, with video-use) and Claude Sonnet 5.5 (alone, with video-lens) in Claude Code 2.1.284 and 2.1.285, Grok 4.7 (alone, with video-lens) in the Grok Build CLI 1.0.40; video-lens 1.0.0 (pre-release build); macOS 26 on Apple Silicon.
 
 ## Contents
 
@@ -21,7 +21,7 @@ Published run: 2026-09-30, 9 tasks x 3 runs = 27 runs per condition, Claude Opus
 | `paths.sh` | Paths shared by the scripts, each overridable by an environment variable. |
 | `score.py` | Scores every run folder against the answer keys and prints a per-cell summary. |
 | `build_benchmark.py` | Writes the scored runs of `results.csv` into `docs/data/benchmark.json` (overall means, per-task medians); `--check` only reports what would change. |
-| `results.csv` | The 108 published runs (4 conditions x 27), one row per run. |
+| `results.csv` | The 216 published runs (8 conditions x 27), one row per run. |
 
 Not included: the video files (the generators rebuild them), the carousel recording used by the `orbit` and `gist` tasks (a private file), and the run logs.
 
@@ -139,7 +139,7 @@ The Grok baseline (`g0`) must load no skills, like `--disable-slash-commands` fo
 
 `run_final.sh` locks video-lens before the cells that must not see it and restores it when it exits, whether it finishes, fails or is stopped.
 
-The published pass took about 5.2 hours and $41 API-equivalent for Opus 5.5, and about 3.1 hours and $28 for Sonnet 5.5.
+The published passes took, in wall-clock time and API-equivalent cost: Opus 5.5 alone and with video-lens 5.2 hours and $41, with /watch 4.4 hours and $48, with video-use 3.7 hours and $42; Sonnet 5.5 3.1 hours and $28; Grok 4.7 13.8 hours and $21 (Grok's figure is what its CLI reports). The ElevenLabs speech-to-text that video-use called is not included.
 
 ## 4. Score
 
@@ -170,25 +170,27 @@ The answer is the last `json` block in the run's final result. Each task yields 
 
 ## results.csv
 
-One row per published run, 108 rows, the columns `score.py --csv` writes:
+One row per published run, 216 rows, the columns `score.py --csv` writes:
 
 | Column | Meaning |
 |---|---|
 | `task`, `arm`, `rep` | Cell. See the tables above for task and arm codes. |
-| `status` | Result subtype from Claude Code (`success` for all 108). |
+| `status` | Result subtype from Claude Code, or from the Grok CLI's end event (`success` for all 216). |
 | `score` | 0 to 1, as defined above. |
 | `checks` | Points earned / number of checks, before false positives. |
 | `false_pos` | Reported motion items or cuts with no true counterpart. |
 | `cost_usd` | `total_cost_usd` from Claude Code: API-equivalent, see caveats. |
 | `turns` | Model turns in the run. |
-| `duration_s` | Run time Claude Code reports. |
+| `duration_s` | Run time Claude Code reports; for Grok runs the wall-clock time. |
 | `wall_s` | Wall-clock time around the `claude` call. |
 | `input_tokens` | Input plus cache-creation plus cache-read tokens. |
 | `output_tokens` | Output tokens. |
 | `tool_calls` | Tool calls made. |
 | `image_reads` | Reads of PNG, JPEG or WebP files, that is frames the model looked at. |
 | `skill_used` | See above. |
-| `leaked` | See above (false for all 108). |
+| `skills_touched` | Video skills whose files the run's tool calls used (`video-lens`, `watch`, `video-use`). |
+| `own_analysis` | True when the run also ran its own measuring commands besides a skill's scripts. |
+| `leaked` | See above (false for all 216). |
 | `notes` | Per-check details from the scorer. |
 
 The overall figures in `docs/data/benchmark.json` are means over each condition's 27 rows; the per-task figures are medians over 3 rows.

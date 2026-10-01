@@ -97,7 +97,7 @@ def run_stages(run):
 def cmd_analyze(args):
     run = Run.open_for_analyze(args)
     with run.cache.locked():
-        cache.enforce_lru(run.cache.root, keep=[run.cache.dir, run.input_path])
+        cache.enforce_lru(run.cache.root, keep=[run.cache.dir, run.input_path, cache.info_json_path(run.input_path)])
         run.cache.touch()
         run_stages(run)
         run.finish_timing()
@@ -174,13 +174,23 @@ def cmd_rows(args):
     return EXIT_OK
 
 
+def cmd_digest(args):
+    """Scene digest: frames, sheets and digest.json; with --captions, the notes (they need no video, only OUT)."""
+    if args.captions:
+        sys.stdout.write(stage("digest_notes", "render_notes")(args.out, args.captions))
+        return EXIT_OK
+    run = Run.open_from_out(args.out, args)
+    sys.stdout.write(stage("digest", "build_digest")(run, args.scenes))
+    return EXIT_OK
+
+
 def cmd_selftest(args):
     sys.path.insert(0, str(SELFTEST_DIR))
     return importlib.import_module("kat").run_selftest(quick=args.quick, only=args.only, chrome=args.chrome, keep=args.keep)
 
 
 COMMANDS = {"analyze": cmd_analyze, "probe": cmd_probe, "cache": cmd_cache, "frame": cmd_frame, "zoom": cmd_zoom,
-            "text": cmd_text, "rows": cmd_rows, "selftest": cmd_selftest}
+            "text": cmd_text, "rows": cmd_rows, "digest": cmd_digest, "selftest": cmd_selftest}
 
 
 def log_python_warning(message, category, filename, lineno, file=None, line=None):

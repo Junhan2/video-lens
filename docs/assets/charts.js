@@ -172,7 +172,7 @@ function buildCard(card, context, spec) {
   const footer = node('div', 'chart-foot');
   card.append(footer);
   if (context.isSolo) {
-    footer.append(node('p', 'chart-source', i18n.t('chart.source', { date: formatDate(i18n.code, data.measured_on) })));
+    footer.append(node('p', 'chart-source', i18n.t('chart.source', { from: formatDate(i18n.code, data.measured_from), date: formatDate(i18n.code, data.measured_on) })));
     return { canvas, tip, live };
   }
   const toggle = node('button', 'text-button table-toggle');

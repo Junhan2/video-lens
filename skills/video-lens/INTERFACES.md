@@ -33,6 +33,7 @@ integrator. Everything named here exists in core today and was exercised by `sel
 | audio | `vl/audio.py`, `vl/speech.py`, `vl/sync.py`, `swift/transcribe.swift`, `selftest/kat_audio.py`, `selftest/fixtures_audio.py` |
 | declared | `scripts/declared.mjs`, `selftest/kat_declared.py` |
 | integrator (later) | `vl/report.py`, `vl/sheets.py`, `SKILL.md`, `reference/fields.md`, wiring in `scripts/vl.py`, `selftest/kat_output.py` (O1, O2, O4, O5) |
+| digest (on request) | `vl/digest.py`, `vl/digest_notes.py`, `selftest/kat_digest.py` (C11 to C13) |
 
 ## 3. The Run object (`vl/context.py`)
 
@@ -230,6 +231,8 @@ integration. Speech's clamp uses its own `audio.analyze_audio` output.
 | `frame OUT --t ...` | core, done (`vl.py:cmd_frame`) | `OUT/frames/f_<t>_<roi>[_w<W>].png` |
 | `text OUT ...` | `report.text_view(run, start_s, end_s, grep, kind, max_lines)` | str for stdout |
 | `rows OUT ...` | `report.rows_view(run, kind, start, count)` | str for stdout |
+| `digest OUT [--scenes N]` | `digest.build_digest(run, scene_limit)` | str for stdout; writes `OUT/digest/` (digest.json, frames/Sxx.jpg, sheet_NN.jpg); moves a captions.json written for other scene spans to captions.stale.json |
+| `digest OUT --captions FILE` | `digest_notes.render_notes(out, captions_path)` (no Run: needs only OUT) | str for stdout; writes `digest.md`, `digest.html`; exit 2 on a missing or unknown scene id |
 
 `vl.py` prints one `views.view_line(run, view)` per returned view: `<abs path> · WxH · N tok`.
 Event ids are `M01`..., segment ids `S01`... (the parser normalises `m1` to `M01`).
@@ -303,7 +306,8 @@ def m1_translate(ctx):
   naming the missing modules (see `kat_core.o3_stdout_is_report`, which checks with
   `importlib.util.find_spec("vl.<name>")`). Test your own stage function directly meanwhile.
 - KAT ids: motion M0 to M8, M10 to M15, M17 to M27; content C1 to C4, C10; audio A1 to A8; declared M9, M16; core
-  C5 to C9, O3, X1 to X4; integrator O1, O2, O4, O5. Real-media KATs return SKIP when the file is absent.
+  C5 to C9, O3, X1 to X6; integrator O1, O2, O4, O5; digest C11 to C13. Real-media KATs return SKIP when the file is
+  absent.
 
 ## 13. declared.mjs (standalone)
 

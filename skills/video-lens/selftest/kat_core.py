@@ -1,7 +1,7 @@
 """Core KATs: timeline, decode, export, probe, cache, CLI contract and image limits (spec 10.2, 10.4 O3).
 
-C5-C9 and O3 are the spec rows; X1-X4 cover core behaviour no spec row reaches (exit codes, cache, swift build,
-view limits).
+C5-C9 and O3 are the spec rows; X1-X6 cover core behaviour no spec row reaches (exit codes, cache, swift build,
+view limits, one video per OUT, URL download retry).
 """
 import importlib.util
 import json
@@ -17,9 +17,9 @@ import numpy as np
 import fixtures_core as fx
 from katlib import SKIP, kat, verdict
 from vl import decode, views
-from vl.cache import Cache, enforce_lru, file_key, purge_older
+from vl.cache import Cache, download_url, enforce_lru, file_key, purge_older
 from vl.cli import prepare_run
-from vl.errors import EXIT_DEPENDENCY, VlError
+from vl.errors import EXIT_DEPENDENCY, EXIT_INPUT, VlError
 from vl.probe import probe
 from vl.swiftbuild import build_swift
 
@@ -424,6 +424,55 @@ def lru_failures(root):
     if [p.name for p in purged] != ["aaaaaaaaaaaaaaa1"]:
         failures.append(f"purge-older removed {[p.name for p in purged]}")
     return failures
+
+
+FAKE_YTDLP = """#!/usr/bin/env python3
+import pathlib, sys
+args = sys.argv[1:]
+stem = args[args.index("-o") + 1].replace(".%(ext)s", "")
+with open(pathlib.Path(__file__).with_name("calls.log"), "a") as log:
+    log.write(" ".join(args[:-1]) + "\\n")
+pathlib.Path(stem + ".info.json").write_text("{}")
+if "youtube:player_client=web_embedded" in args and args[-1].endswith("/ok"):
+    pathlib.Path(stem + ".mp4").write_bytes(b"video")
+    sys.exit(0)
+pathlib.Path(stem + ".f137.mp4.part").write_bytes(b"part")
+pathlib.Path(stem + ".f140.m4a").write_bytes(b"audio")
+sys.exit("ERROR: unable to download video data: HTTP Error 403: Forbidden")
+"""
+
+
+@kat("X6", "cache", quick=True)
+def x6_download_retry(ctx):
+    """A URL download refused mid-way (YouTube's 403 on the default clients) is retried once with the web_embedded
+    client and keeps its info JSON; one that fails twice leaves no file behind and names the hand download."""
+    fake_bin, root = ctx.work / "fake-ytdlp", ctx.work / "cache-download"
+    fake_bin.mkdir(parents=True, exist_ok=True)
+    (fake_bin / "yt-dlp").write_text(FAKE_YTDLP)
+    (fake_bin / "yt-dlp").chmod(0o755)
+    path = os.environ["PATH"]
+    os.environ["PATH"] = f"{fake_bin}{os.pathsep}{path}"
+    failures = []
+    try:
+        video = download_url("https://example.com/ok", root=root)
+        names = sorted(p.name for p in (root / "downloads").iterdir())
+        if video.suffix != ".mp4" or names != sorted([video.name, video.with_suffix(".info.json").name]):
+            failures.append(f"retried download left {names}")
+        try:
+            download_url("https://example.com/fail", root=root)
+            failures.append("a download that failed twice returned a file")
+        except VlError as error:
+            left = sorted(p.name for p in (root / "downloads").iterdir() if not p.name.startswith(video.stem))
+            if error.code != EXIT_INPUT or "403" not in error.what or "--write-info-json" not in error.todo or left:
+                failures.append(f"failed twice: code {error.code}, {error.line()!r}, left {left}")
+    finally:
+        os.environ["PATH"] = path
+    calls = (fake_bin / "calls.log").read_text().splitlines()
+    retried = ["web_embedded" in call for call in calls]
+    if retried != [False, True, False, True]:
+        failures.append(f"yt-dlp calls used web_embedded {retried}, want a plain try then one retry per URL")
+    return verdict(failures, "403 retried once with web_embedded (video and info JSON kept, partial streams gone); "
+                             "two failures leave nothing and hint at yt-dlp --write-info-json")
 
 
 @kat("X3", "swift")

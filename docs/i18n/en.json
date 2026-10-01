@@ -90,8 +90,9 @@
   },
   "bench": {
     "title": "Benchmarks",
-    "intro": "{tasks} tasks scored against answer keys, {reps} runs each, so {runs} runs per condition, measured on {date}. Each model ran alone (writing its own ffmpeg and Python) and with video-lens, with the same prompt, no MCP servers and one run at a time. The tool and effort level each model ran with are under [How we measured](#method).",
+    "intro": "{tasks} tasks scored against answer keys, {reps} runs each, so {runs} runs per condition, measured from {from} to {date}. Each model ran alone (writing its own ffmpeg and Python) and with video-lens, with the same prompt, no MCP servers and one run at a time. The tool and effort level each model ran with are under [How we measured](#method).",
     "close_scores": "Both conditions solve most tasks, so mean scores sit close together. The worst run shows how far a single run can go wrong.",
+    "grok_time": "Grok 4.7's time with video-lens is rough: those runs shared the Mac with other heavy work for part of the pass, and one of them took 4.3 hours. Its median time was 446 s against 778 s alone.",
     "autotrigger": "Skill runs named the skill in the prompt. In a separate test where the prompt did not name it, Opus 5.5 chose it on its own in 8 of 9 tasks.",
     "method_link": "How the tasks were built and scored: [How we measured](#method) and [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)."
   },
@@ -126,7 +127,7 @@
     "metric_time": "Time",
     "metric_cost": "Cost",
     "metric_score": "Score",
-    "source": "video-lens benchmark, measured {date}. junhan2.github.io/video-lens",
+    "source": "video-lens benchmark, measured {from} to {date}. junhan2.github.io/video-lens",
     "keyboard_hint": "Use the arrow keys to read each value. The table view lists every value.",
     "show_table": "Show table",
     "hide_table": "Hide table",
@@ -179,7 +180,7 @@
     "of": "{a}/{b}"
   },
   "results": {
-    "note": "Measured {date}. {tasks} tasks × {reps} runs = {runs} runs per condition, no MCP servers, one run at a time. Mean score, cost, time and turns are means over all runs; the worst run is the lowest single score.",
+    "note": "Measured {from} to {date}. {tasks} tasks × {reps} runs = {runs} runs per condition, no MCP servers, one run at a time. Mean score, cost, time and turns are means over all runs; the worst run is the lowest single score.",
     "change_line": "{model} with video-lens: cost {cost}, time {time}.",
     "per_task_note": "Median of {reps} runs per cell; worst run is the lowest of the {reps}."
   },
@@ -267,7 +268,10 @@
     "ex_motion": "Analyse the animation in this screen recording so I can rebuild it in CSS",
     "ex_slides": "List when each slide appears in this lecture and what it says",
     "ex_when": "What was said around 12:00?",
-    "tip": "When several elements move at once, name the area, for example \"only the list on the left\". Claude then narrows the measurement with `--roi`."
+    "ex_digest": "Summarise this YouTube talk scene by scene with screenshots",
+    "tip": "When several elements move at once, name the area, for example \"only the list on the left\". Claude then narrows the measurement with `--roi`.",
+    "digest_title": "Scene digest, only when you ask",
+    "digest_body": "Ask for a scene-by-scene summary with screenshots and Claude writes `digest.md` and a self-contained `digest.html`: one capture per scene, one or two lines on what happens, what was said, and a link to that moment. A YouTube video with chapters is split by its chapters. On a 66-minute Korean talk with 21 chapters this took about 4 minutes on the Mac (download, analysis and digest). Ordinary analyses never make one."
   },
   "how": {
     "title": "How it works",
