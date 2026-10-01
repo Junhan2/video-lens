@@ -81,6 +81,7 @@
     "row_scenes_watch": "不偵測",
     "row_scenes_video_use": "不偵測",
     "row_scenes_lens": "切換的時間點，以及每張投影片上的文字",
+    "lens_shaded": "加底色的儲存格：三者之中只有 video-lens 做得到的。",
     "watch_measured": "在基準測試中，Opus 搭配 /watch 或 video-use 的平均分數比搭配 video-lens 略高一些，主要是因為它除了使用技能之外，還另外用自己寫的 ffmpeg 和 OpenCV 程式碼量測影片；而它的成本是搭配 video-lens 時的兩倍以上。詳見：[與其他影片技能比較](#skills-compare)。",
     "alone_title": "與只用模型比較",
     "alone_body": "沒有這個技能時，Claude 每遇到一部影片，都會重新寫一套 ffmpeg 和 Python 程式碼來量測。這樣常常行得通，但每次執行寫出的程式碼都不一樣。",
@@ -133,6 +134,7 @@
     "hide_table": "隱藏表格",
     "show_table_aria": "顯示表格：{chart}",
     "hide_table_aria": "隱藏表格：{chart}",
+    "best_note": "加底色的儲存格：video-lens 優於所有比較條件的數值。",
     "loading": "正在載入基準測試資料…",
     "load_error": "無法載入基準測試資料。這些數字也列在 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md) 中。",
     "library_error": "無法載入圖表函式庫。這些數字也列在 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md) 中。",
@@ -165,7 +167,8 @@
     "median_time": "時間中位數",
     "id": "ID",
     "change": "搭配 video-lens 的變化",
-    "own_analysis": "自寫分析程式的次數"
+    "own_analysis": "自寫分析程式的次數",
+    "best_sr": "video-lens 較佳"
   },
   "change": {
     "lower": "降低 {pct}",

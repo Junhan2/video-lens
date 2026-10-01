@@ -17,10 +17,15 @@ export function measuredModels(data) {
     .map(([id, model]) => ({ id, ...model }));
 }
 
+/** Values less than half a percent apart count as the same, in captions and in table shading alike. */
+function isSameValue(before, after) {
+  return before === after || Math.abs((after - before) / before) < 0.005;
+}
+
 /** "23% lower" / "12% higher" / "no change", in the page language. */
 export function describeChange(i18n, before, after) {
+  if (isSameValue(before, after)) return i18n.t('change.same');
   const ratio = (after - before) / before;
-  if (Math.abs(ratio) < 0.005) return i18n.t('change.same');
   return i18n.t(ratio < 0 ? 'change.lower' : 'change.higher', { pct: i18n.format.percent(Math.abs(ratio)) });
 }
 
@@ -109,7 +114,21 @@ function buildLegend(entries) {
   return list;
 }
 
-function buildTable(columns, rows) {
+/** Fields where a lower value is better; for every other field (scores, runs scoring 1.0) higher is better. */
+const LOWER_IS_BETTER = new Set(['cost_usd', 'time_s', 'median_cost_usd', 'median_time_s']);
+
+/**
+ * A table cell for a video-lens figure: marked when `own[field]` beats the same field of every rival clearly
+ * (by at least half a percent, so a near tie stays unmarked).
+ */
+function lensCell(text, field, own, rivals) {
+  const isLower = LOWER_IS_BETTER.has(field);
+  const beats = (rival) => !isSameValue(rival[field], own[field]) && (isLower ? own[field] < rival[field] : own[field] > rival[field]);
+  return { text, isBest: rivals.length > 0 && rivals.every(beats) };
+}
+
+/** Rows hold plain strings or lensCell() objects; marked cells are shaded, named for screen readers and explained. */
+function buildTable(columns, rows, best) {
   const wrap = node('div', 'table-wrap');
   const table = node('table');
   const head = node('thead');
@@ -121,17 +140,25 @@ function buildTable(columns, rows) {
   });
   head.append(headRow);
   const body = node('tbody');
+  let hasBest = false;
   rows.forEach((row) => {
     const line = node('tr');
     row.forEach((value, i) => {
-      const cell = node(i === 0 ? 'th' : 'td', columns[i].isNumeric ? 'num' : null, value);
+      const { text, isBest } = typeof value === 'object' ? value : { text: value, isBest: false };
+      const cell = node(i === 0 ? 'th' : 'td', columns[i].isNumeric ? 'num' : null, text);
       if (i === 0) cell.scope = 'row';
+      if (isBest) {
+        cell.classList.add('cell-best');
+        cell.append(node('span', 'visually-hidden', ` (${best.label})`));
+        hasBest = true;
+      }
       line.append(cell);
     });
     body.append(line);
   });
   table.append(head, body);
   wrap.append(table);
+  if (hasBest) wrap.append(node('p', 'note table-note', best.note));
   return wrap;
 }
 
@@ -179,7 +206,7 @@ function buildCard(card, context, spec) {
   toggle.type = 'button';
   const tableId = `${card.id}-table`;
   toggle.setAttribute('aria-controls', tableId);
-  const table = buildTable(spec.table.columns, spec.table.rows);
+  const table = buildTable(spec.table.columns, spec.table.rows, { label: i18n.t('table.best_sr'), note: i18n.t('chart.best_note') });
   table.id = tableId;
   // Every chart has a toggle, so the accessible name carries the chart title.
   const showState = (isOpen) => {
@@ -188,7 +215,7 @@ function buildCard(card, context, spec) {
     toggle.textContent = i18n.t(isOpen ? 'chart.hide_table' : 'chart.show_table');
     toggle.setAttribute('aria-label', i18n.t(isOpen ? 'chart.hide_table_aria' : 'chart.show_table_aria', { chart: spec.title }));
   };
-  showState(false);
+  showState(Boolean(spec.isTableOpen));
   toggle.addEventListener('click', () => showState(table.hidden));
   footer.append(toggle);
   card.append(table);
@@ -506,7 +533,7 @@ function overallBars(metric, context) {
       ],
       rows: models.map((model) => {
         const [before, after] = SERIES.map((series) => model.overall[series][field]);
-        return [model.label, exact(before), exact(after), describeChange(i18n, before, after)];
+        return [model.label, exact(before), lensCell(exact(after), field, model.overall.skill, [model.overall.baseline]), describeChange(i18n, before, after)];
       }),
     },
   };
@@ -561,10 +588,14 @@ function accuracySpec(context) {
         { label: i18n.t('table.mean_score'), isNumeric: true }, { label: i18n.t('table.worst_score'), isNumeric: true },
         { label: i18n.t('table.perfect_runs'), isNumeric: true },
       ],
-      rows: models.flatMap((model) => SERIES.map((series) => [
-        model.label, i18n.t(`series.${series}`), fmt.score(model.overall[series].mean_score),
-        fmt.score(model.overall[series].worst_score), perfectRuns(i18n, model.overall[series]),
-      ])),
+      rows: models.flatMap((model) => SERIES.map((series) => {
+        const own = model.overall[series];
+        const mark = (text, field) => (series === 'skill' ? lensCell(text, field, own, [model.overall.baseline]) : text);
+        return [
+          model.label, i18n.t(`series.${series}`), mark(fmt.score(own.mean_score), 'mean_score'),
+          mark(fmt.score(own.worst_score), 'worst_score'), mark(perfectRuns(i18n, own), 'perfect_runs'),
+        ];
+      })),
     },
   };
 }
@@ -623,11 +654,15 @@ function tasksSpec(context, onChange) {
         { label: i18n.t('table.median_score'), isNumeric: true }, { label: i18n.t('table.worst_score'), isNumeric: true },
         { label: i18n.t('table.median_cost'), isNumeric: true }, { label: i18n.t('table.median_time'), isNumeric: true },
       ],
-      rows: tasks.flatMap((task) => SERIES.map((series) => [
-        taskLabel(i18n, task, 'long'), i18n.t(`series.${series}`), fmt.score(cell(task, series).median_score),
-        fmt.score(cell(task, series).worst_score), fmt.usd(cell(task, series).median_cost_usd, 3),
-        fmt.seconds(cell(task, series).median_time_s, 1),
-      ])),
+      rows: tasks.flatMap((task) => SERIES.map((series) => {
+        const own = cell(task, series);
+        const mark = (text, field) => (series === 'skill' ? lensCell(text, field, own, [cell(task, 'baseline')]) : text);
+        return [
+          taskLabel(i18n, task, 'long'), i18n.t(`series.${series}`), mark(fmt.score(own.median_score), 'median_score'),
+          mark(fmt.score(own.worst_score), 'worst_score'), mark(fmt.usd(own.median_cost_usd, 3), 'median_cost_usd'),
+          mark(fmt.seconds(own.median_time_s, 1), 'median_time_s'),
+        ];
+      })),
     },
   };
   if (taskView.metric === 'score') {
@@ -693,11 +728,13 @@ function skillsSpec(context, onChange) {
   const fmt = i18n.format;
   const name = (key) => i18n.t(`series.${key}`);
   const overall = (index) => model.overall[keys[index]];
+  const rivals = keys.filter((key) => key !== 'skill').map((key) => model.overall[key]);
   const common = {
     title: i18n.t('chart.skills_title'),
     subtitle: i18n.t(`chart.skills_sub_${skillsView.metric}`, { model: model.label, runs: fmt.integer(data.runs_per_condition) }),
     controls: context.isSolo ? null : node('div', 'chart-controls'),
     legend: [],
+    isTableOpen: true,
     series: [{ key: 'value', colour: keys.map((key) => theme.series[key]), label: model.label }],
     height: keys.length * 46 + 40,
     table: {
@@ -707,11 +744,16 @@ function skillsSpec(context, onChange) {
         { label: i18n.t('table.cost'), isNumeric: true }, { label: i18n.t('table.time'), isNumeric: true },
         { label: i18n.t('table.own_analysis'), isNumeric: true },
       ],
-      rows: keys.map((key, index) => [
-        name(key), fmt.score(overall(index).mean_score), fmt.score(overall(index).worst_score), perfectRuns(i18n, overall(index)),
-        fmt.usd(overall(index).cost_usd, 3), fmt.seconds(overall(index).time_s, 1),
-        i18n.t('format.of', { a: fmt.integer(overall(index).own_analysis_runs), b: fmt.integer(overall(index).runs) }),
-      ]),
+      rows: keys.map((key, index) => {
+        const own = overall(index);
+        const mark = (text, field) => (key === 'skill' ? lensCell(text, field, own, rivals) : text);
+        return [
+          name(key), mark(fmt.score(own.mean_score), 'mean_score'), mark(fmt.score(own.worst_score), 'worst_score'),
+          mark(perfectRuns(i18n, own), 'perfect_runs'), mark(fmt.usd(own.cost_usd, 3), 'cost_usd'),
+          mark(fmt.seconds(own.time_s, 1), 'time_s'),
+          i18n.t('format.of', { a: fmt.integer(own.own_analysis_runs), b: fmt.integer(own.runs) }),
+        ];
+      }),
     },
   };
   common.controls?.append(metricControl(i18n, skillsView.metric, onChange));

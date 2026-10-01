@@ -122,20 +122,21 @@
           <thead>
             <tr>
               <th scope="col" data-i18n="why.col_blank">Aspect</th>
+              <th scope="col" class="is-lens" data-i18n="why.col_lens">video-lens</th>
               <th scope="col" data-i18n="why.col_watch">/watch (claude-video 0.1.3)</th>
               <th scope="col" data-i18n="why.col_video_use">video-use (browser-use)</th>
-              <th scope="col" data-i18n="why.col_lens">video-lens</th>
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row" data-i18n="why.row_frames">Frames looked at</th><td data-i18n="why.row_frames_watch">At most 2 per second, 100 in total</td><td data-i18n="why.row_frames_video_use">10 frames per requested range, 320 px wide, when it asks for them</td><td data-i18n="why.row_frames_lens">Every frame</td></tr>
-            <tr><th scope="row" data-i18n="why.row_precision">Time precision</th><td data-i18n="why.row_precision_watch">Whole seconds</td><td data-i18n="why.row_precision_video_use">Word timestamps for speech; frames at the times it asks for</td><td data-i18n="why.row_precision_lens">One frame (16.7 ms at 60 fps)</td></tr>
-            <tr><th scope="row" data-i18n="why.row_anim">A 300 ms animation</th><td data-i18n="why.row_anim_watch">0 or 1 frames</td><td data-i18n="why.row_anim_video_use">Only the frames it samples; motion is not measured</td><td data-i18n="why.row_anim_lens">Start, duration, easing and CSS measured</td></tr>
-            <tr><th scope="row" data-i18n="why.row_speech">Speech</th><td data-i18n="why.row_speech_watch">Audio uploaded to Groq or OpenAI Whisper unless English captions exist</td><td data-i18n="why.row_speech_video_use">Audio uploaded to ElevenLabs Scribe (paid API key)</td><td data-i18n="why.row_speech_lens">Transcribed on your Mac, Korean included</td></tr>
-            <tr><th scope="row" data-i18n="why.row_scenes">Scene cuts and on-screen text</th><td data-i18n="why.row_scenes_watch">Not detected</td><td data-i18n="why.row_scenes_video_use">Not detected</td><td data-i18n="why.row_scenes_lens">Cut times and the text of each slide</td></tr>
+            <tr><th scope="row" data-i18n="why.row_frames">Frames looked at</th><td class="is-lens" data-i18n="why.row_frames_lens">Every frame</td><td data-i18n="why.row_frames_watch">At most 2 per second, 100 in total</td><td data-i18n="why.row_frames_video_use">10 frames per requested range, 320 px wide, when it asks for them</td></tr>
+            <tr><th scope="row" data-i18n="why.row_precision">Time precision</th><td class="is-lens" data-i18n="why.row_precision_lens">One frame (16.7 ms at 60 fps)</td><td data-i18n="why.row_precision_watch">Whole seconds</td><td data-i18n="why.row_precision_video_use">Word timestamps for speech; frames at the times it asks for</td></tr>
+            <tr><th scope="row" data-i18n="why.row_anim">A 300 ms animation</th><td class="is-lens" data-i18n="why.row_anim_lens">Start, duration, easing and CSS measured</td><td data-i18n="why.row_anim_watch">0 or 1 frames</td><td data-i18n="why.row_anim_video_use">Only the frames it samples; motion is not measured</td></tr>
+            <tr><th scope="row" data-i18n="why.row_speech">Speech</th><td class="is-lens" data-i18n="why.row_speech_lens">Transcribed on your Mac, Korean included</td><td data-i18n="why.row_speech_watch">Audio uploaded to Groq or OpenAI Whisper unless English captions exist</td><td data-i18n="why.row_speech_video_use">Audio uploaded to ElevenLabs Scribe (paid API key)</td></tr>
+            <tr><th scope="row" data-i18n="why.row_scenes">Scene cuts and on-screen text</th><td class="is-lens" data-i18n="why.row_scenes_lens">Cut times and the text of each slide</td><td data-i18n="why.row_scenes_watch">Not detected</td><td data-i18n="why.row_scenes_video_use">Not detected</td></tr>
           </tbody>
         </table>
       </div>
+      <p class="note" data-i18n="why.lens_shaded">Shaded: what video-lens does that the other two do not.</p>
       <p class="note" data-i18n="why.watch_measured">In the benchmark, Opus with /watch or video-use scored a little higher on average than with video-lens, mostly because it measured the clip itself with its own ffmpeg and OpenCV code on top of the skill, and it cost more than twice as much. Details: <a href="#skills-compare">Against other video skills</a>.</p>
     </div>
     <div class="grid-2">

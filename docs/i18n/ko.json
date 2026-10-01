@@ -81,6 +81,7 @@
     "row_scenes_watch": "감지 안 함",
     "row_scenes_video_use": "감지 안 함",
     "row_scenes_lens": "전환 시각과 슬라이드별 글자",
+    "lens_shaded": "음영 칸: 셋 중 video-lens만 하는 일입니다.",
     "watch_measured": "벤치마크에서 Opus는 /watch나 video-use를 쓸 때 video-lens를 쓸 때보다 평균 점수가 조금 높았습니다. 주된 이유는 스킬에 더해 자기가 짠 ffmpeg와 OpenCV 코드로 영상을 직접 쟀기 때문이고, 비용은 video-lens를 쓸 때의 두 배가 넘었습니다. 자세한 내용: [다른 영상 스킬과 비교](#skills-compare).",
     "alone_title": "모델만 쓸 때와 비교",
     "alone_body": "스킬이 없으면 Claude는 영상마다 ffmpeg와 Python 코드를 새로 짜서 잽니다. 잘 될 때가 많지만, 코드가 실행할 때마다 달라집니다.",
@@ -133,6 +134,7 @@
     "hide_table": "표 숨기기",
     "show_table_aria": "표 보기: {chart}",
     "hide_table_aria": "표 숨기기: {chart}",
+    "best_note": "음영 칸: video-lens가 비교 대상 모두보다 나았던 값입니다.",
     "loading": "벤치마크 데이터를 불러오는 중…",
     "load_error": "벤치마크 데이터를 불러오지 못했습니다. 숫자는 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)에도 있습니다.",
     "library_error": "그래프 라이브러리를 불러오지 못했습니다. 숫자는 [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md)에도 있습니다.",
@@ -165,7 +167,8 @@
     "median_time": "시간 중앙값",
     "id": "ID",
     "change": "video-lens 사용 시 변화",
-    "own_analysis": "자체 분석 코드를 쓴 실행"
+    "own_analysis": "자체 분석 코드를 쓴 실행",
+    "best_sr": "video-lens가 더 나음"
   },
   "change": {
     "lower": "{pct} 감소",

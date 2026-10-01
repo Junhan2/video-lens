@@ -81,6 +81,7 @@
     "row_scenes_watch": "Não detecta",
     "row_scenes_video_use": "Não detecta",
     "row_scenes_lens": "Momentos dos cortes e o texto de cada slide",
+    "lens_shaded": "Células sombreadas: o que o video-lens faz e as outras duas não.",
     "watch_measured": "No benchmark, o Opus com /watch ou video-use teve uma nota média um pouco maior do que com o video-lens, principalmente porque mediu o próprio clipe com seu próprio código em ffmpeg e OpenCV além da skill, e custou mais que o dobro. Detalhes: [Comparação com outras skills de vídeo](#skills-compare).",
     "alone_title": "Comparação com o modelo sozinho",
     "alone_body": "Sem a skill, o Claude escreve código novo em ffmpeg e Python para cada vídeo e mede com ele. Muitas vezes funciona, mas o código muda a cada execução.",
@@ -133,6 +134,7 @@
     "hide_table": "Ocultar tabela",
     "show_table_aria": "Mostrar tabela: {chart}",
     "hide_table_aria": "Ocultar tabela: {chart}",
+    "best_note": "Células sombreadas: onde o video-lens teve um valor melhor que todas as condições com que é comparado.",
     "loading": "Carregando os dados do benchmark…",
     "load_error": "Não foi possível carregar os dados do benchmark. Os números também estão em [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
     "library_error": "Não foi possível carregar a biblioteca de gráficos. Os números também estão em [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md).",
@@ -165,7 +167,8 @@
     "median_time": "Tempo mediano",
     "id": "ID",
     "change": "Variação com video-lens",
-    "own_analysis": "Execuções com código de análise próprio"
+    "own_analysis": "Execuções com código de análise próprio",
+    "best_sr": "melhor com video-lens"
   },
   "change": {
     "lower": "{pct} menor",

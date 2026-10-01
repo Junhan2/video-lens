@@ -81,6 +81,7 @@
     "row_scenes_watch": "検出しない",
     "row_scenes_video_use": "検出しない",
     "row_scenes_lens": "切り替わりの時刻と各スライドのテキスト",
+    "lens_shaded": "網掛けのセル：3 つのうち video-lens だけができることです。",
     "watch_measured": "ベンチマークでは、Opus は /watch や video-use を使ったときのほうが、video-lens を使ったときより平均スコアがわずかに高くなりました。主な理由は、スキルに加えて自前の ffmpeg や OpenCV のコードでクリップを直接計測したことです。また、コストは video-lens を使ったときの 2 倍を上回りました。詳細：[ほかの動画スキルとの比較](#skills-compare)。",
     "alone_title": "モデル単体との比較",
     "alone_body": "スキルがないと、Claude は動画ごとに ffmpeg と Python のコードを新しく書き、それで計測します。多くの場合はうまくいきますが、コードは実行のたびに変わります。",
@@ -133,6 +134,7 @@
     "hide_table": "表を隠す",
     "show_table_aria": "表を表示：{chart}",
     "hide_table_aria": "表を隠す：{chart}",
+    "best_note": "網掛けのセル：video-lens が比較したすべての条件を上回った値です。",
     "loading": "ベンチマークデータを読み込んでいます…",
     "load_error": "ベンチマークデータを読み込めませんでした。数値は [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md) にも載っています。",
     "library_error": "グラフのライブラリを読み込めませんでした。数値は [BENCHMARK.md](https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md) にも載っています。",
@@ -165,7 +167,8 @@
     "median_time": "時間の中央値",
     "id": "ID",
     "change": "video-lens 使用時の変化",
-    "own_analysis": "独自の分析コードを使った回数"
+    "own_analysis": "独自の分析コードを使った回数",
+    "best_sr": "video-lens が上回る"
   },
   "change": {
     "lower": "{pct} 減",
