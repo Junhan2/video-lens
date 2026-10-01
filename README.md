@@ -45,7 +45,7 @@ Claude cannot watch video. video-lens measures it frame by frame, hands Claude n
 | Speech | Audio uploaded to Groq or OpenAI Whisper unless English captions exist | Audio uploaded to ElevenLabs Scribe (paid API key) | Transcribed on your Mac, Korean included |
 | Scene cuts and on-screen text | Not detected | Not detected | Cut times and the text of each slide |
 
-/watch is built for a quick look at what a video is about. video-use edits videos by conversation: cuts, colour and subtitles. video-lens is for when something happens, for how long and how. How the three score on the same tasks: [Against other video skills](#against-other-video-skills).
+/watch is built for a quick look at what a video is about. video-use edits videos by conversation: cuts, colour and subtitles. video-lens is for when something happens, for how long and how. In the benchmark, Opus with /watch or video-use scored a little higher on average than with video-lens, mostly because it measured the clip itself with its own ffmpeg and OpenCV code on top of the skill, and it cost more than twice as much. Details: [Against other video skills](#against-other-video-skills).
 
 Example: a 3-second toast recording rendered from real CSS in headless Chrome. video-lens measured 298 ms (range 284 to 313) and `cubic-bezier(0.22, 1, 0.36, 1)`. The CSS said 300 ms and the same curve.
 
@@ -180,7 +180,19 @@ Measured 2026-09-30. 9 tasks × 3 runs = 27 runs per condition, no MCP servers, 
 <!-- skills:start -->
 <!-- Generated from docs/data/benchmark.json by tools/render_results.py. Do not edit by hand. -->
 
-Runs in progress. The results appear here when every run has finished.
+Claude Opus 5.5 with each video skill on the same 9 tasks and prompts, 27 runs per condition, one run at a time. Each run named its skill in the prompt, and video-lens was hidden from the runs of the other skills.
+
+| Condition | Mean score | Worst run | Runs scoring 1.0 | Avg cost per run | Avg time per run | Avg turns | Runs with own analysis code |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Model alone | 0.949 | 0.167 | 21/27 | $0.859 | 420.2 s | 17.5 | 26/27 |
+| With video-lens | 0.956 | 0.800 | 15/27 | $0.663 | 265.1 s | 10.1 | 2/27 |
+| With /watch | 0.984 | 0.800 | 23/27 | $1.773 | 590.0 s | 34.7 | 24/27 |
+| With video-use | 0.969 | 0.467 | 23/27 | $1.569 | 487.2 s | 22.1 | 27/27 |
+
+- /watch (claude-video 0.1.3) looks at up to 2 frames per second and sends speech to the Groq or OpenAI Whisper API.
+- video-use (browser-use/video-use b877063) is built to edit videos, not to measure them. It sends speech to ElevenLabs Scribe and looks at filmstrips of frames. These tasks test only how well it reads a video.
+- Own analysis code: runs in which Opus also wrote and ran its own ffmpeg, OpenCV or whisper commands besides the skill's tools. Most /watch and video-use runs did, which is where their extra cost and time went. With video-lens the skill's measurements were usually enough.
+- Cost counts only what Claude Code reports for the model. The speech APIs that /watch (Groq or OpenAI) and video-use (ElevenLabs) call are billed to their own keys and are not included.
 
 <!-- skills:end -->
 

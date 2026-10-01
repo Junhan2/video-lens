@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Fill docs/data/benchmark.json of the public repo from results.csv (written by score.py --csv).
 
-Overall per condition: mean score, worst score, runs scoring 1, mean cost, mean time, mean turns.
+Overall per condition: mean score, worst score, runs scoring 1, mean cost, mean time, mean turns, and the runs in
+which the model ran its own analysis commands (score.py own_analysis).
 Per task: median score, worst score, median cost, median time (3 runs each).
 A model or a competitor skill is written only when every one of its runs is scored; otherwise it keeps its
 current entry (for example "status": "pending"). Competitor skills ran on one model (skills.model), so their cells
@@ -44,6 +45,7 @@ def overall(rows):
         "cost_usd": round(statistics.mean(numbers(rows, "cost_usd")), 3),
         "time_s": round(statistics.mean(numbers(rows, "duration_s")), 1),
         "turns": round(statistics.mean(numbers(rows, "turns")), 1),
+        "own_analysis_runs": sum(row.get("own_analysis") == "True" for row in rows),
     }
 
 

@@ -54,7 +54,10 @@ esac
 case "$ARM" in
   a0|a0f|a0s|g0) EXTRA=(--disable-slash-commands) ;;
   bstar|bstar2|bstar3|bstar4|bf|bs|gs) PROMPT="/video-lens $PROMPT" ;;
-  w) PROMPT="/watch:watch $PROMPT" ;;
+  w)
+    # /watch runs have picked this fixed output folder themselves; start each run without a previous run's frames.
+    rm -rf /private/tmp/watch_clip
+    PROMPT="/watch:watch $PROMPT" ;;
   vu)
     # video-use loads only for this arm (--add-dir), never globally, and transcribes through its own ElevenLabs key.
     grep -q '^ELEVENLABS_API_KEY=.\{20,\}' "$VIDEO_USE_DIR/.env" || { echo "vu needs ELEVENLABS_API_KEY in $VIDEO_USE_DIR/.env" >&2; exit 3; }
@@ -74,6 +77,12 @@ cd "$WORK"
 START=$(date +%s)
 if [ "$ARM" = g0 ] || [ "$ARM" = gs ]; then
   # Grok 4.7 through the Grok Build CLI; its MCP gateway tools are blocked to match the Claude runs.
+  if [ "$ARM" = g0 ]; then
+    # The model alone loads no skills, as --disable-slash-commands does for Claude (see grok_isolate.py).
+    grep -q '^# video-lens benchmark g0 block' "$HOME/.grok/config.toml" || { echo "g0 needs: python3 grok_isolate.py skills >> ~/.grok/config.toml (run_final.sh grok does it)" >&2; exit 3; }
+    export GROK_CLAUDE_SKILLS_ENABLED=false
+    mkdir -p "$WORK/.grok" && python3 "$BENCH/grok_isolate.py" plugins > "$WORK/.grok/config.toml"
+  fi
   "$GROK_BIN" --model grok-4.7 --reasoning-effort xhigh -p "$PROMPT" --output-format streaming-json \
     --disallowed-tools use_tool,search_tool < /dev/null > "$LOG" 2> "$RUN_ROOT/$ID/stderr.txt" || true
   echo "{\"wall_s\": $(( $(date +%s) - START ))}" > "$RUN_ROOT/$ID/wall.json"

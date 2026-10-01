@@ -115,7 +115,9 @@ function fillSkillsText(counts) {
   document.getElementById('skills-compare').hidden = !keys.length;
   if (!keys.length) return;
   setRich('skills-intro', 'skills.intro', { model: model.label, tasks: counts.tasks, runs: counts.runs });
-  fillList('skills-notes', [...arms.map((arm) => [`skills.note.${arm.id}`, { version: arm.version }]), ['skills.cost_note', {}]]);
+  fillList('skills-notes', [
+    ...arms.map((arm) => [`skills.note.${arm.id}`, { version: arm.version }]), ['skills.own_note', {}], ['skills.cost_note', {}],
+  ]);
 }
 
 function fillVersion() {

@@ -190,7 +190,8 @@ def skills_text(data, labels):
     """The intro sentence and the notes (one per competitor, then the cost note), shared by README and page."""
     model, arms, _ = skill_conditions(data)
     intro = labels.t("skills.intro", model=model["label"], tasks=data["tasks_count"], runs=data["runs_per_condition"])
-    return intro, [labels.t(f"skills.note.{arm['id']}", version=arm["version"]) for arm in arms] + [labels.t("skills.cost_note")]
+    notes = [labels.t(f"skills.note.{arm['id']}", version=arm["version"]) for arm in arms]
+    return intro, notes + [labels.t("skills.own_note"), labels.t("skills.cost_note")]
 
 
 def skills_block(data, labels):
@@ -198,8 +199,10 @@ def skills_block(data, labels):
     if not keys:
         return labels.t("skills.pending")
     header = [labels.t(f"table.{key}") for key in
-              ("condition", "mean_score", "worst_score", "perfect_runs", "cost", "time", "turns")]
-    rows = [[labels.t(f"series.{key}"), *overall_cells(model["overall"][key], labels)] for key in keys]
+              ("condition", "mean_score", "worst_score", "perfect_runs", "cost", "time", "turns", "own_analysis")]
+    rows = [[labels.t(f"series.{key}"), *overall_cells(model["overall"][key], labels),
+             labels.t("format.of", a=model["overall"][key]["own_analysis_runs"], b=model["overall"][key]["runs"])]
+            for key in keys]
     intro, notes = skills_text(data, labels)
     return "\n\n".join([intro, table(header, rows, 1), bullets(notes)])
 

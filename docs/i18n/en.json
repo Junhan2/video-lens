@@ -81,6 +81,7 @@
     "row_scenes_watch": "Not detected",
     "row_scenes_video_use": "Not detected",
     "row_scenes_lens": "Cut times and the text of each slide",
+    "watch_measured": "In the benchmark, Opus with /watch or video-use scored a little higher on average than with video-lens, mostly because it measured the clip itself with its own ffmpeg and OpenCV code on top of the skill, and it cost more than twice as much. Details: [Against other video skills](#skills-compare).",
     "alone_title": "Compared with the model alone",
     "alone_body": "Without the skill, Claude writes new ffmpeg and Python code for each video and measures with it. That often works, but the code differs every run.",
     "alone_spread": "Task \"{task}\": {model} alone had a median score of {median} over {reps} runs and {worst} in its worst run.",
@@ -101,6 +102,7 @@
       "watch": "/watch ({version}) looks at up to 2 frames per second and sends speech to the Groq or OpenAI Whisper API.",
       "video-use": "video-use ({version}) is built to edit videos, not to measure them. It sends speech to ElevenLabs Scribe and looks at filmstrips of frames. These tasks test only how well it reads a video."
     },
+    "own_note": "Own analysis code: runs in which Opus also wrote and ran its own ffmpeg, OpenCV or whisper commands besides the skill's tools. Most /watch and video-use runs did, which is where their extra cost and time went. With video-lens the skill's measurements were usually enough.",
     "per_task_title": "{model} with other video skills",
     "pending": "Runs in progress. The results appear here when every run has finished.",
     "cost_note": "Cost counts only what Claude Code reports for the model. The speech APIs that /watch (Groq or OpenAI) and video-use (ElevenLabs) call are billed to their own keys and are not included."
@@ -161,7 +163,8 @@
     "median_cost": "Median cost",
     "median_time": "Median time",
     "id": "ID",
-    "change": "Change with video-lens"
+    "change": "Change with video-lens",
+    "own_analysis": "Runs with own analysis code"
   },
   "change": {
     "lower": "{pct} lower",

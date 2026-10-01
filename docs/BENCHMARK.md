@@ -170,14 +170,67 @@ The same 9 tasks and prompts with Claude Opus 5.5 using [/watch](https://github.
 <!-- skills:start -->
 <!-- Generated from docs/data/benchmark.json by tools/render_results.py. Do not edit by hand. -->
 
-Runs in progress. The results appear here when every run has finished.
+Claude Opus 5.5 with each video skill on the same 9 tasks and prompts, 27 runs per condition, one run at a time. Each run named its skill in the prompt, and video-lens was hidden from the runs of the other skills.
+
+| Condition | Mean score | Worst run | Runs scoring 1.0 | Avg cost per run | Avg time per run | Avg turns | Runs with own analysis code |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Model alone | 0.949 | 0.167 | 21/27 | $0.859 | 420.2 s | 17.5 | 26/27 |
+| With video-lens | 0.956 | 0.800 | 15/27 | $0.663 | 265.1 s | 10.1 | 2/27 |
+| With /watch | 0.984 | 0.800 | 23/27 | $1.773 | 590.0 s | 34.7 | 24/27 |
+| With video-use | 0.969 | 0.467 | 23/27 | $1.569 | 487.2 s | 22.1 | 27/27 |
+
+- /watch (claude-video 0.1.3) looks at up to 2 frames per second and sends speech to the Groq or OpenAI Whisper API.
+- video-use (browser-use/video-use b877063) is built to edit videos, not to measure them. It sends speech to ElevenLabs Scribe and looks at filmstrips of frames. These tasks test only how well it reads a video.
+- Own analysis code: runs in which Opus also wrote and ran its own ffmpeg, OpenCV or whisper commands besides the skill's tools. Most /watch and video-use runs did, which is where their extra cost and time went. With video-lens the skill's measurements were usually enough.
+- Cost counts only what Claude Code reports for the model. The speech APIs that /watch (Groq or OpenAI) and video-use (ElevenLabs) call are billed to their own keys and are not included.
 
 <!-- skills:end -->
 
 <!-- skills-per-task:start -->
 <!-- Generated from docs/data/benchmark.json by tools/render_results.py. Do not edit by hand. -->
 
-Runs in progress. The results appear here when every run has finished.
+### Claude Opus 5.5 with other video skills
+
+| Task | Condition | Median score | Worst run | Median cost | Median time |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Card stagger (3 cards, 60 fps, named curve) | Model alone | 1.000 | 1.000 | $0.758 | 316.1 s |
+|  | With video-lens | 1.000 | 1.000 | $0.544 | 453.2 s |
+|  | With /watch | 1.000 | 1.000 | $1.574 | 617.6 s |
+|  | With video-use | 1.000 | 1.000 | $1.390 | 546.3 s |
+| Modal enter and exit (VFR recording) | Model alone | 1.000 | 0.875 | $0.835 | 353.2 s |
+|  | With video-lens | 1.000 | 1.000 | $0.795 | 302.4 s |
+|  | With /watch | 1.000 | 1.000 | $2.063 | 1320.0 s |
+|  | With video-use | 1.000 | 1.000 | $1.452 | 614.7 s |
+| Off-screen toast with a click sound | Model alone | 1.000 | 1.000 | $0.640 | 131.4 s |
+|  | With video-lens | 1.000 | 1.000 | $0.510 | 63.2 s |
+|  | With /watch | 1.000 | 1.000 | $1.489 | 449.2 s |
+|  | With video-use | 1.000 | 1.000 | $1.337 | 325.7 s |
+| Overlapping 6-row list, custom curve, 30 fps, Retina | Model alone | 1.000 | 0.167 | $1.450 | 732.7 s |
+|  | With video-lens | 0.967 | 0.933 | $0.702 | 193.9 s |
+|  | With /watch | 1.000 | 0.800 | $2.376 | 827.4 s |
+|  | With video-use | 1.000 | 0.467 | $1.927 | 463.0 s |
+| Colour change, overshoot badge, bottom drawer (VFR) | Model alone | 1.000 | 0.833 | $1.097 | 735.5 s |
+|  | With video-lens | 0.917 | 0.917 | $0.980 | 258.7 s |
+|  | With /watch | 1.000 | 1.000 | $1.791 | 499.1 s |
+|  | With video-use | 1.000 | 1.000 | $1.796 | 518.8 s |
+| Real 3D card carousel recording, 16.5 s (approximate answer key) | Model alone | 1.000 | 1.000 | $1.310 | 486.5 s |
+|  | With video-lens | 0.800 | 0.800 | $0.571 | 102.5 s |
+|  | With /watch | 1.000 | 1.000 | $3.534 | 1198.8 s |
+|  | With video-use | 1.000 | 1.000 | $3.306 | 969.5 s |
+| 20-second Korean lecture, 3 slides | Model alone | 1.000 | 1.000 | $0.431 | 191.2 s |
+|  | With video-lens | 1.000 | 0.975 | $0.515 | 54.2 s |
+|  | With /watch | 1.000 | 1.000 | $1.105 | 163.5 s |
+|  | With video-use | 1.000 | 1.000 | $0.834 | 113.2 s |
+| 10-minute Korean lecture, 24 slides | Model alone | 0.922 | 0.910 | $1.170 | 607.9 s |
+|  | With video-lens | 0.922 | 0.904 | $0.817 | 158.4 s |
+|  | With /watch | 0.925 | 0.922 | $1.574 | 333.9 s |
+|  | With video-use | 0.898 | 0.898 | $1.276 | 243.3 s |
+| Two-sentence summary of a clip | Model alone | 1.000 | 1.000 | $0.327 | 25.5 s |
+|  | With video-lens | 1.000 | 1.000 | $0.419 | 28.5 s |
+|  | With /watch | 1.000 | 1.000 | $0.591 | 50.0 s |
+|  | With video-use | 1.000 | 1.000 | $0.694 | 54.8 s |
+
+Median of 3 runs per cell; worst run is the lowest of the 3.
 
 <!-- skills-per-task:end -->
 

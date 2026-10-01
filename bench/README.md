@@ -135,6 +135,8 @@ For the skill arms the prompt starts with `/video-lens `, for `w` with `/watch:w
 
 The Grok arms run `grok --model grok-4.7 --reasoning-effort xhigh -p "<prompt>" --output-format streaming-json --disallowed-tools use_tool,search_tool` instead; the two blocked tools are its MCP gateway, to match the Claude runs.
 
+The Grok baseline (`g0`) must load no skills, like `--disable-slash-commands` for Claude. Grok also loads Claude plugins, `~/.claude/skills`, `~/.agents/skills` and its own skills, so `run_one.sh` sets `GROK_CLAUDE_SKILLS_ENABLED=false` and writes `.grok/config.toml` into the run folder with every plugin disabled, and `run_final.sh grok` appends a `[skills]` block to `~/.grok/config.toml` for the g0 cells and restores the file afterwards (`grok_isolate.py` builds both from `grok inspect --json`). The first line of a g0 log must list no skill. An earlier g0 pass without this used /watch in 8 of 27 runs and was rerun.
+
 `run_final.sh` locks video-lens before the cells that must not see it and restores it when it exits, whether it finishes, fails or is stopped.
 
 The published pass took about 5.2 hours and $41 API-equivalent for Opus 5.5, and about 3.1 hours and $28 for Sonnet 5.5.
@@ -147,6 +149,8 @@ python3 score.py --csv mine.csv     # one row per run, same columns as results.c
 python3 score.py --detail           # every run as JSON, with a note per check
 python3 build_benchmark.py --check  # what the scored runs in results.csv would change in docs/data/benchmark.json
 ```
+
+`skills_touched` names the video skills whose files a run's tool calls used, and `own_analysis` marks runs that also ran their own measuring commands (OpenCV, frame differences, scene or silence filters, frame grabs, whisper) besides a skill's scripts.
 
 The answer is the last `json` block in the run's final result. Each task yields a list of checks, and a run's score is `max(0, points - false positives) / number of checks`.
 

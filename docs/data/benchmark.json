@@ -63,7 +63,8 @@
      "perfect_runs": 21,
      "cost_usd": 0.859,
      "time_s": 420.2,
-     "turns": 17.5
+     "turns": 17.5,
+     "own_analysis_runs": 26
     },
     "skill": {
      "runs": 27,
@@ -72,7 +73,28 @@
      "perfect_runs": 15,
      "cost_usd": 0.663,
      "time_s": 265.1,
-     "turns": 10.1
+     "turns": 10.1,
+     "own_analysis_runs": 2
+    },
+    "watch": {
+     "runs": 27,
+     "mean_score": 0.984,
+     "worst_score": 0.8,
+     "perfect_runs": 23,
+     "cost_usd": 1.773,
+     "time_s": 590.0,
+     "turns": 34.7,
+     "own_analysis_runs": 24
+    },
+    "video-use": {
+     "runs": 27,
+     "mean_score": 0.969,
+     "worst_score": 0.467,
+     "perfect_runs": 23,
+     "cost_usd": 1.569,
+     "time_s": 487.2,
+     "turns": 22.1,
+     "own_analysis_runs": 27
     }
    },
    "per_task": {
@@ -88,6 +110,18 @@
       "worst_score": 1.0,
       "median_cost_usd": 0.544,
       "median_time_s": 453.2
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.574,
+      "median_time_s": 617.6
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.39,
+      "median_time_s": 546.3
      }
     },
     "v2": {
@@ -102,6 +136,18 @@
       "worst_score": 1.0,
       "median_cost_usd": 0.795,
       "median_time_s": 302.4
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 2.063,
+      "median_time_s": 1320.0
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.452,
+      "median_time_s": 614.7
      }
     },
     "v3": {
@@ -116,6 +162,18 @@
       "worst_score": 1.0,
       "median_cost_usd": 0.51,
       "median_time_s": 63.2
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.489,
+      "median_time_s": 449.2
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.337,
+      "median_time_s": 325.7
      }
     },
     "h1": {
@@ -130,6 +188,18 @@
       "worst_score": 0.933,
       "median_cost_usd": 0.702,
       "median_time_s": 193.9
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 0.8,
+      "median_cost_usd": 2.376,
+      "median_time_s": 827.4
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 0.467,
+      "median_cost_usd": 1.927,
+      "median_time_s": 463.0
      }
     },
     "h2": {
@@ -144,6 +214,18 @@
       "worst_score": 0.917,
       "median_cost_usd": 0.98,
       "median_time_s": 258.7
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.791,
+      "median_time_s": 499.1
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.796,
+      "median_time_s": 518.8
      }
     },
     "orbit": {
@@ -158,6 +240,18 @@
       "worst_score": 0.8,
       "median_cost_usd": 0.571,
       "median_time_s": 102.5
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 3.534,
+      "median_time_s": 1198.8
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 3.306,
+      "median_time_s": 969.5
      }
     },
     "v4": {
@@ -172,6 +266,18 @@
       "worst_score": 0.975,
       "median_cost_usd": 0.515,
       "median_time_s": 54.2
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 1.105,
+      "median_time_s": 163.5
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.834,
+      "median_time_s": 113.2
      }
     },
     "h3": {
@@ -186,6 +292,18 @@
       "worst_score": 0.904,
       "median_cost_usd": 0.817,
       "median_time_s": 158.4
+     },
+     "watch": {
+      "median_score": 0.925,
+      "worst_score": 0.922,
+      "median_cost_usd": 1.574,
+      "median_time_s": 333.9
+     },
+     "video-use": {
+      "median_score": 0.898,
+      "worst_score": 0.898,
+      "median_cost_usd": 1.276,
+      "median_time_s": 243.3
      }
     },
     "gist": {
@@ -200,6 +318,18 @@
       "worst_score": 1.0,
       "median_cost_usd": 0.419,
       "median_time_s": 28.5
+     },
+     "watch": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.591,
+      "median_time_s": 50.0
+     },
+     "video-use": {
+      "median_score": 1.0,
+      "worst_score": 1.0,
+      "median_cost_usd": 0.694,
+      "median_time_s": 54.8
      }
     }
    }
@@ -220,7 +350,8 @@
      "perfect_runs": 22,
      "cost_usd": 0.626,
      "time_s": 287.9,
-     "turns": 20.9
+     "turns": 20.9,
+     "own_analysis_runs": 27
     },
     "skill": {
      "runs": 27,
@@ -229,7 +360,8 @@
      "perfect_runs": 15,
      "cost_usd": 0.408,
      "time_s": 121.8,
-     "turns": 10.0
+     "turns": 10.0,
+     "own_analysis_runs": 6
     }
    },
    "per_task": {
@@ -362,7 +494,13 @@
    }
   },
   "grok-4.7": {
-   "label": "Grok 4.7 (Grok Build CLI)",
+   "label": "Grok 4.7",
+   "settings": {
+    "harness": "Grok Build CLI",
+    "effort": "xhigh",
+    "cost": "reported",
+    "time": "wall_clock"
+   },
    "status": "pending"
   }
  },
@@ -373,15 +511,13 @@
     "id": "watch",
     "name": "/watch",
     "version": "claude-video 0.1.3",
-    "url": "https://github.com/bradautomates/claude-video",
-    "status": "pending"
+    "url": "https://github.com/bradautomates/claude-video"
    },
    {
     "id": "video-use",
     "name": "video-use",
     "version": "browser-use/video-use b877063",
-    "url": "https://github.com/browser-use/video-use",
-    "status": "pending"
+    "url": "https://github.com/browser-use/video-use"
    }
   ]
  }

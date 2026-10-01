@@ -18,6 +18,12 @@ for arm in $SKILL_ARMS; do
   while read -r t a r; do ./run_one.sh "$t" "$a" "$r"; done < "final_$arm.txt"
 done
 ./hide_skill.sh hide || exit 1
+if [ "$HIDDEN_ARMS" = g0 ]; then
+  # Grok's baseline must load no skills; the [skills] switch exists only in its user config, so add it for these cells.
+  cp "$HOME/.grok/config.toml" "$HOME/.grok/config.toml.bak-vlb"
+  trap 'cp "$HOME/.grok/config.toml.bak-vlb" "$HOME/.grok/config.toml"; ./hide_skill.sh show >/dev/null 2>&1' EXIT
+  python3 grok_isolate.py skills >> "$HOME/.grok/config.toml"
+fi
 for arm in $HIDDEN_ARMS; do
   while read -r t a r; do ./run_one.sh "$t" "$a" "$r"; done < "final_$arm.txt"
 done

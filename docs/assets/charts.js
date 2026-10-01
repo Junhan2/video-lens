@@ -705,10 +705,12 @@ function skillsSpec(context, onChange) {
         { label: i18n.t('table.condition') }, { label: i18n.t('table.mean_score'), isNumeric: true },
         { label: i18n.t('table.worst_score'), isNumeric: true }, { label: i18n.t('table.perfect_runs'), isNumeric: true },
         { label: i18n.t('table.cost'), isNumeric: true }, { label: i18n.t('table.time'), isNumeric: true },
+        { label: i18n.t('table.own_analysis'), isNumeric: true },
       ],
       rows: keys.map((key, index) => [
         name(key), fmt.score(overall(index).mean_score), fmt.score(overall(index).worst_score), perfectRuns(i18n, overall(index)),
         fmt.usd(overall(index).cost_usd, 3), fmt.seconds(overall(index).time_s, 1),
+        i18n.t('format.of', { a: fmt.integer(overall(index).own_analysis_runs), b: fmt.integer(overall(index).runs) }),
       ]),
     },
   };
