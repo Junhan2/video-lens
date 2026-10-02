@@ -35,7 +35,7 @@ Not included: the video files (the generators rebuild them), the carousel record
 | `bs` | Sonnet 5.5 | Skill, as `bf`. |
 | `g0` | Grok 4.7 | Baseline, as `a0f`, run in the Grok Build CLI (`--model grok-4.7 --reasoning-effort xhigh`). |
 | `gs` | Grok 4.7 | Skill, as `bf`, in the Grok Build CLI. |
-| `w` | Opus 5.5 | [/watch](https://github.com/bradautomates/claude-video) 0.1.3: the prompt starts with `/watch:watch`; video-lens is locked on disk. |
+| `w` | Opus 5.5 | [/watch](https://github.com/bradautomates/claude-video) 0.3.2: the prompt starts with `/watch:watch`; video-lens is locked on disk. |
 | `vu` | Opus 5.5 | [video-use](https://github.com/browser-use/video-use): the prompt starts with `/video-use`, the skill is loaded for this run only (`--add-dir`); video-lens is locked on disk. |
 
 `run_one.sh` also accepts `b` (skills available but not named, Opus 5.5), which measured whether the skill triggers by itself: it did in 8 of 9 tasks. Those runs are not in `results.csv`. The codes `a0` and `bstar*` are earlier rounds' names for the `a0f` and `bf` conditions.
@@ -63,7 +63,7 @@ The prompts are in Korean, exactly as they were run. Every prompt ends with the 
 - ffmpeg and ffprobe, Python 3 with numpy and opencv-python. `swiftc` (Xcode Command Line Tools) is optional; the generators use it for an extra OCR check of the slides.
 - Claude Code (`claude`) signed in, and video-lens with its own requirements (see the main [README](../README.md)).
 - For `g0` and `gs`: the Grok Build CLI signed in.
-- For `w`: the /watch plugin (claude-video 0.1.3) with the Groq or OpenAI key it asks for.
+- For `w`: the /watch plugin (claude-video 0.3.2) with a Groq key set up for transcription (it can also transcribe locally with WhisperX, not installed here).
 - For `vu`: a clone of video-use with its Python packages (`uv sync`) and `ELEVENLABS_API_KEY` in its `.env`.
 
 Tested with macOS 26.3, Python 3.13, ffmpeg 8.1, Chrome 153 and 154.

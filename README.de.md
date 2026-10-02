@@ -37,15 +37,15 @@ Claude kann keine Videos ansehen. video-lens vermisst sie Bild für Bild, gibt C
 
 ### Vergleich mit /watch und video-use
 
-| | /watch (claude-video 0.1.3) | video-use (browser-use) | video-lens |
+| | /watch (claude-video 0.3.2) | video-use (browser-use) | video-lens |
 |---|---|---|---|
-| Betrachtete Einzelbilder | Höchstens 2 pro Sekunde, insgesamt 100 | 10 Einzelbilder pro angefordertem Abschnitt, 320 px breit, wenn es sie anfordert | Jedes Einzelbild |
+| Betrachtete Einzelbilder | An Szenenwechseln gewählt (gleichmäßig, wenn es keine gibt), höchstens 100, 512 px breit | 10 Einzelbilder pro angefordertem Abschnitt, 320 px breit, wenn es sie anfordert | Jedes Einzelbild |
 | Zeitliche Genauigkeit | Ganze Sekunden | Zeitstempel pro Wort bei Sprache; Einzelbilder zu den angeforderten Zeitpunkten | Ein Einzelbild (16,7 ms bei 60 fps) |
 | Eine 300-ms-Animation | 0 oder 1 Einzelbild | Nur die abgetasteten Einzelbilder; Bewegung wird nicht gemessen | Beginn, Dauer, Easing und CSS gemessen |
-| Sprache | Ton wird zu Groq oder OpenAI Whisper hochgeladen, sofern keine englischen Untertitel vorhanden sind | Ton wird zu ElevenLabs Scribe hochgeladen (kostenpflichtiger API-Schlüssel) | Auf Ihrem Mac transkribiert, Koreanisch eingeschlossen |
-| Szenenwechsel und Text im Bild | Nicht erkannt | Nicht erkannt | Zeitpunkte der Schnitte und der Text jeder Folie |
+| Sprache | Zuerst Untertitel; sonst WhisperX auf Ihrem Mac (1,5 GB Installation) oder Upload zu Groq oder OpenAI | Ton wird zu ElevenLabs Scribe hochgeladen (kostenpflichtiger API-Schlüssel) | Auf Ihrem Mac transkribiert, Koreanisch eingeschlossen |
+| Szenenwechsel und Text im Bild | Nur zur Bildauswahl; Schnittzeiten und Folientext werden nicht ausgegeben | Nicht erkannt | Zeitpunkte der Schnitte und der Text jeder Folie |
 
-/watch ist für einen schnellen Blick darauf gedacht, worum es in einem Video geht. video-use bearbeitet Videos im Dialog: Schnitte, Farbe und Untertitel. video-lens ist für die Fragen gedacht, wann etwas geschieht, wie lange und auf welche Weise. Im Benchmark erzielte Opus mit /watch oder video-use im Mittel eine etwas höhere Punktzahl als mit video-lens, vor allem, weil das Modell den Clip zusätzlich zum Skill mit eigenem ffmpeg- und OpenCV-Code selbst vermaß, und es kostete mehr als doppelt so viel. Details: [Vergleich mit anderen Video-Skills](#vergleich-mit-anderen-video-skills).
+/watch ist für einen schnellen Blick darauf gedacht, worum es in einem Video geht. video-use bearbeitet Videos im Dialog: Schnitte, Farbe und Untertitel. video-lens ist für die Fragen gedacht, wann etwas geschieht, wie lange und auf welche Weise. Im Benchmark erreichte Opus mit /watch 0.3.2 im Mittel denselben Wert wie mit video-lens, hatte aber einen schlechteren schlechtesten Lauf, und mit video-use lag es etwas höher. Beide vermaßen den Clip meist zusätzlich zum Skill mit eigenem ffmpeg- und OpenCV-Code und kosteten etwa das 1,8- und 2,4-Fache. Details: [Vergleich mit anderen Video-Skills](#vergleich-mit-anderen-video-skills).
 
 Beispiel: eine 3 Sekunden lange Aufnahme einer Toast-Meldung, gerendert aus echtem CSS in Headless Chrome. video-lens maß 298 ms (Bereich 284 bis 313) und `cubic-bezier(0.22, 1, 0.36, 1)`. Im CSS standen 300 ms und dieselbe Kurve.
 
@@ -171,7 +171,7 @@ flowchart LR
 - Claude Sonnet 5.5 mit video-lens: Kosten 35 % niedriger, Zeit 58 % niedriger.
 - Grok 4.7 mit video-lens: Kosten 27 % niedriger, Zeit 35 % höher.
 
-Messzeitraum 2026-09-29 bis 2026-10-01. 9 Aufgaben × 3 Durchläufe = 27 Durchläufe pro Bedingung, ohne MCP-Server, ein Durchlauf nach dem anderen. Mittlere Punktzahl, Kosten, Zeit und Runden sind Mittelwerte über alle Durchläufe; der schlechteste Durchlauf ist die niedrigste einzelne Punktzahl.
+Messzeitraum 2026-09-29 bis 2026-10-03. 9 Aufgaben × 3 Durchläufe = 27 Durchläufe pro Bedingung, ohne MCP-Server, ein Durchlauf nach dem anderen. Mittlere Punktzahl, Kosten, Zeit und Runden sind Mittelwerte über alle Durchläufe; der schlechteste Durchlauf ist die niedrigste einzelne Punktzahl.
 
 - Claude Opus 5.5: ausgeführt in Claude Code, Effort-Stufe high. Die Kosten sind der API-äquivalente Wert `total_cost_usd`, den Claude Code meldet. Die Zeit ist die Laufzeit, die Claude Code meldet.
 - Claude Sonnet 5.5: ausgeführt in Claude Code, Effort-Stufe high. Die Kosten sind der API-äquivalente Wert `total_cost_usd`, den Claude Code meldet. Die Zeit ist die Laufzeit, die Claude Code meldet.
@@ -197,10 +197,10 @@ Claude Opus 5.5 mit jedem Video-Skill bei denselben 9 Aufgaben und Prompts, 27 D
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Modell allein | 0,949 | 0,167 | 21/27 | 0,859 $ | 420,2 s | 17,5 | 26/27 |
 | Mit video-lens | 0,956 | 0,800 | 15/27 | 0,663 $ | 265,1 s | 10,1 | 2/27 |
-| Mit /watch | 0,984 | 0,800 | 23/27 | 1,773 $ | 590,0 s | 34,7 | 24/27 |
+| Mit /watch | 0,956 | 0,467 | 22/27 | 1,198 $ | 505,0 s | 22,3 | 23/27 |
 | Mit video-use | 0,969 | 0,467 | 23/27 | 1,569 $ | 487,2 s | 22,1 | 27/27 |
 
-- /watch (claude-video 0.1.3) betrachtet bis zu 2 Einzelbilder pro Sekunde und schickt Sprache an die API von Groq oder OpenAI Whisper.
+- /watch (claude-video 0.3.2) wählt Bilder an Szenenwechseln, höchstens 100, und transkribiert ohne Untertitel mit WhisperX auf dem Mac oder der Whisper-API von Groq oder OpenAI. Diese Läufe nutzten Groq, den bereits eingerichteten Schlüssel.
 - video-use (browser-use/video-use b877063) ist zum Bearbeiten von Videos gebaut, nicht zum Vermessen. Es schickt Sprache an ElevenLabs Scribe und betrachtet Filmstreifen aus Einzelbildern. Diese Aufgaben prüfen nur, wie gut es ein Video erfasst.
 - Eigener Analysecode: Durchläufe, in denen Opus neben den Werkzeugen des Skills auch eigene ffmpeg-, OpenCV- oder whisper-Befehle schrieb und ausführte. Die meisten Durchläufe mit /watch und video-use taten das, und dorthin gingen ihre zusätzlichen Kosten und ihre zusätzliche Zeit. Mit video-lens reichten die Messungen des Skills meist aus.
 - Die Kosten umfassen nur, was Claude Code für das Modell meldet. Die Sprach-APIs, die /watch (Groq oder OpenAI) und video-use (ElevenLabs) aufrufen, werden über deren eigene Schlüssel abgerechnet und sind nicht enthalten.

@@ -37,15 +37,15 @@ Claude no puede ver videos. video-lens los mide fotograma a fotograma, le entreg
 
 ### Comparación con /watch y video-use
 
-| | /watch (claude-video 0.1.3) | video-use (browser-use) | video-lens |
+| | /watch (claude-video 0.3.2) | video-use (browser-use) | video-lens |
 |---|---|---|---|
-| Fotogramas que revisa | Como máximo 2 por segundo, 100 en total | 10 fotogramas por rango solicitado, de 320 px de ancho, cuando los pide | Todos los fotogramas |
+| Fotogramas que revisa | Elegidos en los cambios de escena (repartidos si no los hay), 100 como máximo, 512 px de ancho | 10 fotogramas por rango solicitado, de 320 px de ancho, cuando los pide | Todos los fotogramas |
 | Precisión temporal | Segundos enteros | Marcas de tiempo por palabra para el habla; fotogramas en los momentos que pide | Un fotograma (16.7 ms a 60 fps) |
 | Una animación de 300 ms | 0 o 1 fotogramas | Solo los fotogramas que muestrea; el movimiento no se mide | Inicio, duración, easing y CSS medidos |
-| Habla | El audio se sube a Groq u OpenAI Whisper, salvo que haya subtítulos en inglés | El audio se sube a ElevenLabs Scribe (clave de API de pago) | Se transcribe en tu Mac, también en coreano |
-| Cortes de escena y texto en pantalla | No se detectan | No se detectan | El momento de cada corte y el texto de cada diapositiva |
+| Habla | Primero subtítulos; si no hay, WhisperX en tu Mac (una instalación de 1,5 GB) o subida a Groq u OpenAI | El audio se sube a ElevenLabs Scribe (clave de API de pago) | Se transcribe en tu Mac, también en coreano |
+| Cortes de escena y texto en pantalla | Solo sirve para elegir fotogramas; no informa de los tiempos de corte ni del texto de las diapositivas | No se detectan | El momento de cada corte y el texto de cada diapositiva |
 
-/watch está pensado para ver rápidamente de qué trata un video. video-use edita videos conversando: cortes, color y subtítulos. video-lens sirve para saber cuándo ocurre algo, durante cuánto tiempo y cómo. En el benchmark, Opus con /watch o video-use obtuvo en promedio una puntuación un poco más alta que con video-lens, sobre todo porque, además de usar la skill, midió el clip por su cuenta con su propio código de ffmpeg y OpenCV, y costó más del doble. Detalles: [Frente a otras skills de video](#frente-a-otras-skills-de-video).
+/watch está pensado para ver rápidamente de qué trata un video. video-use edita videos conversando: cortes, color y subtítulos. video-lens sirve para saber cuándo ocurre algo, durante cuánto tiempo y cómo. En el benchmark, Opus con /watch 0.3.2 igualó la media de video-lens pero tuvo una peor ejecución más baja, y con video-use puntuó un poco más alto. Ambos midieron casi siempre el clip con su propio código de ffmpeg y OpenCV además de la skill, y costaron unas 1,8 y 2,4 veces más. Detalles: [Frente a otras skills de video](#frente-a-otras-skills-de-video).
 
 Ejemplo: una grabación de 3 segundos de un toast renderizado a partir de CSS real en Chrome headless. video-lens midió 298 ms (rango de 284 a 313) y `cubic-bezier(0.22, 1, 0.36, 1)`. El CSS indicaba 300 ms y la misma curva.
 
@@ -171,7 +171,7 @@ flowchart LR
 - Claude Sonnet 5.5 con video-lens: costo un 35 % menor, tiempo un 58 % menor.
 - Grok 4.7 con video-lens: costo un 27 % menor, tiempo un 35 % mayor.
 
-Medido del 2026-09-29 al 2026-10-01. 9 tareas × 3 ejecuciones = 27 ejecuciones por condición, sin servidores MCP, una ejecución a la vez. La puntuación media, el costo, el tiempo y los turnos son medias de todas las ejecuciones; la peor ejecución es la puntuación individual más baja.
+Medido del 2026-09-29 al 2026-10-03. 9 tareas × 3 ejecuciones = 27 ejecuciones por condición, sin servidores MCP, una ejecución a la vez. La puntuación media, el costo, el tiempo y los turnos son medias de todas las ejecuciones; la peor ejecución es la puntuación individual más baja.
 
 - Claude Opus 5.5: ejecutado en Claude Code, esfuerzo high. El costo es el `total_cost_usd`, equivalente a precios de API, que informa Claude Code. El tiempo es la duración de la ejecución que informa Claude Code.
 - Claude Sonnet 5.5: ejecutado en Claude Code, esfuerzo high. El costo es el `total_cost_usd`, equivalente a precios de API, que informa Claude Code. El tiempo es la duración de la ejecución que informa Claude Code.
@@ -197,10 +197,10 @@ Claude Opus 5.5 con cada skill de video en las mismas 9 tareas y con los mismos 
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Modelo por sí solo | 0.949 | 0.167 | 21/27 | 0.859 US$ | 420.2 s | 17.5 | 26/27 |
 | Con video-lens | 0.956 | 0.800 | 15/27 | 0.663 US$ | 265.1 s | 10.1 | 2/27 |
-| Con /watch | 0.984 | 0.800 | 23/27 | 1.773 US$ | 590.0 s | 34.7 | 24/27 |
+| Con /watch | 0.956 | 0.467 | 22/27 | 1.198 US$ | 505.0 s | 22.3 | 23/27 |
 | Con video-use | 0.969 | 0.467 | 23/27 | 1.569 US$ | 487.2 s | 22.1 | 27/27 |
 
-- /watch (claude-video 0.1.3) revisa hasta 2 fotogramas por segundo y envía el habla a la API de Groq o de OpenAI Whisper.
+- /watch (claude-video 0.3.2) elige fotogramas en los cambios de escena, 100 como máximo, y sin subtítulos transcribe con WhisperX en el Mac o con la API Whisper de Groq u OpenAI. Estas ejecuciones usaron Groq, la clave que ya estaba configurada.
 - video-use (browser-use/video-use b877063) está hecho para editar videos, no para medirlos. Envía el habla a ElevenLabs Scribe y revisa tiras de fotogramas. Estas tareas solo evalúan qué tan bien lee un video.
 - Código de análisis propio: ejecuciones en las que Opus, además de usar las herramientas de la skill, escribió y ejecutó sus propios comandos de ffmpeg, OpenCV o whisper. La mayoría de las ejecuciones con /watch y video-use lo hicieron, y ahí se fueron su costo y su tiempo adicionales. Con video-lens, las mediciones de la skill solían bastar.
 - El costo solo incluye lo que Claude Code informa para el modelo. Las API de voz a las que llaman /watch (Groq u OpenAI) y video-use (ElevenLabs) se facturan a sus propias claves y no están incluidas.

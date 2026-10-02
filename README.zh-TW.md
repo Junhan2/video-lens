@@ -36,15 +36,15 @@ Claude 沒辦法觀看影片。video-lens 逐格量測影片，先把數字和�
 
 ### 與 /watch 和 video-use 比較
 
-| | /watch (claude-video 0.1.3) | video-use (browser-use) | video-lens |
+| | /watch (claude-video 0.3.2) | video-use (browser-use) | video-lens |
 |---|---|---|---|
-| 看過的影格 | 每秒最多 2 個，總共 100 個 | 在它要求時，每個指定範圍 10 個影格，寬 320 px | 每一個影格 |
+| 看過的影格 | 在場景變化處挑選（沒有變化則平均挑），最多 100 格，寬 512 px | 在它要求時，每個指定範圍 10 個影格，寬 320 px | 每一個影格 |
 | 時間精度 | 整秒 | 語音有逐字的時間戳記；影格則取在它要求的時間點 | 一個影格（60 fps 下為 16.7 ms） |
 | 一段 300 ms 的動畫 | 0 或 1 個影格 | 只有它取樣到的影格；不量測動態 | 量測起始時間、持續時間、easing，並產生 CSS |
-| 語音 | 除非已有英文字幕，否則把音訊上傳到 Groq 或 OpenAI Whisper | 把音訊上傳到 ElevenLabs Scribe（需付費 API 金鑰） | 在你的 Mac 上轉寫，包括韓語 |
-| 場景切換與畫面文字 | 不偵測 | 不偵測 | 切換的時間點，以及每張投影片上的文字 |
+| 語音 | 優先用字幕；沒有則用 Mac 上的 WhisperX（需安裝 1.5 GB）或上傳到 Groq、OpenAI | 把音訊上傳到 ElevenLabs Scribe（需付費 API 金鑰） | 在你的 Mac 上轉寫，包括韓語 |
+| 場景切換與畫面文字 | 只用來挑影格；不提供切換時間與投影片文字 | 不偵測 | 切換的時間點，以及每張投影片上的文字 |
 
-/watch 適合快速了解一部影片大概在講什麼。video-use 透過對話來剪輯影片：剪接、調色和字幕。video-lens 則是用在想知道某件事何時發生、持續多久、怎麼發生的時候。在基準測試中，Opus 搭配 /watch 或 video-use 的平均分數比搭配 video-lens 略高一些，主要是因為它除了使用技能之外，還另外用自己寫的 ffmpeg 和 OpenCV 程式碼量測影片；而它的成本是搭配 video-lens 時的兩倍以上。詳見：[與其他影片技能比較](#與其他影片技能比較)。
+/watch 適合快速了解一部影片大概在講什麼。video-use 透過對話來剪輯影片：剪接、調色和字幕。video-lens 則是用在想知道某件事何時發生、持續多久、怎麼發生的時候。在基準測試中，Opus 用 /watch 0.3.2 時平均分數與 video-lens 相同，但最差一次較低；用 video-use 時平均分數略高。兩者大多在技能之外還用自己寫的 ffmpeg 和 OpenCV 程式碼直接量測影片，成本分別約為 1.8 倍和 2.4 倍。詳見：[與其他影片技能比較](#與其他影片技能比較)。
 
 範例：一段在 headless Chrome 中用真實 CSS 渲染出來的 3 秒 toast 通知錄影。video-lens 量測到 298 ms（範圍 284 至 313）和 `cubic-bezier(0.22, 1, 0.36, 1)`。CSS 裡寫的是 300 ms 和同一條曲線。
 
@@ -170,7 +170,7 @@ flowchart LR
 - Claude Sonnet 5.5 搭配 video-lens：成本降低 35%，時間降低 58%。
 - Grok 4.7 搭配 video-lens：成本降低 27%，時間增加 35%。
 
-量測期間 2026-09-29 至 2026-10-01。9 個任務 × 3 次 = 每種條件 27 次執行，不啟用 MCP 伺服器，一次只跑一個。平均分數、成本、時間與回合數是所有執行的平均值；最差一次是單次執行中最低的分數。
+量測期間 2026-09-29 至 2026-10-03。9 個任務 × 3 次 = 每種條件 27 次執行，不啟用 MCP 伺服器，一次只跑一個。平均分數、成本、時間與回合數是所有執行的平均值；最差一次是單次執行中最低的分數。
 
 - Claude Opus 5.5：在 Claude Code 中執行，effort 為 high。成本是 Claude Code 回報的 API 等值金額 `total_cost_usd`。時間是 Claude Code 回報的執行時間。
 - Claude Sonnet 5.5：在 Claude Code 中執行，effort 為 high。成本是 Claude Code 回報的 API 等值金額 `total_cost_usd`。時間是 Claude Code 回報的執行時間。
@@ -196,10 +196,10 @@ Claude Opus 5.5 分別搭配各個影片技能，執行相同的 9 個任務與�
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 只用模型 | 0.949 | 0.167 | 21/27 | US$0.859 | 420.2 s | 17.5 | 26/27 |
 | 搭配 video-lens | 0.956 | 0.800 | 15/27 | US$0.663 | 265.1 s | 10.1 | 2/27 |
-| 搭配 /watch | 0.984 | 0.800 | 23/27 | US$1.773 | 590.0 s | 34.7 | 24/27 |
+| 搭配 /watch | 0.956 | 0.467 | 22/27 | US$1.198 | 505.0 s | 22.3 | 23/27 |
 | 搭配 video-use | 0.969 | 0.467 | 23/27 | US$1.569 | 487.2 s | 22.1 | 27/27 |
 
-- /watch（claude-video 0.1.3）每秒最多看 2 個影格，並把語音送到 Groq 或 OpenAI Whisper API。
+- /watch（claude-video 0.3.2）在場景變化處最多挑 100 格，沒有字幕時用 Mac 上的 WhisperX 或 Groq、OpenAI 的 Whisper API 轉寫。這次量測用的是已設定好的 Groq 金鑰。
 - video-use（browser-use/video-use b877063）是為了剪輯影片而設計，不是為了量測。它把語音送到 ElevenLabs Scribe，並以影格膠卷條（filmstrip）的方式看畫面。這些任務只測試它讀懂影片的能力。
 - 自寫分析程式：除了技能本身的工具之外，Opus 還自己寫並執行 ffmpeg、OpenCV 或 whisper 指令的執行次數。大多數 /watch 和 video-use 的執行都這麼做了，多出來的成本和時間就是花在這裡。搭配 video-lens 時，技能的量測結果通常就已足夠。
 - 成本只計算 Claude Code 為模型回報的金額。/watch（Groq 或 OpenAI）與 video-use（ElevenLabs）呼叫的語音 API，是用它們各自的金鑰計費，不包含在內。
