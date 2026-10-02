@@ -96,7 +96,7 @@ In a terminal:
 
 ```
 brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install   # builds the on-screen text and speech helpers
 ```
 
@@ -106,7 +106,7 @@ xcode-select --install   # builds the on-screen text and speech helpers
 |---|---|---|
 | Required | macOS | Tested on macOS 26 with Apple Silicon. |
 | Required | ffmpeg | |
-| Required | Python 3 with opencv-python and numpy | Tested with Python 3.13. A missing package prints the exact pip command. |
+| Required | Python 3.10 or newer with opencv-python and numpy | Tested with Python 3.13, OpenCV 4.12 and numpy 2.2. If pip refuses with `externally-managed-environment` (Homebrew's Python), add `--user --break-system-packages`. A missing package or an older Python prints the exact fix. |
 | Required | Xcode Command Line Tools | Builds the on-screen text and speech helpers. |
 | Optional | macOS 26 | On-device speech recognition (Apple SpeechTranscriber). |
 | Optional | whisper-cpp and a ggml model | For example `ggml-large-v3-turbo-q5_0.bin` in `~/.local/share/whisper/`, to transcribe with whisper. |

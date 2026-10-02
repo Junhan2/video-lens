@@ -235,6 +235,7 @@
   <section class="wrap section" id="cases" aria-labelledby="cases-title">
     <h2 id="cases-title" data-i18n="cases.title">Use case: rebuilding viral showreels</h2>
     <p class="section-lede" id="cases-intro">In the launch week of Claude Opus 5.5, a one-line prompt for a 15-second motion graphics showreel spread across X. We took 3 of the most-shared reels, one of them GPT-6 Astra's answer to the same prompt, and gave each to Claude Opus 5.5 in Claude Code with video-lens and a single prompt: work out how the video moves and rebuild it as one HTML page. Below is what came back, rendered frame by frame and left as it was, scored against its original.</p>
+    <p class="section-lede" id="cases-verdict"><strong>What video-lens changed here:</strong> not how close the rebuilds came. Without it, the same model's rebuilds looked at least as close in 3 of 3 reels (looks alike 0.834 on average, against 0.802 with it). With it, total cost was 36% lower, and 2 of 3 were faster. One run per reel: examples, not a measurement.</p>
     <div class="case-grid" id="cases-list">
       <article class="card case">
         <h3>@stephanlivera · made with Claude Opus 5.5</h3>
@@ -245,6 +246,7 @@
           <li><strong>Cuts:</strong> 9 of the original's 9 hard cuts are in the rebuild, within 0.1 s</li>
           <li><strong>Words:</strong> 36 of the 39 words on screen in the original are in the rebuild</li>
           <li><strong>Run:</strong> 45 min, $9.49 at API prices, no human edits</li>
+          <li><strong>Same model, no video-lens:</strong> looks alike 0.821 · cuts 9/9 · words 35/39 · 33 min, $11.43</li>
         </ul>
         <p class="note">Still off: the motion blur and RGB split are imitated with blur filters, the 3D dot shapes have no lines between the dots, and the width wobble on CLAUDE is weaker than in the original. The page asks for SF Pro and JetBrains Mono, so a browser without them shows other fonts; the video is the reference.</p>
         <p class="case-link"><a href="./cases/stephanlivera.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
@@ -258,6 +260,7 @@
           <li><strong>Cuts:</strong> 5 of the original's 5 hard cuts are in the rebuild, within 0.1 s</li>
           <li><strong>Words:</strong> 22 of the 29 words on screen in the original are in the rebuild</li>
           <li><strong>Run:</strong> 29 min, $6.21 at API prices, no human edits</li>
+          <li><strong>Same model, no video-lens:</strong> looks alike 0.835 · cuts 5/5 · words 23/29 · 37 min, $9.30</li>
         </ul>
         <p class="note">Still off: the dot sphere on cream is flatter than the original's spiky one, the red square outline above the blue floor at 7.35 s is missing, and film grain and motion blur were left out. The fonts are stand-ins that ship with macOS. Most of the missed words are pieces of text bent into a circle, which the OCR reads in fragments.</p>
         <p class="case-link"><a href="./cases/ajith.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
@@ -271,6 +274,7 @@
           <li><strong>Cuts:</strong> 1 of the original's 1 hard cuts are in the rebuild, within 0.1 s</li>
           <li><strong>Words:</strong> 48 of the 48 words on screen in the original are in the rebuild</li>
           <li><strong>Run:</strong> 14 min, $3.02 at API prices, no human edits</li>
+          <li><strong>Same model, no video-lens:</strong> looks alike 0.846 · cuts 1/1 · words 48/48 · 41 min, $8.30</li>
         </ul>
         <p class="note">Original: GPT-6 Astra's half of a side-by-side post, cut at the frame where its reel starts (16.8 s). Still off: the chrome 3D objects (knot, ribbon, figure eight, star) are flat SVG and CSS stand-ins without the reflections, and the headline font differs. This reel changes scenes mostly with wipes, which the hard-cut count does not include; by the run's own measurement, 6 of its 7 transitions land on the same frame as the original's and one is a frame late.</p>
         <p class="case-link"><a href="./cases/astra.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
@@ -282,6 +286,7 @@
         <li data-i18n="cases.scoring_look"><strong>Looks alike</strong> is SSIM, a standard image similarity score, between the original and the rebuild at the same moment, 10 times a second (1 = identical). Two different reels from the same trend give the floor shown next to it.</li>
         <li data-i18n="cases.scoring_cuts"><strong>Cuts</strong> are found by ffmpeg's scene detector in both clips. A cut counts when the rebuild cuts within 0.1 s of the original.</li>
         <li data-i18n="cases.scoring_words"><strong>Words</strong> are read by the video-lens OCR in both clips, counting only dictionary words so misreadings drop out.</li>
+        <li data-i18n="cases.scoring_alone"><strong>Same model, no video-lens</strong> is the same prompt without the skill: no skills loaded, video-lens hidden on disk, and a working folder where the other rebuilds cannot be seen. The model wrote its own frame extraction and rendering. Its final page is rendered and scored the same way.</li>
         <li data-i18n="cases.scoring_originals">The originals stay on X: this page links to them and shows only the rebuilds, which are code Claude wrote. Likes and views are from <a href="https://www.revid.ai/claude-motion-graphics">Revid's gallery of launch-week videos</a> on September 28, 2026. Scripts: <a href="https://github.com/Junhan2/video-lens/tree/main/bench/cases">bench/cases</a>.</li>
       </ul>
     </div>
@@ -303,7 +308,7 @@
       <div class="command">
         <p data-i18n="install.step_deps">In a terminal:</p>
         <pre id="cmd-deps">brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install</pre>
         <button aria-label="Copy the dependency install commands" class="copy-button" type="button" data-copy="cmd-deps" data-i18n="install.copy" data-i18n-aria-label="install.copy_deps_aria">Copy</button>
       </div>
@@ -315,7 +320,7 @@ xcode-select --install</pre>
         <ul class="list">
           <li data-i18n="install.req_macos">macOS. Tested on macOS 26 with Apple Silicon.</li>
           <li data-i18n="install.req_ffmpeg">ffmpeg.</li>
-          <li data-i18n="install.req_python">Python 3 with opencv-python and numpy. Tested with Python 3.13. If a package is missing, the skill prints the exact pip command.</li>
+          <li data-i18n="install.req_python">Python 3.10 or newer with opencv-python and numpy. Tested with Python 3.13, OpenCV 4.12 and numpy 2.2. If pip refuses with <code>externally-managed-environment</code> (Homebrew's Python), add <code>--user --break-system-packages</code>. A missing package or an older Python prints the exact fix.</li>
           <li data-i18n="install.req_xcode">Xcode Command Line Tools, to build the on-screen text and speech helpers.</li>
         </ul>
       </div>
@@ -416,7 +421,7 @@ xcode-select --install</pre>
 
 <footer class="site-footer">
   <div class="wrap">
-    <span id="footer-version" data-version="1.1.0">video-lens 1.1.0 · MIT License</span>
+    <span id="footer-version" data-version="1.1.1">video-lens 1.1.1 · MIT License</span>
     <a href="https://github.com/Junhan2/video-lens" data-i18n="footer.github">GitHub</a>
     <a href="https://github.com/Junhan2/video-lens/blob/main/docs/BENCHMARK.md" data-i18n="footer.benchmark">Benchmark method</a>
     <a href="https://github.com/Junhan2/video-lens/blob/main/CHANGELOG.md" data-i18n="footer.changelog">Changelog</a>

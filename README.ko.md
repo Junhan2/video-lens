@@ -96,7 +96,7 @@ Claude Code에서:
 
 ```
 brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install   # 화면 글자와 음성 인식 보조 프로그램을 빌드합니다
 ```
 
@@ -106,7 +106,7 @@ xcode-select --install   # 화면 글자와 음성 인식 보조 프로그램을
 |---|---|---|
 | 필수 | macOS | macOS 26, Apple Silicon에서 시험했습니다. |
 | 필수 | ffmpeg | |
-| 필수 | opencv-python과 numpy가 설치된 Python 3 | Python 3.13에서 시험했습니다. 패키지가 없으면 실행할 pip 명령을 그대로 알려 줍니다. |
+| 필수 | opencv-python과 numpy가 설치된 Python 3.10 이상 | Python 3.13, OpenCV 4.12, numpy 2.2에서 시험했습니다. pip가 `externally-managed-environment`로 거부하면(Homebrew의 Python) `--user --break-system-packages`를 붙이세요. 패키지가 없거나 Python이 오래되면 고칠 명령을 그대로 알려 줍니다. |
 | 필수 | Xcode Command Line Tools | 화면 글자와 음성 인식 보조 프로그램을 빌드합니다. |
 | 선택 | macOS 26 | 기기 내 음성 인식(Apple SpeechTranscriber). |
 | 선택 | whisper-cpp와 ggml 모델 | 예: `~/.local/share/whisper/`에 둔 `ggml-large-v3-turbo-q5_0.bin`. whisper로 받아쓸 때 씁니다. |

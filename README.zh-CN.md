@@ -95,7 +95,7 @@ Claude 无法观看视频。video-lens 逐帧测量视频，先把数字和文�
 
 ```
 brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install   # 用于构建画面文字和语音识别的辅助程序
 ```
 
@@ -105,7 +105,7 @@ xcode-select --install   # 用于构建画面文字和语音识别的辅助程�
 |---|---|---|
 | 必需 | macOS | 已在搭载 Apple Silicon 的 macOS 26 上测试。 |
 | 必需 | ffmpeg | |
-| 必需 | Python 3，以及 opencv-python 和 numpy | 已用 Python 3.13 测试。缺少某个包时，会打印出确切的 pip 命令。 |
+| 必需 | Python 3.10 或更新版本，以及 opencv-python 和 numpy | 已用 Python 3.13、OpenCV 4.12 和 numpy 2.2 测试。如果 pip 以 `externally-managed-environment` 拒绝安装（Homebrew 的 Python），加上 `--user --break-system-packages`。缺少包或 Python 版本过旧时，会打印出确切的修复方法。 |
 | 必需 | Xcode Command Line Tools | 用于构建画面文字和语音识别的辅助程序。 |
 | 可选 | macOS 26 | 设备端语音识别（Apple SpeechTranscriber）。 |
 | 可选 | whisper-cpp 和一个 ggml 模型 | 例如把 `ggml-large-v3-turbo-q5_0.bin` 放在 `~/.local/share/whisper/` 中，用于以 whisper 转写。 |

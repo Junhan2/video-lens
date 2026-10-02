@@ -125,8 +125,8 @@ Tell the user where both files are, and copy them where the user asks (`digest.m
 
 ## 6. Privacy
 All processing is local (ffmpeg, OpenCV, macOS Vision, macOS on-device speech, whisper.cpp).
-Do not use /watch (it uploads audio to Groq) or the Qwen api for the user's media. Never send
-media to Chinese providers. Speech order with `--asr auto`: subtitle stream > sidecar .srt/.vtt >
+Keep the user's media on the Mac: do not hand it to another tool or service that uploads it.
+Speech order with `--asr auto`: subtitle stream > sidecar .srt/.vtt >
 Apple SpeechTranscriber (on device) > whisper.cpp large-v3-turbo (installed locally) > none.
 If the report says no transcript, rerun with `--asr whisper`; never upload audio instead.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """After a run: re-render its final recreation.html, score it, and make the web files.
 
-  python3 finish_case.py NAME
+  python3 finish_case.py NAME        (NAME-base for the run without video-lens: scored the same way, no web files)
 
 The final page is rendered again here (declared.mjs, 1920x1080, 60 fps) so the score belongs to the page that is
 published, not to whatever render the run made before its last edit. The render length and the floor (another
@@ -42,7 +42,8 @@ def score(original, recreation, out_json):
 
 
 def main(name):
-    source = next(row for row in csv.DictReader((ROOT / "sources.tsv").open(), delimiter="\t") if row["name"] == name)
+    reel = name.removesuffix("-base")
+    source = next(row for row in csv.DictReader((ROOT / "sources.tsv").open(), delimiter="\t") if row["name"] == reel)
     floor_name, seconds = source["floor"], source["seconds"]
     case = ROOT / "runs" / name
     page = case / "work" / "recreation.html"
@@ -55,11 +56,13 @@ def main(name):
     run("node", DECLARED, final / "recreation.html", "--out", final / "decl", "--viewport", "1920x1080",
         "--render", "60", seconds)
     render = final / "decl" / "render.mp4"
-    original = ROOT / "src" / f"{name}.mp4"
+    original = ROOT / "src" / f"{reel}.mp4"
     scores = score(original, render, final / "score.json")
-    floor_dir = ROOT / "floor" / f"{name}-vs-{floor_name}"
-    floor_dir.mkdir(parents=True, exist_ok=True)
-    floor = score(original, ROOT / "src" / f"{floor_name}.mp4", floor_dir / "score.json")
+    floor_json = ROOT / "floor" / f"{reel}-vs-{floor_name}" / "score.json"   # shared by a reel's two runs
+    if not floor_json.exists():
+        floor_json.parent.mkdir(parents=True, exist_ok=True)
+        score(original, ROOT / "src" / f"{floor_name}.mp4", floor_json)
+    floor = json.loads(floor_json.read_text())
     wall = json.loads((case / "wall.json").read_text())["wall_s"]
     summary = {
         "name": name, "look": scores["look_mean"], "look_floor": floor["look_mean"],
@@ -70,6 +73,12 @@ def main(name):
         "page_bytes": page.stat().st_size, **run_stats(case / "log.jsonl"),
     }
     (case / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1) + "\n")
+    run("ffmpeg", "-v", "error", "-y", "-i", original, "-i", render, "-filter_complex",
+        "[0:v]scale=960:540[a];[1:v]scale=960:540[b];[a][b]hstack", "-c:v", "libx264", "-crf", "23", "-an",
+        case / "side_by_side.mp4")
+    print(json.dumps({k: v for k, v in summary.items() if k != "words_missing"}))
+    if name != reel:
+        return   # the run without video-lens is published as numbers only
     web = ROOT / "web"
     web.mkdir(exist_ok=True)
     run("ffmpeg", "-v", "error", "-y", "-i", render, "-vf", "scale=1280:720", "-c:v", "libx264", "-crf", "26",
@@ -77,10 +86,6 @@ def main(name):
     run("ffmpeg", "-v", "error", "-y", "-sseof", "-0.6", "-i", render, "-frames:v", "1", "-vf", "scale=1280:720",
         "-q:v", "4", web / f"{name}.jpg")
     shutil.copy(page, web / f"{name}.html")
-    run("ffmpeg", "-v", "error", "-y", "-i", original, "-i", render, "-filter_complex",
-        "[0:v]scale=960:540[a];[1:v]scale=960:540[b];[a][b]hstack", "-c:v", "libx264", "-crf", "23", "-an",
-        case / "side_by_side.mp4")
-    print(json.dumps({k: v for k, v in summary.items() if k != "words_missing"}))
 
 
 if __name__ == "__main__":

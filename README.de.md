@@ -96,7 +96,7 @@ Im Terminal:
 
 ```
 brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install   # baut die Hilfsprogramme für Text im Bild und Sprache
 ```
 
@@ -106,7 +106,7 @@ xcode-select --install   # baut die Hilfsprogramme für Text im Bild und Sprache
 |---|---|---|
 | Erforderlich | macOS | Getestet unter macOS 26 mit Apple Silicon. |
 | Erforderlich | ffmpeg | |
-| Erforderlich | Python 3 mit opencv-python und numpy | Getestet mit Python 3.13. Fehlt ein Paket, wird der genaue pip-Befehl ausgegeben. |
+| Erforderlich | Python 3.10 oder neuer mit opencv-python und numpy | Getestet mit Python 3.13, OpenCV 4.12 und numpy 2.2. Lehnt pip mit `externally-managed-environment` ab (Python von Homebrew), hängen Sie `--user --break-system-packages` an. Fehlt ein Paket oder ist Python zu alt, wird die genaue Lösung ausgegeben. |
 | Erforderlich | Xcode Command Line Tools | Baut die Hilfsprogramme für Text im Bild und Sprache. |
 | Optional | macOS 26 | Spracherkennung auf dem Gerät (Apple SpeechTranscriber). |
 | Optional | whisper-cpp und ein ggml-Modell | Zum Beispiel `ggml-large-v3-turbo-q5_0.bin` in `~/.local/share/whisper/`, um mit whisper zu transkribieren. |

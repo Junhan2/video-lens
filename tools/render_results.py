@@ -324,10 +324,14 @@ def cases_content(cases, labels):
     cards = []
     for case in cases["cases"]:
         cost = labels.usd(case["cost_usd"], 2)
+        alone = case["alone"]
         scores = [labels.t("cases.look", look=labels.score(case["look"]), floor=labels.score(case["look_floor"])),
                   labels.t("cases.cuts", matched=case["cuts_matched"], total=case["cuts_original"]),
                   labels.t("cases.words", found=case["words_found"], total=case["words_original"]),
-                  labels.t("cases.run", minutes=case["minutes"], cost=cost)]
+                  labels.t("cases.run", minutes=case["minutes"], cost=cost),
+                  labels.t("cases.alone", look=labels.score(alone["look"]), matched=alone["cuts_matched"],
+                           total=alone["cuts_original"], found=alone["words_found"], words=alone["words_original"],
+                           minutes=alone["minutes"], cost=labels.usd(alone["cost_usd"], 2))]
         video_label = html.escape(labels.t("cases.video_label", author=case["author"]))
         original = labels.t("cases.original", author=case["author"], url=case["url"], likes=case["likes"],
                             views=case["views"])
@@ -341,7 +345,16 @@ def cases_content(cases, labels):
                   f'  <p class="note">{rich_html(labels.t("cases.note." + case["id"]))}</p>',
                   f'  <p class="case-link">{rich_html(labels.t("cases.page_link", page=case["page"]))}</p>',
                   "</article>"]
-    return {"cases-intro": labels.t("cases.intro", count=len(cases["cases"]), model=cases["model"]), "cases-list": cards,
+    reels = cases["cases"]
+    total = lambda pick: sum(pick(case) for case in reels)
+    verdict = labels.t("cases.verdict", count=len(reels),
+                       closer=sum(case["alone"]["look"] >= case["look"] for case in reels),
+                       faster=sum(case["minutes"] < case["alone"]["minutes"] for case in reels),
+                       alone=f"{total(lambda case: case['alone']['look']) / len(reels):.3f}".replace(".", labels.decimal),
+                       lens=f"{total(lambda case: case['look']) / len(reels):.3f}".replace(".", labels.decimal),
+                       cost=labels.change(total(lambda case: case["alone"]["cost_usd"]), total(lambda case: case["cost_usd"])))
+    return {"cases-intro": labels.t("cases.intro", count=len(reels), model=cases["model"]), "cases-verdict": verdict,
+            "cases-list": cards,
             "cases-prompt": cases["prompt"]}
 
 

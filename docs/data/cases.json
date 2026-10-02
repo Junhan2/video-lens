@@ -12,14 +12,23 @@
    "video": "assets/cases/stephanlivera.mp4",
    "poster": "assets/cases/stephanlivera.jpg",
    "page": "./cases/stephanlivera.html",
-   "look": 0.786,
    "look_floor": 0.344,
+   "look": 0.786,
    "cuts_matched": 9,
    "cuts_original": 9,
    "words_found": 36,
    "words_original": 39,
    "minutes": 45,
-   "cost_usd": 9.49
+   "cost_usd": 9.49,
+   "alone": {
+    "look": 0.821,
+    "cuts_matched": 9,
+    "cuts_original": 9,
+    "words_found": 35,
+    "words_original": 39,
+    "minutes": 33,
+    "cost_usd": 11.43
+   }
   },
   {
    "id": "ajith",
@@ -31,14 +40,23 @@
    "video": "assets/cases/ajith.mp4",
    "poster": "assets/cases/ajith.jpg",
    "page": "./cases/ajith.html",
-   "look": 0.81,
    "look_floor": 0.344,
+   "look": 0.81,
    "cuts_matched": 5,
    "cuts_original": 5,
    "words_found": 22,
    "words_original": 29,
    "minutes": 29,
-   "cost_usd": 6.21
+   "cost_usd": 6.21,
+   "alone": {
+    "look": 0.835,
+    "cuts_matched": 5,
+    "cuts_original": 5,
+    "words_found": 23,
+    "words_original": 29,
+    "minutes": 37,
+    "cost_usd": 9.3
+   }
   },
   {
    "id": "astra",
@@ -50,14 +68,23 @@
    "video": "assets/cases/astra.mp4",
    "poster": "assets/cases/astra.jpg",
    "page": "./cases/astra.html",
-   "look": 0.809,
    "look_floor": 0.258,
+   "look": 0.809,
    "cuts_matched": 1,
    "cuts_original": 1,
    "words_found": 48,
    "words_original": 48,
    "minutes": 14,
-   "cost_usd": 3.02
+   "cost_usd": 3.02,
+   "alone": {
+    "look": 0.846,
+    "cuts_matched": 1,
+    "cuts_original": 1,
+    "words_found": 48,
+    "words_original": 48,
+    "minutes": 41,
+    "cost_usd": 8.3
+   }
   }
  ]
 }

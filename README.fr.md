@@ -96,7 +96,7 @@ Dans un terminal :
 
 ```
 brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install   # compile les utilitaires de texte à l'écran et de reconnaissance vocale
 ```
 
@@ -106,7 +106,7 @@ xcode-select --install   # compile les utilitaires de texte à l'écran et de re
 |---|---|---|
 | Requis | macOS | Testé sur macOS 26 avec Apple Silicon. |
 | Requis | ffmpeg | |
-| Requis | Python 3 avec opencv-python et numpy | Testé avec Python 3.13. S'il manque un paquet, la commande pip exacte s'affiche. |
+| Requis | Python 3.10 ou plus récent avec opencv-python et numpy | Testé avec Python 3.13, OpenCV 4.12 et numpy 2.2. Si pip refuse avec `externally-managed-environment` (le Python de Homebrew), ajoutez `--user --break-system-packages`. S'il manque un paquet ou si Python est trop ancien, la correction exacte s'affiche. |
 | Requis | Xcode Command Line Tools | Compile les utilitaires de texte à l'écran et de reconnaissance vocale. |
 | Facultatif | macOS 26 | Reconnaissance vocale sur l'appareil (Apple SpeechTranscriber). |
 | Facultatif | whisper-cpp et un modèle ggml | Par exemple `ggml-large-v3-turbo-q5_0.bin` dans `~/.local/share/whisper/`, pour transcrire avec whisper. |

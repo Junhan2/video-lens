@@ -1,6 +1,6 @@
 {
   "name": "video-lens",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Local video analysis for Claude Code on macOS: frame-accurate UI motion (duration, easing, stagger, CSS), scenes and keyframes, on-request scene digests with captures, Korean and English on-screen text, on-device speech transcripts and audio sync. Nothing is uploaded.",
   "author": {
     "name": "Junhan2",

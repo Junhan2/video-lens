@@ -96,7 +96,7 @@ Claude Code で：
 
 ```
 brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install   # 画面上のテキスト認識と音声認識のヘルパーをビルドします
 ```
 
@@ -106,7 +106,7 @@ xcode-select --install   # 画面上のテキスト認識と音声認識のヘ�
 |---|---|---|
 | 必須 | macOS | macOS 26（Apple Silicon）で動作を確認しています。 |
 | 必須 | ffmpeg | |
-| 必須 | opencv-python と numpy を入れた Python 3 | Python 3.13 で動作を確認しています。パッケージが足りない場合は、実行すべき pip コマンドがそのまま表示されます。 |
+| 必須 | opencv-python と numpy を入れた Python 3.10 以降 | Python 3.13、OpenCV 4.12、numpy 2.2 で動作を確認しています。pip が `externally-managed-environment` で拒否する場合(Homebrew の Python)は `--user --break-system-packages` を付けてください。パッケージが足りないときや Python が古いときは、直し方がそのまま表示されます。 |
 | 必須 | Xcode Command Line Tools | 画面上のテキスト認識と音声認識のヘルパーをビルドします。 |
 | 任意 | macOS 26 | オンデバイス音声認識（Apple SpeechTranscriber）。 |
 | 任意 | whisper-cpp と ggml モデル | 例：`~/.local/share/whisper/` に置いた `ggml-large-v3-turbo-q5_0.bin`。whisper で書き起こす場合に使います。 |

@@ -14,17 +14,19 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 DOCS = HERE.parent.parent / "docs"
 MODEL = "Claude Opus 5.5"
+SCORES = ("look", "cuts_matched", "cuts_original", "words_found", "words_original", "minutes", "cost_usd")
 
 
 def case_entry(source):
     name = source["name"]
     summary = json.loads((HERE / "runs" / name / "summary.json").read_text())
+    alone = json.loads((HERE / "runs" / f"{name}-base" / "summary.json").read_text())
     return {
         "id": name, "author": source["author"], "url": source["url"], "made_with": source["made_with"],
         "likes": source["likes"], "views": source["views"],
         "video": f"assets/cases/{name}.mp4", "poster": f"assets/cases/{name}.jpg", "page": f"./cases/{name}.html",
-        **{key: summary[key] for key in ("look", "look_floor", "cuts_matched", "cuts_original", "words_found",
-                                         "words_original", "minutes", "cost_usd")},
+        "look_floor": summary["look_floor"], **{key: summary[key] for key in SCORES},
+        "alone": {key: alone[key] for key in SCORES},   # the same model and prompt without video-lens
     }
 
 

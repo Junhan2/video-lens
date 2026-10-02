@@ -128,6 +128,15 @@ function fillCases() {
   const { cases, i18n } = state;
   const fmt = i18n.format;
   setRich('cases-intro', 'cases.intro', { count: fmt.integer(cases.cases.length), model: cases.model });
+  const reels = cases.cases;
+  const sum = (pick) => reels.reduce((total, item) => total + pick(item), 0);
+  setRich('cases-verdict', 'cases.verdict', {
+    count: fmt.integer(reels.length),
+    closer: fmt.integer(reels.filter((item) => item.alone.look >= item.look).length),
+    faster: fmt.integer(reels.filter((item) => item.minutes < item.alone.minutes).length),
+    alone: fmt.score(sum((item) => item.alone.look) / reels.length), lens: fmt.score(sum((item) => item.look) / reels.length),
+    cost: describeChange(i18n, sum((item) => item.alone.cost_usd), sum((item) => item.cost_usd)),
+  });
   const list = document.getElementById('cases-list');
   // Video elements survive a language switch, so a playing rebuild keeps playing.
   const videos = new Map([...list.querySelectorAll('video[data-case]')].map((video) => [video.dataset.case, video]));
@@ -156,6 +165,12 @@ function fillCases() {
     i18n.rich(add('li', scores), 'cases.cuts', { matched: fmt.integer(item.cuts_matched), total: fmt.integer(item.cuts_original) });
     i18n.rich(add('li', scores), 'cases.words', { found: fmt.integer(item.words_found), total: fmt.integer(item.words_original) });
     i18n.rich(add('li', scores), 'cases.run', { minutes: fmt.integer(item.minutes), cost: fmt.usd(item.cost_usd) });
+    const { alone } = item;
+    i18n.rich(add('li', scores), 'cases.alone', {
+      look: fmt.score(alone.look), matched: fmt.integer(alone.cuts_matched), total: fmt.integer(alone.cuts_original),
+      found: fmt.integer(alone.words_found), words: fmt.integer(alone.words_original),
+      minutes: fmt.integer(alone.minutes), cost: fmt.usd(alone.cost_usd),
+    });
     i18n.rich(add('p', card, 'note'), `cases.note.${item.id}`);
     i18n.rich(add('p', card, 'case-link'), 'cases.page_link', { page: item.page });
   });

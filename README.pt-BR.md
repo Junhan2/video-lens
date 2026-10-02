@@ -96,7 +96,7 @@ No terminal:
 
 ```
 brew install ffmpeg
-pip3 install opencv-python numpy
+python3 -m pip install opencv-python numpy
 xcode-select --install   # compila os auxiliares de texto na tela e de fala
 ```
 
@@ -106,7 +106,7 @@ xcode-select --install   # compila os auxiliares de texto na tela e de fala
 |---|---|---|
 | Obrigatório | macOS | Testado no macOS 26 com Apple Silicon. |
 | Obrigatório | ffmpeg | |
-| Obrigatório | Python 3 com opencv-python e numpy | Testado com Python 3.13. Se faltar algum pacote, aparece o comando pip exato. |
+| Obrigatório | Python 3.10 ou mais recente com opencv-python e numpy | Testado com Python 3.13, OpenCV 4.12 e numpy 2.2. Se o pip recusar com `externally-managed-environment` (o Python do Homebrew), acrescente `--user --break-system-packages`. Se faltar um pacote ou o Python for antigo, aparece a correção exata. |
 | Obrigatório | Xcode Command Line Tools | Compila os auxiliares de texto na tela e de fala. |
 | Opcional | macOS 26 | Reconhecimento de fala no dispositivo (Apple SpeechTranscriber). |
 | Opcional | whisper-cpp e um modelo ggml | Por exemplo `ggml-large-v3-turbo-q5_0.bin` em `~/.local/share/whisper/`, para transcrever com o whisper. |

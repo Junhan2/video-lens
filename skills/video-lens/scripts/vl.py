@@ -8,6 +8,7 @@ import importlib
 import importlib.util
 import json
 import sys
+import sysconfig
 import tempfile
 import traceback
 import warnings
@@ -16,7 +17,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from vl.errors import EXIT_DEPENDENCY  # noqa: E402  (dependency-free, so it loads before the check below)
+from vl.errors import EXIT_DEPENDENCY  # noqa: E402  (dependency-free, so it loads before the checks below)
+
+MIN_PYTHON = (3, 10)
+if sys.version_info < MIN_PYTHON:
+    print(f"video-lens: needs Python {'.'.join(map(str, MIN_PYTHON))} or newer, and {sys.executable} is "
+          f"{sys.version.split()[0]}. Install a newer one (for example `brew install python`) and run again.",
+          file=sys.stderr)
+    sys.exit(EXIT_DEPENDENCY)
 
 REQUIRED_MODULES = {"numpy": "numpy", "cv2": "opencv-python"}   # import name -> pip package
 
@@ -26,8 +34,11 @@ def exit_if_packages_missing():
     missing = [package for module, package in REQUIRED_MODULES.items() if importlib.util.find_spec(module) is None]
     if not missing:
         return
+    # A Python that Homebrew manages refuses plain pip installs (PEP 668); --user keeps the packages out of its files.
+    is_managed = Path(sysconfig.get_path("stdlib"), "EXTERNALLY-MANAGED").exists()
+    flags = " --user --break-system-packages" if is_managed else ""
     print(f"video-lens: missing Python packages: {', '.join(missing)}. "
-          f"Install them: {sys.executable} -m pip install {' '.join(missing)}", file=sys.stderr)
+          f"Install them: {sys.executable} -m pip install{flags} {' '.join(missing)}", file=sys.stderr)
     sys.exit(EXIT_DEPENDENCY)
 
 
