@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 bench/arms/
+bench/cases/src
+bench/cases/runs
+bench/cases/web
+bench/cases/floor

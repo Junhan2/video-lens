@@ -32,6 +32,7 @@ TEXT_ELEMENT = re.compile(r'(<([a-zA-Z][\w-]*)\b[^>]*\sdata-i18n="([^"]+)"[^>]*>
 ATTRIBUTE_TAG = re.compile(r'<[a-zA-Z][\w-]*\b[^>]*\sdata-i18n-(aria-label|content)="([^"]+)"[^>]*>')
 HREFLANG_BLOCK = re.compile(r"(<!-- hreflang:start -->).*?(<!-- hreflang:end -->)", re.S)
 CANONICAL = re.compile(r'<link rel="canonical" href="([^"]+)">')
+SAFE_HREF = re.compile(r"^(https://|#|\.{0,2}/|[\w-]+\.(md|html)$)")   # isSafeHref in docs/assets/i18n.js
 JS_KEY = re.compile(r"""['"]([a-z_]+(?:\.[a-z0-9_]+)+)['"]""")
 
 
@@ -62,7 +63,10 @@ def rich_html(text):
             out.append(f"<strong>{html.escape(part[2:-2], quote=False)}</strong>")
         elif part.startswith("["):
             label, href = re.match(r"^\[([^\]]+)\]\(([^)\s]+)\)$", part).groups()
-            out.append(f'<a href="{html.escape(href)}">{html.escape(label, quote=False)}</a>')
+            if SAFE_HREF.match(href):
+                out.append(f'<a href="{html.escape(href)}">{html.escape(label, quote=False)}</a>')
+            else:
+                out.append(html.escape(label, quote=False))
         else:
             out.append(html.escape(part, quote=False))
     return "".join(out)

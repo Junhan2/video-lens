@@ -1,0 +1,63 @@
+{
+ "model": "Claude Opus 5.5",
+ "prompt": "/video-lens clip.mp4 in this folder is a 15-second motion-graphics showreel posted on X. Reverse-engineer it and rebuild it as one self-contained file, recreation.html (a 1920x1080 page, no audio), that plays the same video: the same shots in the same order at the same times, with the same layout, colors, text and motion (delays, durations, easing). So that every frame can be rendered exactly, animate only with CSS animations or the Web Animations API, all of them starting at page load (page time 0 = video time 0); no requestAnimationFrame, timers, canvas, video, or external files, fonts or libraries (use installed system fonts close to the original). When it is built, render it with the skill's declared.mjs (--viewport 1920x1080 --render 60 15.06) and copy the render to recreation.mp4 in this folder, compare it with the original using the skill, and fix the biggest differences, at most two fix rounds. Look at as many sheets and frames as the rebuild needs; nobody will answer questions, so do not ask. Finish with a table of the shots (start, end, what is on screen) for the original and for your recreation.",
+ "cases": [
+  {
+   "id": "stephanlivera",
+   "author": "@stephanlivera",
+   "url": "https://x.com/stephanlivera/status/2103315922098470926",
+   "made_with": "Claude Opus 5.5",
+   "likes": "16k",
+   "views": "1.7M",
+   "video": "assets/cases/stephanlivera.mp4",
+   "poster": "assets/cases/stephanlivera.jpg",
+   "page": "./cases/stephanlivera.html",
+   "look": 0.786,
+   "look_floor": 0.344,
+   "cuts_matched": 9,
+   "cuts_original": 9,
+   "words_found": 36,
+   "words_original": 39,
+   "minutes": 45,
+   "cost_usd": 9.49
+  },
+  {
+   "id": "ajith",
+   "author": "@ajith_io",
+   "url": "https://x.com/ajith_io/status/2103449416325890146",
+   "made_with": "Claude Opus 5.5",
+   "likes": "3.8k",
+   "views": "546k",
+   "video": "assets/cases/ajith.mp4",
+   "poster": "assets/cases/ajith.jpg",
+   "page": "./cases/ajith.html",
+   "look": 0.81,
+   "look_floor": 0.344,
+   "cuts_matched": 5,
+   "cuts_original": 5,
+   "words_found": 22,
+   "words_original": 29,
+   "minutes": 29,
+   "cost_usd": 6.21
+  },
+  {
+   "id": "astra",
+   "author": "@shneural",
+   "url": "https://x.com/shneural/status/2103151003272962130",
+   "made_with": "GPT-6 Astra",
+   "likes": "6.6k",
+   "views": "1.7M",
+   "video": "assets/cases/astra.mp4",
+   "poster": "assets/cases/astra.jpg",
+   "page": "./cases/astra.html",
+   "look": 0.809,
+   "look_floor": 0.258,
+   "cuts_matched": 1,
+   "cuts_original": 1,
+   "words_found": 48,
+   "words_original": 48,
+   "minutes": 14,
+   "cost_usd": 3.02
+  }
+ ]
+}

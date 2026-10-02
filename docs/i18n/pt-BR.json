@@ -9,6 +9,7 @@
     "why": "Por quê",
     "benchmarks": "Benchmarks",
     "when": "Quando usar",
+    "cases": "Casos de uso",
     "install": "Instalação",
     "usage": "Uso",
     "how": "Como funciona",
@@ -243,6 +244,29 @@
     "skip_gist": "**Ter uma ideia rápida de um clipe curto.** O modelo sozinho dá conta, e carregar a skill acrescenta um pouco de custo.",
     "skip_os": "**Windows ou Linux.** O video-lens roda só no macOS.",
     "skip_features": "**Identificação de falantes, detecção de idioma ou andamento musical.** Esses recursos não são suportados."
+  },
+  "cases": {
+    "title": "Caso de uso: recriar showreels virais",
+    "intro": "Na semana de lançamento do Claude Opus 5.5, um prompt de uma linha para um showreel de motion graphics de 15 segundos se espalhou pelo X. Pegamos {count} dos reels mais compartilhados, um deles a resposta do GPT-6 Astra ao mesmo prompt, e entregamos cada um ao {model} no Claude Code com o video-lens e um único prompt: descobrir como o vídeo se move e recriá-lo como uma única página HTML. Abaixo está o que voltou, renderizado quadro a quadro e sem retoques, com a nota em relação ao original.",
+    "card_title": "{author} · feito com {made_with}",
+    "video_label": "Recriação do reel de {author}",
+    "original": "Original: [{author} no X]({url}), {likes} curtidas e {views} visualizações",
+    "look": "**Semelhança:** {look} (dois reels diferentes da mesma tendência: {floor})",
+    "cuts": "**Cortes:** {matched} dos {total} cortes secos do original estão na recriação, a menos de 0,1 s",
+    "words": "**Palavras:** {found} das {total} palavras na tela do original estão na recriação",
+    "run": "**Execução:** {minutes} min, {cost} a preços de API, sem ajustes humanos",
+    "page_link": "[Abrir a página recriada]({page}) (um único arquivo HTML que toca uma vez ao abrir)",
+    "scoring_title": "Como as recriações foram avaliadas",
+    "scoring_look": "**Semelhança** é o SSIM, uma medida padrão de similaridade de imagem, entre o original e a recriação no mesmo instante, 10 vezes por segundo (1 = idênticos). Dois reels diferentes da mesma tendência dão o piso mostrado ao lado.",
+    "scoring_cuts": "**Cortes** são encontrados pelo detector de cenas do ffmpeg nos dois clipes. Um corte conta quando a recriação corta a menos de 0,1 s do original.",
+    "scoring_words": "**Palavras** são lidas pelo OCR do video-lens nos dois clipes, contando só palavras do dicionário para descartar leituras erradas.",
+    "scoring_originals": "Os originais ficam no X: esta página só tem links para eles e mostra apenas as recriações, que são código escrito pelo Claude. Curtidas e visualizações são da [galeria de vídeos da semana de lançamento da Revid](https://www.revid.ai/claude-motion-graphics) em 28 de setembro de 2026. Scripts: [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
+    "prompt_title": "O prompt, o mesmo para cada reel exceto a duração do render (15,03 s para o reel do GPT-6 Astra)",
+    "note": {
+      "stephanlivera": "O que ainda difere: o desfoque de movimento e a separação RGB são imitados com filtros de desfoque, as formas 3D de pontos não têm linhas entre os pontos e a oscilação da largura de CLAUDE é mais fraca que no original. A página pede SF Pro e JetBrains Mono, então um navegador sem elas mostra outras fontes; a referência é o vídeo.",
+      "ajith": "O que ainda difere: a esfera de pontos sobre o creme é mais achatada que a do original, cheia de espinhos; falta o contorno quadrado vermelho acima do piso azul aos 7,35 s, e o grão de filme e o desfoque de movimento ficaram de fora. As fontes são substitutas que vêm com o macOS. A maioria das palavras perdidas são pedaços de texto curvado em círculo, que o OCR lê em fragmentos.",
+      "astra": "Original: a metade do GPT-6 Astra de um post que compara os dois resultados, cortada no quadro em que o reel começa (16,8 s). O que ainda difere: os objetos 3D cromados (nó, fita, oito, estrela) são aproximações planas em SVG e CSS sem reflexos, e a fonte dos títulos é outra. Este reel troca de cena quase sempre com wipes, que a contagem de cortes secos não inclui; pela medição da própria execução, 6 das 7 transições caem no mesmo quadro do original e uma chega um quadro atrasada."
+    }
   },
   "install": {
     "title": "Instalação",

@@ -2,23 +2,24 @@
 // ?lang=<code> picks a language (else the browser's), ?theme=light|dark forces a theme,
 // ?chart=<id> shows one chart alone at a fixed size for screenshots (tools/render_charts.mjs).
 
-import { DEFAULT_LANG, applyStaticStrings, loadLanguageList, loadStrings, makeTranslator, pickLanguage } from './i18n.js';
+import { DEFAULT_LANG, applyStaticStrings, fetchJson, loadLanguageList, loadStrings, makeTranslator, pickLanguage } from './i18n.js';
 import { CHART_IDS, describeChange, formatDate, measuredModels, renderCharts, skillConditions, taskLabel } from './charts.js';
 
 const params = new URLSearchParams(window.location.search);
 const soloChart = CHART_IDS.includes(params.get('chart')) ? params.get('chart') : null;
-const state = { data: null, i18n: null, languages: [], hasDataError: false };
+const state = { data: null, cases: null, i18n: null, languages: [], hasDataError: false };
 
 async function loadData() {
   try {
-    const response = await fetch('data/benchmark.json', { cache: 'no-cache' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
+    return await fetchJson('data/benchmark.json');
   } catch {
     state.hasDataError = true;
     return null;
   }
 }
+
+/** Without cases.json the page keeps the English cards that tools/render_results.py wrote. */
+const loadCases = () => fetchJson('data/cases.json').catch(() => null);
 
 function setRich(id, key, values) {
   const element = document.getElementById(id);
@@ -122,6 +123,44 @@ function fillSkillsText(counts) {
   ]);
 }
 
+/** One card per rebuilt reel: the rebuild's video, a link to the original, its scores and what it missed. */
+function fillCases() {
+  const { cases, i18n } = state;
+  const fmt = i18n.format;
+  setRich('cases-intro', 'cases.intro', { count: fmt.integer(cases.cases.length), model: cases.model });
+  const list = document.getElementById('cases-list');
+  // Video elements survive a language switch, so a playing rebuild keeps playing.
+  const videos = new Map([...list.querySelectorAll('video[data-case]')].map((video) => [video.dataset.case, video]));
+  list.textContent = '';
+  const add = (tag, parent, className) => {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    parent.append(element);
+    return element;
+  };
+  cases.cases.forEach((item) => {
+    const card = add('article', list, 'card case');
+    i18n.rich(add('h3', card), 'cases.card_title', { author: item.author, made_with: item.made_with });
+    let video = videos.get(item.id);
+    if (video) card.append(video);
+    else {
+      video = add('video', card, 'case-video');
+      video.dataset.case = item.id;
+      Object.assign(video, { controls: true, muted: true, playsInline: true, preload: 'none', poster: item.poster });
+      Object.assign(add('source', video), { src: item.video, type: 'video/mp4' });
+    }
+    video.setAttribute('aria-label', i18n.t('cases.video_label', { author: item.author }));
+    i18n.rich(add('p', card, 'note'), 'cases.original', { author: item.author, url: item.url, likes: item.likes, views: item.views });
+    const scores = add('ul', card, 'list case-scores');
+    i18n.rich(add('li', scores), 'cases.look', { look: fmt.score(item.look), floor: fmt.score(item.look_floor) });
+    i18n.rich(add('li', scores), 'cases.cuts', { matched: fmt.integer(item.cuts_matched), total: fmt.integer(item.cuts_original) });
+    i18n.rich(add('li', scores), 'cases.words', { found: fmt.integer(item.words_found), total: fmt.integer(item.words_original) });
+    i18n.rich(add('li', scores), 'cases.run', { minutes: fmt.integer(item.minutes), cost: fmt.usd(item.cost_usd) });
+    i18n.rich(add('p', card, 'note'), `cases.note.${item.id}`);
+    i18n.rich(add('p', card, 'case-link'), 'cases.page_link', { page: item.page });
+  });
+}
+
 function fillVersion() {
   const footer = document.getElementById('footer-version');
   state.i18n.rich(footer, 'footer.version', { version: footer.dataset.version });
@@ -169,6 +208,7 @@ async function applyLanguage(code) {
   updateCanonical(code);
   fillVersion();
   if (state.data) fillComputedText();
+  if (state.cases) fillCases();
   drawCharts();
 }
 
@@ -295,9 +335,10 @@ async function markReady() {
 async function main() {
   if (soloChart) enterSolo(soloChart);
   drawFrameStrip();
-  const [languages, data] = await Promise.all([loadLanguageList(), loadData()]);
+  const [languages, data, cases] = await Promise.all([loadLanguageList(), loadData(), loadCases()]);
   state.languages = languages;
   state.data = data;
+  state.cases = cases;
   const code = pickLanguage(languages, params.get('lang'), navigator.languages || [navigator.language]);
   await applyLanguage(code);
   buildLanguageSwitcher(code);

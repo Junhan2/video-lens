@@ -9,6 +9,7 @@
     "why": "Pourquoi",
     "benchmarks": "Benchmarks",
     "when": "Quand l'utiliser",
+    "cases": "Cas d'usage",
     "install": "Installation",
     "usage": "Utilisation",
     "how": "Fonctionnement",
@@ -243,6 +244,29 @@
     "skip_gist": "**Saisir rapidement l'essentiel d'un court extrait.** Le modèle seul s'en charge, et charger le skill ajoute un peu de coût.",
     "skip_os": "**Windows ou Linux.** video-lens fonctionne uniquement sous macOS.",
     "skip_features": "**Identification des locuteurs, détection de la langue ou tempo musical.** Ces fonctions ne sont pas prises en charge."
+  },
+  "cases": {
+    "title": "Cas d'usage : refaire des showreels viraux",
+    "intro": "Pendant la semaine de lancement de Claude Opus 5.5, un prompt d'une ligne pour un showreel de motion design de 15 secondes s'est répandu sur X. Nous avons pris {count} des reels les plus partagés, dont la réponse de GPT-6 Astra au même prompt, et confié chacun à {model} dans Claude Code avec video-lens et un seul prompt : comprendre comment la vidéo bouge et la refaire sous forme d'une seule page HTML. Voici ce qui est revenu, rendu image par image et laissé tel quel, avec son score face à l'original.",
+    "card_title": "{author} · réalisé avec {made_with}",
+    "video_label": "Reconstruction du reel de {author}",
+    "original": "Original : [{author} sur X]({url}), {likes} j'aime et {views} vues",
+    "look": "**Ressemblance :** {look} (deux reels différents de la même tendance : {floor})",
+    "cuts": "**Coupes :** {matched} des {total} coupes franches de l'original sont dans la reconstruction, à 0,1 s près",
+    "words": "**Mots :** {found} des {total} mots à l'écran de l'original sont dans la reconstruction",
+    "run": "**Exécution :** {minutes} min, {cost} au tarif de l'API, sans retouche humaine",
+    "page_link": "[Ouvrir la page reconstruite]({page}) (un seul fichier HTML qui se joue une fois à l'ouverture)",
+    "scoring_title": "Comment les reconstructions ont été notées",
+    "scoring_look": "**Ressemblance** est le SSIM, une mesure courante de similarité d'image, entre l'original et la reconstruction au même instant, 10 fois par seconde (1 = identiques). Deux reels différents de la même tendance donnent le plancher indiqué à côté.",
+    "scoring_cuts": "**Coupes** : le détecteur de scènes de ffmpeg les trouve dans les deux clips. Une coupe compte quand la reconstruction coupe à moins de 0,1 s de l'original.",
+    "scoring_words": "**Mots** : l'OCR de video-lens les lit dans les deux clips, en ne comptant que les mots du dictionnaire pour écarter les erreurs de lecture.",
+    "scoring_originals": "Les originaux restent sur X : cette page renvoie vers eux et ne montre que les reconstructions, qui sont du code écrit par Claude. Les j'aime et les vues viennent de la [galerie des vidéos de la semaine de lancement de Revid](https://www.revid.ai/claude-motion-graphics) au 28 septembre 2026. Scripts : [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
+    "prompt_title": "Le prompt, le même pour chaque reel sauf la durée du rendu (15,03 s pour le reel de GPT-6 Astra)",
+    "note": {
+      "stephanlivera": "Ce qui diffère encore : le flou de mouvement et le décalage RVB sont imités par des filtres de flou, les formes 3D en points n'ont pas de lignes entre les points, et l'ondulation de la largeur de CLAUDE est plus faible que dans l'original. La page demande SF Pro et JetBrains Mono ; un navigateur qui ne les a pas affiche d'autres polices. La vidéo fait référence.",
+      "ajith": "Ce qui diffère encore : la sphère de points sur fond crème est plus plate que celle, hérissée, de l'original, le contour carré rouge au-dessus du sol bleu à 7,35 s manque, et le grain de film comme le flou de mouvement ont été laissés de côté. Les polices sont des remplaçantes fournies avec macOS. La plupart des mots manqués sont des morceaux de texte courbé en cercle, que l'OCR lit par fragments.",
+      "astra": "Original : la moitié GPT-6 Astra d'une publication qui compare les deux résultats, coupée à l'image où son reel commence (16,8 s). Ce qui diffère encore : les objets 3D chromés (nœud, ruban, huit, étoile) sont des approximations plates en SVG et CSS sans reflets, et la police des titres est différente. Ce reel change de scène surtout par des volets, que le compte des coupes franches n'inclut pas ; d'après la mesure de l'exécution elle-même, 6 de ses 7 transitions tombent sur la même image que dans l'original et une arrive une image plus tard."
+    }
   },
   "install": {
     "title": "Installation",

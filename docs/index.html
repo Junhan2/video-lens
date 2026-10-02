@@ -44,6 +44,7 @@
       <a href="#why" data-i18n="nav.why">Why</a>
       <a href="#benchmarks" data-i18n="nav.benchmarks">Benchmarks</a>
       <a href="#when" data-i18n="nav.when">When to use</a>
+      <a href="#cases" data-i18n="nav.cases">Use cases</a>
       <a href="#install" data-i18n="nav.install">Install</a>
       <a href="#usage" data-i18n="nav.usage">Usage</a>
       <a href="#how" data-i18n="nav.how">How it works</a>
@@ -229,6 +230,65 @@
         </ul>
       </div>
     </div>
+  </section>
+
+  <section class="wrap section" id="cases" aria-labelledby="cases-title">
+    <h2 id="cases-title" data-i18n="cases.title">Use case: rebuilding viral showreels</h2>
+    <p class="section-lede" id="cases-intro">In the launch week of Claude Opus 5.5, a one-line prompt for a 15-second motion graphics showreel spread across X. We took 3 of the most-shared reels, one of them GPT-6 Astra's answer to the same prompt, and gave each to Claude Opus 5.5 in Claude Code with video-lens and a single prompt: work out how the video moves and rebuild it as one HTML page. Below is what came back, rendered frame by frame and left as it was, scored against its original.</p>
+    <div class="case-grid" id="cases-list">
+      <article class="card case">
+        <h3>@stephanlivera · made with Claude Opus 5.5</h3>
+        <video class="case-video" data-case="stephanlivera" controls muted playsinline preload="none" poster="assets/cases/stephanlivera.jpg" aria-label="Rebuild of the reel by @stephanlivera"><source src="assets/cases/stephanlivera.mp4" type="video/mp4"></video>
+        <p class="note">Original: <a href="https://x.com/stephanlivera/status/2103315922098470926">@stephanlivera on X</a>, 16k likes and 1.7M views</p>
+        <ul class="list case-scores">
+          <li><strong>Looks alike:</strong> 0.786 (two different reels from the trend: 0.344)</li>
+          <li><strong>Cuts:</strong> 9 of the original's 9 hard cuts are in the rebuild, within 0.1 s</li>
+          <li><strong>Words:</strong> 36 of the 39 words on screen in the original are in the rebuild</li>
+          <li><strong>Run:</strong> 45 min, $9.49 at API prices, no human edits</li>
+        </ul>
+        <p class="note">Still off: the motion blur and RGB split are imitated with blur filters, the 3D dot shapes have no lines between the dots, and the width wobble on CLAUDE is weaker than in the original. The page asks for SF Pro and JetBrains Mono, so a browser without them shows other fonts; the video is the reference.</p>
+        <p class="case-link"><a href="./cases/stephanlivera.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
+      </article>
+      <article class="card case">
+        <h3>@ajith_io · made with Claude Opus 5.5</h3>
+        <video class="case-video" data-case="ajith" controls muted playsinline preload="none" poster="assets/cases/ajith.jpg" aria-label="Rebuild of the reel by @ajith_io"><source src="assets/cases/ajith.mp4" type="video/mp4"></video>
+        <p class="note">Original: <a href="https://x.com/ajith_io/status/2103449416325890146">@ajith_io on X</a>, 3.8k likes and 546k views</p>
+        <ul class="list case-scores">
+          <li><strong>Looks alike:</strong> 0.810 (two different reels from the trend: 0.344)</li>
+          <li><strong>Cuts:</strong> 5 of the original's 5 hard cuts are in the rebuild, within 0.1 s</li>
+          <li><strong>Words:</strong> 22 of the 29 words on screen in the original are in the rebuild</li>
+          <li><strong>Run:</strong> 29 min, $6.21 at API prices, no human edits</li>
+        </ul>
+        <p class="note">Still off: the dot sphere on cream is flatter than the original's spiky one, the red square outline above the blue floor at 7.35 s is missing, and film grain and motion blur were left out. The fonts are stand-ins that ship with macOS. Most of the missed words are pieces of text bent into a circle, which the OCR reads in fragments.</p>
+        <p class="case-link"><a href="./cases/ajith.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
+      </article>
+      <article class="card case">
+        <h3>@shneural · made with GPT-6 Astra</h3>
+        <video class="case-video" data-case="astra" controls muted playsinline preload="none" poster="assets/cases/astra.jpg" aria-label="Rebuild of the reel by @shneural"><source src="assets/cases/astra.mp4" type="video/mp4"></video>
+        <p class="note">Original: <a href="https://x.com/shneural/status/2103151003272962130">@shneural on X</a>, 6.6k likes and 1.7M views</p>
+        <ul class="list case-scores">
+          <li><strong>Looks alike:</strong> 0.809 (two different reels from the trend: 0.258)</li>
+          <li><strong>Cuts:</strong> 1 of the original's 1 hard cuts are in the rebuild, within 0.1 s</li>
+          <li><strong>Words:</strong> 48 of the 48 words on screen in the original are in the rebuild</li>
+          <li><strong>Run:</strong> 14 min, $3.02 at API prices, no human edits</li>
+        </ul>
+        <p class="note">Original: GPT-6 Astra's half of a side-by-side post, cut at the frame where its reel starts (16.8 s). Still off: the chrome 3D objects (knot, ribbon, figure eight, star) are flat SVG and CSS stand-ins without the reflections, and the headline font differs. This reel changes scenes mostly with wipes, which the hard-cut count does not include; by the run's own measurement, 6 of its 7 transitions land on the same frame as the original's and one is a frame late.</p>
+        <p class="case-link"><a href="./cases/astra.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
+      </article>
+    </div>
+    <div class="block">
+      <h3 data-i18n="cases.scoring_title">How the rebuilds were scored</h3>
+      <ul class="list">
+        <li data-i18n="cases.scoring_look"><strong>Looks alike</strong> is SSIM, a standard image similarity score, between the original and the rebuild at the same moment, 10 times a second (1 = identical). Two different reels from the same trend give the floor shown next to it.</li>
+        <li data-i18n="cases.scoring_cuts"><strong>Cuts</strong> are found by ffmpeg's scene detector in both clips. A cut counts when the rebuild cuts within 0.1 s of the original.</li>
+        <li data-i18n="cases.scoring_words"><strong>Words</strong> are read by the video-lens OCR in both clips, counting only dictionary words so misreadings drop out.</li>
+        <li data-i18n="cases.scoring_originals">The originals stay on X: this page links to them and shows only the rebuilds, which are code Claude wrote. Likes and views are from <a href="https://www.revid.ai/claude-motion-graphics">Revid's gallery of launch-week videos</a> on September 28, 2026. Scripts: <a href="https://github.com/Junhan2/video-lens/tree/main/bench/cases">bench/cases</a>.</li>
+      </ul>
+    </div>
+    <details class="block prompt-box">
+      <summary data-i18n="cases.prompt_title">The prompt, the same for every reel except the render length (15.03 s for GPT-6 Astra's reel)</summary>
+      <pre id="cases-prompt">/video-lens clip.mp4 in this folder is a 15-second motion-graphics showreel posted on X. Reverse-engineer it and rebuild it as one self-contained file, recreation.html (a 1920x1080 page, no audio), that plays the same video: the same shots in the same order at the same times, with the same layout, colors, text and motion (delays, durations, easing). So that every frame can be rendered exactly, animate only with CSS animations or the Web Animations API, all of them starting at page load (page time 0 = video time 0); no requestAnimationFrame, timers, canvas, video, or external files, fonts or libraries (use installed system fonts close to the original). When it is built, render it with the skill's declared.mjs (--viewport 1920x1080 --render 60 15.06) and copy the render to recreation.mp4 in this folder, compare it with the original using the skill, and fix the biggest differences, at most two fix rounds. Look at as many sheets and frames as the rebuild needs; nobody will answer questions, so do not ask. Finish with a table of the shots (start, end, what is on screen) for the original and for your recreation.</pre>
+    </details>
   </section>
 
   <section class="wrap section" id="install" aria-labelledby="install-title">

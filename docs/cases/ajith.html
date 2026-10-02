@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Claude Motion Reel 2026 (recreation)</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 1920px; height: 1080px; overflow: hidden; background: #111113; }
+  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; background: #111113; }
+  .scene { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; opacity: 0; }
+  .abs { position: absolute; left: 0; top: 0; }
+  .disp { font-family: "Avenir Next", "Avenir", sans-serif; font-weight: 800; white-space: pre; }
+  .din { font-family: "DIN Alternate", "DIN Condensed", sans-serif; font-weight: 700; white-space: pre; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+'use strict';
+// Every animation below is a Web Animations API animation that spans the whole clip (duration T) and starts at
+// page load; procedural parts (particles, letters on arcs) are pre-computed at each 60 fps frame time.
+const T = 15.2, TD = T * 1000, FPS = 60, CX = 960, CY = 540;
+const ALL = [];
+const stage = document.getElementById('stage');
+
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+function bez(x1, y1, x2, y2) {
+  const f = (u, a, b) => 3 * a * u * (1 - u) * (1 - u) + 3 * b * u * u * (1 - u) + u * u * u;
+  return (p) => {
+    if (p <= 0) return 0;
+    if (p >= 1) return 1;
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 40; i++) { const u = (lo + hi) / 2; if (f(u, x1, x2) < p) lo = u; else hi = u; }
+    return f((lo + hi) / 2, y1, y2);
+  };
+}
+const E = {
+  lin: (p) => p,
+  out: bez(0.22, 1, 0.36, 1),
+  inOut: bez(0.65, 0, 0.35, 1),
+  in: bez(0.55, 0, 1, 0.45),
+  outBack: (p) => { const c = 1.70158; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); },
+};
+// Piecewise value: pts = [[t, v, easeIntoThisPoint], ...]
+function pw(t, pts) {
+  if (t <= pts[0][0]) return pts[0][1];
+  for (let i = 1; i < pts.length; i++) {
+    if (t <= pts[i][0]) {
+      const [t0, v0] = pts[i - 1], [t1, v1, e] = pts[i];
+      return lerp(v0, v1, (e || E.lin)((t - t0) / (t1 - t0)));
+    }
+  }
+  return pts[pts.length - 1][1];
+}
+const pwLog = (t, pts) => Math.exp(pw(t, pts.map(([a, v, e]) => [a, Math.log(v), e])));
+const mixHex = (a, b, p) => {
+  const c = (h, i) => parseInt(h.slice(1 + 2 * i, 3 + 2 * i), 16);
+  return `rgb(${[0, 1, 2].map((i) => Math.round(lerp(c(a, i), c(b, i), p))).join(',')})`;
+};
+
+function el(tag, css, parent, html) {
+  const e = document.createElement(tag);
+  if (css) e.style.cssText = css;
+  if (html != null) e.innerHTML = html;
+  (parent || stage).appendChild(e);
+  return e;
+}
+// kfs: [{t, ...props, e: easing}] in clip seconds; held before the first and after the last keyframe.
+function anim(target, kfs) {
+  const k = kfs.map((o) => {
+    const r = { ...o, offset: clamp(o.t / T, 0, 1) };
+    delete r.t; delete r.e;
+    if (o.e) r.easing = o.e;
+    return r;
+  });
+  if (k[0].offset > 0) k.unshift({ ...k[0], offset: 0 });
+  if (k[k.length - 1].offset < 1) k.push({ ...k[k.length - 1], offset: 1 });
+  const a = target.animate(k, { duration: TD, fill: 'both' });
+  ALL.push(a);
+  return a;
+}
+// One keyframe per 60 fps frame between t0 and t1.
+function sample(target, t0, t1, fn) {
+  const k = [];
+  for (let f = Math.ceil(t0 * FPS - 1e-9); f <= Math.floor(t1 * FPS + 1e-9); f++) k.push({ t: f / FPS, ...fn(f / FPS) });
+  return anim(target, k);
+}
+function show(target, a, b, fadeIn = 0, fadeOut = 0) {
+  return anim(target, [{ t: a, opacity: 0 }, { t: a + fadeIn, opacity: 1 }, { t: b - fadeOut, opacity: 1 }, { t: b, opacity: 0 }]);
+}
+function scene(bg, a, b) {
+  const s = el('div', `background:${bg}`);
+  s.className = 'scene';
+  show(s, a, b);
+  return s;
+}
+// Distance from an element's top to its text baseline (layout only, unaffected by transforms).
+function baselineOf(e) {
+  const m = el('span', 'display:inline-block;width:0;height:0;vertical-align:baseline', e);
+  const y = m.offsetTop;
+  m.remove();
+  return y;
+}
+function placeText(e, x, baseline) { e.style.left = x + 'px'; e.style.top = (baseline - baselineOf(e)) + 'px'; }
+function fitWidth(e, width) {
+  const n = e.textContent.length;
+  e.style.letterSpacing = '0px';
+  e.style.letterSpacing = ((width - e.offsetWidth) / Math.max(1, n - 1)) + 'px';
+}
+// Text that changes at given times: a strip of lines shifted with step keyframes.
+function ticker(parent, entries, lineH, css) {
+  const box = el('span', `display:inline-block;height:${lineH}px;overflow:hidden;vertical-align:top;${css || ''}`, parent);
+  const strip = el('span', 'display:block', box);
+  for (const [, s] of entries) el('span', `display:block;height:${lineH}px;line-height:${lineH}px`, strip).textContent = s;
+  anim(strip, entries.map(([t], i) => ({ t, transform: `translateY(${-lineH * i}px)`, e: 'step-end' })));
+  return box;
+}
+const frameTime = (f) => (f === 0 ? 0 : (f - 0.5) / FPS);
+const pad = (n, w) => String(n).padStart(w, '0');
+
+const C = { dark: '#111113', red: '#E93F32', blue: '#303AF4', yellow: '#F4CA42', cream: '#E9E5DD', ink: '#141414', paper: '#ECE9E3' };
+const BEAT = 60 / 128, BAR = BEAT * 4;
+
+/* ---------------- shot 1: red dot splits 1 > 2 > 4 > 8, ring collapses (0.00 - 1.95) ---------------- */
+const s1 = scene(C.dark, 0, 1.955);
+const R1 = (t) => pw(t, [[0.469, 0], [0.66, 84, E.out], [0.85, 72, E.inOut], [0.9375, 72], [1.1, 102, E.out], [1.25, 98, E.inOut],
+  [1.406, 98], [1.56, 172, E.out], [1.68, 200, E.inOut], [1.75, 190, E.inOut], [1.85, 0, E.in]]);
+{
+  const cross = el('div', 'position:absolute;left:951px;top:531px;width:18px;height:18px', s1,
+    '<div style="position:absolute;left:8.5px;top:0;width:1px;height:18px;background:#38383d"></div>' +
+    '<div style="position:absolute;top:8.5px;left:0;height:1px;width:18px;background:#38383d"></div>');
+  show(cross, 0.55, 1.82, 0.08, 0.05);
+  const ring = el('div', 'position:absolute;left:760px;top:340px;width:400px;height:400px;border-radius:50%;box-sizing:border-box;border:1.5px solid rgba(255,255,255,.12)', s1);
+  sample(ring, 1.4, 1.86, (t) => ({ transform: `scale(${Math.max(0.001, R1(t) / 200)})`, opacity: pw(t, [[1.4, 0], [1.5, 1], [1.74, 1], [1.82, 0]]) }));
+  const a3 = [-116, -116, -26, -26, 64, 64, 154, 154];
+  for (let i = 0; i < 8; i++) {
+    const dot = el('div', `position:absolute;left:940px;top:520px;width:40px;height:40px;border-radius:50%;background:${C.red}`, s1);
+    const a2 = i < 4 ? -162 : 18, a4 = -113 + 45 * i;
+    sample(dot, 0, 1.9, (t) => {
+      let a = a2;
+      if (t > 0.9375) a = lerp(a2, a3[i], E.out(clamp((t - 0.9375) / 0.16, 0, 1)));
+      if (t > 1.406) a = lerp(a3[i], a4, E.out(clamp((t - 1.406) / 0.16, 0, 1)));
+      if (t > 0.9375) a += 40 * (t - 0.9375);
+      const s = pw(t, [[0.1, 0], [0.22, 1.35, E.out], [0.36, 1, E.inOut], [1.75, 1], [1.85, 1.8, E.in]]);
+      return { transform: `rotate(${a}deg) translateX(${R1(t)}px) scale(${Math.max(0.001, s)})`, opacity: t < 1.87 ? 1 : 0 };
+    });
+  }
+}
+
+/* ---------------- shot 2: EVERY [FRAME] ON PURPOSE. on red (1.86 - 3.75) ---------------- */
+const s2 = scene(C.red, 1.855, 3.745);
+const REVEAL2 = [[1.855, 0], [1.867, 60], [1.883, 280], [1.9, 680], [1.917, 900], [1.933, 1150], [1.95, 1250]];
+sample(s2, 1.85, 1.96, (t) => ({ clipPath: `circle(${pw(t, REVEAL2)}px at 960px 540px)` }));
+const fx = el('div', 'position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;z-index:5;pointer-events:none');
+{
+  const ring = el('div', 'position:absolute;left:860px;top:440px;width:200px;height:200px;border-radius:50%;box-sizing:border-box;border:5px solid #DCD8D0', fx);
+  sample(ring, 1.85, 1.96, (t) => {
+    const r = pw(t, REVEAL2) * 1.12 + 14;
+    return { transform: `scale(${Math.max(0.001, r / 100)})`, opacity: t > 1.866 && t < 1.95 ? 1 : 0 };
+  });
+}
+{
+  const cam = el('div', 'position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;color:#121212', s2);
+  const word = (txt, size) => el('div', `position:absolute;font-size:${size}px;line-height:1.2`, cam, txt);
+  const F = 203;
+  const every = word('EVERY', F); every.className = 'disp'; fitWidth(every, 644); placeText(every, 256, 524);
+  const frame = word('', F); frame.className = 'disp';
+  const fl = [...'FRAME'].map((ch) => el('span', 'display:inline-block', frame, ch));
+  fitWidth(frame, 698); placeText(frame, 968, 524);
+  const on = word('ON', F); on.className = 'disp'; fitWidth(on, 288); placeText(on, 256, 700);
+  const purpose = word('', F); purpose.className = 'disp';
+  const pl = [...'PURPOSE'].map((ch) => el('span', 'display:inline-block', purpose, ch));
+  fitWidth(purpose, 950); placeText(purpose, 604, 700);
+  const period = el('div', 'position:absolute;left:1580px;top:660px;width:40px;height:40px;border-radius:50%;background:#121212', cam);
+  const pdot = el('div', `position:absolute;left:17.6px;top:17.6px;width:4.8px;height:4.8px;border-radius:50%;background:${C.red}`, period);
+  // corner brackets around FRAME
+  const brk = el('div', 'position:absolute;left:928px;top:352px;width:772px;height:192px', cam);
+  const corner = (css) => el('div', `position:absolute;width:26px;height:26px;box-sizing:border-box;${css}`, brk);
+  corner('left:0;top:0;border-left:6px solid #121212;border-top:6px solid #121212');
+  corner('right:0;top:0;border-right:6px solid #121212;border-top:6px solid #121212');
+  corner('left:0;bottom:0;border-left:6px solid #121212;border-bottom:6px solid #121212');
+  corner('right:0;bottom:0;border-right:6px solid #121212;border-bottom:6px solid #121212');
+
+  const camK = [[1.85, 3.4, -114, -997], [1.95, 1.8, -60, -274, E.out], [2.33, 1.72, -14, -237], [2.47, 1.16, -104, -20, E.out], [2.6, 1.12, -99, 2, E.inOut],
+    [2.84, 1.12, -99, 2], [2.96, 1.53, 136, -409, E.inOut], [3.28, 1.56, 128, -424], [3.49, 1, 0, 0, E.inOut], [3.55, 1, 0, 0]];
+  const ZOOM = [[3.55, 1], [3.583, 1.02], [3.6, 1.06], [3.617, 1.15], [3.633, 1.33], [3.65, 1.65], [3.667, 2.3], [3.683, 3.6],
+    [3.7, 6], [3.717, 11.5], [3.733, 26], [3.75, 60]];
+  sample(cam, 1.85, 3.75, (t) => {
+    let s, tx, ty;
+    if (t <= 3.55) {
+      s = pwLog(t, camK.map((k) => [k[0], k[1], k[4]]));
+      tx = pw(t, camK.map((k) => [k[0], k[2], k[4]]));
+      ty = pw(t, camK.map((k) => [k[0], k[3], k[4]]));
+    } else {
+      s = pwLog(t, ZOOM);
+      const u = 1 - 1 / s;
+      tx = lerp(1600, CX, u) - s * 1600;
+      ty = lerp(680, CY, u) - s * 680;
+    }
+    const blur = pw(t, [[2.84, 0], [2.9, 7], [2.97, 0]]) + pw(t, [[3.3, 0], [3.39, 8], [3.48, 0]]);
+    return { transform: `translate(${tx}px,${ty}px) scale(${s})`, filter: `blur(${blur}px)` };
+  });
+  fl.forEach((l, j) => {
+    const st = 2.33 + 0.035 * j;
+    sample(l, 2.3, 2.75, (t) => {
+      const p = clamp((t - st) / 0.24, 0, 1);
+      return {
+        transform: `translate(${300 * (1 - E.out(p))}px,${-320 * (1 - E.outBack(p))}px) rotate(${-30 * (1 - E.out(p))}deg)`,
+        opacity: clamp(p * 4, 0, 1),
+      };
+    });
+  });
+  sample(brk, 2.4, 2.62, (t) => {
+    const p = E.out(clamp((t - 2.42) / 0.16, 0, 1));
+    return { transform: `scale(${lerp(1.25, 1, p)})`, opacity: p };
+  });
+  sample(on, 2.84, 3.0, (t) => {
+    const p = E.out(clamp((t - 2.86) / 0.12, 0, 1));
+    return { transform: `translateY(${60 * (1 - p)}px)`, opacity: p };
+  });
+  pl.forEach((l, j) => {
+    const st = 3.3 + 0.02 * j;
+    sample(l, 3.28, 3.56, (t) => {
+      const p = E.out(clamp((t - st) / 0.12, 0, 1));
+      return { transform: `translateY(${80 * (1 - p)}px)`, opacity: p };
+    });
+  });
+  sample(period, 3.44, 3.54, (t) => ({ transform: `scale(${Math.max(0.001, E.outBack(clamp((t - 3.46) / 0.07, 0, 1)))})` }));
+  show(pdot, 3.58, 4);
+}
+
+/* ---------------- shot 3: shape morph inside a transform box (3.75 - 5.63) ---------------- */
+const s3 = scene(C.dark, 3.745, 5.6167);
+const ROT = (t) => pw(t, [[4.219, 0], [4.39, 90, E.inOut], [4.6875, 98], [4.88, 256, E.inOut], [5.156, 244], [5.3, 275, E.inOut], [5.625, 286]]);
+const WHIP_BLUR = (t) => pw(t, [[4.22, 0], [4.3, 5], [4.39, 0]]) + pw(t, [[4.69, 0], [4.78, 6], [4.88, 0]]) + pw(t, [[5.156, 0], [5.23, 5], [5.3, 0]]);
+// phyllotaxis flower of dots, shared with shot 4
+const FL = [];
+for (let n = 1; n < 2000; n++) {
+  const r = 8.2 * Math.sqrt(n), th = n * 2.399963;
+  if (r > 215) break;
+  if (r <= 210 * (0.88 + 0.12 * Math.cos(6 * th))) FL.push([r * Math.cos(th), r * Math.sin(th)]);
+}
+{
+  const shapes = el('div', 'position:absolute;left:0;top:0;width:1920px;height:1080px', s3);
+  sample(shapes, 4.2, 5.32, (t) => ({ filter: `blur(${WHIP_BLUR(t) * 0.8}px)` }));
+  const circle = el('div', `position:absolute;left:720px;top:300px;width:480px;height:480px;border-radius:50%;background:${C.red};box-shadow:0 0 0 3px rgba(120,30,30,.55)`, shapes);
+  sample(circle, 3.74, 4.34, (t) => ({
+    transform: `scale(${pw(t, [[3.745, 0.46], [3.9, 1, E.out], [4.22, 1], [4.33, 0.86, E.inOut]])})`,
+    opacity: pw(t, [[4.27, 1], [4.33, 0]]),
+  }));
+  const sq = el('div', 'position:absolute;left:760px;top:340px;width:400px;height:400px;border-radius:66px;background:#343EF0', shapes);
+  sample(sq, 4.26, 4.88, (t) => ({
+    transform: `rotate(${ROT(t)}deg) scale(${pw(t, [[4.27, 1.12], [4.4, 1, E.out]])})`,
+    opacity: pw(t, [[4.27, 0], [4.31, 1], [4.8, 1], [4.86, 0]]),
+    backgroundColor: mixHex('#343EF0', '#A3A2E6', pw(t, [[4.69, 0], [4.75, 1], [4.84, 0.6]])),
+  }));
+  const tri = el('div', 'position:absolute;left:660px;top:240px;width:600px;height:600px', shapes,
+    '<svg width="600" height="600" viewBox="0 0 600 600"><path d="M300 50 L516.5 425 L83.5 425 Z" fill="#F2C33F" stroke="#F2C33F" stroke-width="70" stroke-linejoin="round"/></svg>');
+  sample(tri, 4.7, 5.27, (t) => ({
+    transform: `rotate(${ROT(t)}deg) scale(${pw(t, [[4.8, 0.9], [4.92, 1, E.out]])})`,
+    opacity: pw(t, [[4.8, 0], [4.86, 1], [5.19, 1], [5.25, 0]]),
+  }));
+  let fp = '';
+  for (let i = 0; i <= 360; i++) {
+    const th = (i / 360) * Math.PI * 2, r = 175 + 28 * Math.cos(6 * th);
+    fp += (i ? 'L' : 'M') + (300 + r * Math.cos(th)).toFixed(1) + ' ' + (300 + r * Math.sin(th)).toFixed(1);
+  }
+  const flower = el('div', 'position:absolute;left:660px;top:240px;width:600px;height:600px', shapes,
+    `<svg width="600" height="600" viewBox="0 0 600 600"><path d="${fp}Z" fill="#EE5F3B"/></svg>`);
+  sample(flower, 5.18, 5.45, (t) => ({
+    transform: `rotate(${ROT(t)}deg) scale(${pw(t, [[5.19, 0.9], [5.3, 1, E.out]])})`,
+    opacity: pw(t, [[5.19, 0], [5.24, 1], [5.38, 1], [5.44, 0]]),
+  }));
+  const dots = FL.map(([x, y]) => `<circle cx="${(300 + x).toFixed(1)}" cy="${(300 + y).toFixed(1)}" r="6"/>`).join('');
+  const dflower = el('div', 'position:absolute;left:660px;top:240px;width:600px;height:600px', shapes,
+    `<svg width="600" height="600" viewBox="0 0 600 600"><g fill="${C.red}">${dots}</g></svg>`);
+  sample(dflower, 5.36, 5.63, (t) => ({
+    transform: `rotate(${ROT(t)}deg) scale(${pw(t, [[5.38, 1.06], [5.5, 1, E.out]])})`,
+    opacity: pw(t, [[5.38, 0], [5.44, 1]]),
+  }));
+
+  // transform box with handles
+  const hs = [[0, 0], [309, 0], [618, 0], [618, 309], [618, 618], [309, 618], [0, 618], [0, 309]]
+    .map(([x, y]) => `<rect x="${x + 41}" y="${y + 41}" width="12" height="12" fill="${C.dark}" stroke="#E8E8E8" stroke-width="1.5"/>`).join('');
+  const box = el('div', 'position:absolute;left:613px;top:193px;width:700px;height:700px', s3,
+    `<svg width="700" height="700" viewBox="0 0 700 700"><rect class="edge" x="41" y="41" width="618" height="618" fill="none" stroke="#B9B9BD" stroke-width="1.6" stroke-dasharray="2472 2472"/><g class="hd">${hs}</g></svg>`);
+  box.querySelectorAll('rect.edge, g.hd rect').forEach((r) => r.setAttribute('transform', 'translate(-6,-6)'));
+  box.querySelector('rect.edge').setAttribute('transform', '');
+  const edge = box.querySelector('rect.edge'), handles = box.querySelector('g.hd');
+  sample(edge, 3.76, 4.05, (t) => ({ strokeDashoffset: `${2472 * (1 - E.out(clamp((t - 3.78) / 0.24, 0, 1)))}px` }));
+  sample(handles, 3.96, 4.08, (t) => ({ opacity: clamp((t - 3.98) / 0.07, 0, 1) }));
+  sample(box, 3.75, 5.45, (t) => ({
+    transform: `rotate(${ROT(t)}deg) scale(${pw(t, [[4.22, 1], [4.38, 0.9, E.out]])})`,
+    opacity: pw(t, [[5.33, 1], [5.41, 0]]),
+    filter: `blur(${WHIP_BLUR(t) * 0.6}px)`,
+  }));
+  const cross = el('div', 'position:absolute;left:946px;top:526px;width:28px;height:28px', s3,
+    '<svg width="28" height="28"><circle cx="14" cy="14" r="7" fill="none" stroke="#F6C9C2" stroke-width="1.3"/><path d="M14 0V28M0 14H28" stroke="#F6C9C2" stroke-width="1.3"/></svg>');
+  show(cross, 3.85, 5.38, 0.06, 0.04);
+  const label = el('div', 'position:absolute;left:1290px;top:192px;font-size:19px;letter-spacing:.08em;color:#ECE9E3', s3);
+  label.className = 'din';
+  const rot = [];
+  for (let f = 224; f <= 330; f++) rot.push([frameTime(f), 'ROT ' + pad((ROT(f / FPS) % 360).toFixed(1), 5) + '°']);
+  ticker(label, rot, 26);
+  el('br', '', label);
+  ticker(label, [[0, 'SHAPE CIRCLE'], [4.219, 'SHAPE SQUARE'], [4.69, 'SHAPE TRIANGLE'], [5.05, 'SHAPE FLOWER']], 26, 'opacity:.55');
+  show(label, 3.85, 5.42, 0.08, 0.08);
+}
+
+/* ---------------- shots 4 and 5: dot grid on cream, then particles on blue (5.63 - 9.38) ---------------- */
+const GX = 32, GY = 18, NG = GX * GY, FOCAL = 1500;
+const grid = [];
+for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) grid.push({ i, j, x: 66 + 58 * i, y: 44 + 58.4 * j });
+{
+  const rot0 = (ROT(5.625) * Math.PI) / 180;
+  const order = grid.map((g, k) => k).sort((a, b) => Math.hypot(grid[a].x - CX, grid[a].y - CY) - Math.hypot(grid[b].x - CX, grid[b].y - CY));
+  order.forEach((k, rank) => {
+    const [x, y] = FL[Math.min(rank, FL.length - 1)];
+    grid[k].rank = rank;
+    grid[k].hasF = rank < FL.length;
+    grid[k].fx = CX + x * Math.cos(rot0) - y * Math.sin(rot0);
+    grid[k].fy = CY + x * Math.sin(rot0) + y * Math.cos(rot0);
+  });
+}
+function segDist(px, py, pts) {
+  let best = 1e9;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [ax, ay] = pts[i], [bx, by] = pts[i + 1];
+    const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
+    const u = clamp(((px - ax) * dx + (py - ay) * dy) / L, 0, 1);
+    best = Math.min(best, Math.hypot(px - ax - u * dx, py - ay - u * dy));
+  }
+  return best;
+}
+const gauss = (d, s) => Math.exp(-(d / s) * (d / s));
+// Shot 4 state of grid dot k at time t: world position (X, Y, Z around the screen centre), size and red weight.
+function s4(k, t) {
+  const g = grid[k];
+  const p = E.out(clamp((t - (5.66 + 0.12 * (g.rank / NG))) / 0.24, 0, 1));
+  let x = lerp(g.fx, g.x, p), y = lerp(g.fy, g.y, p);
+  let sc = g.hasF ? lerp(1.1, 1, p) : p;
+  const m0 = pw(t, [[5.7, 0.6], [5.9, 0.78], [6.08, 1, E.inOut]]);
+  if (m0 < 1) {
+    const ux = (g.x - CX) / 960, uy = (g.y - CY) / 540;
+    const bx = CX + (g.x - CX) * m0 * (1 - 0.22 * (1 - m0) * 2.5 * uy * uy), by = CY + (g.y - CY) * m0 * (1 - 0.12 * (1 - m0) * 2.5 * ux * ux);
+    x = lerp(g.fx, bx, p); y = lerp(g.fy, by, p);
+  }
+  const dx0 = g.x - CX, dy0 = g.y - CY, d0 = Math.hypot(dx0, dy0);
+  let w = 0;
+  if (t > 5.8 && t < 6.25) {
+    const rr = lerp(200, 1300, (t - 5.82) / 0.38);
+    const wa = gauss(d0 - rr, 50) * clamp((6.25 - t) / 0.1, 0, 1);
+    w = Math.max(w, wa);
+    if (d0 > 0) { x += (dx0 / d0) * 26 * wa; y += (dy0 / d0) * 26 * wa; }
+  }
+  if (t > 5.95 && t < 6.9) w = Math.max(w, gauss(g.x - (260 + (t - 6.233) * 2860), 52));
+  if (t > 6.5 && t < 7.03) {
+    const ax = 580 + (t - 6.783) * 2280, ay = 390 + (t - 6.783) * 2580, env = clamp((7.03 - t) / 0.07, 0, 1);
+    const d1 = segDist(g.x, g.y, [[ax - 3000, ay + 160], [ax - 160, ay + 160], [ax, ay], [ax, ay - 3000]]);
+    const bx = 1920 - ax, by = 1080 - ay;
+    const d2 = segDist(g.x, g.y, [[bx + 3000, by - 160], [bx + 160, by - 160], [bx, by], [bx, by + 3000]]);
+    w = Math.max(w, gauss(Math.min(d1, d2), 42) * env);
+  }
+  if (t > 6.97) {
+    const rr = Math.min(760, 230 * Math.exp((t - 7.1) / 0.11)), pe = lerp(2, 4, clamp((t - 7.1) / 0.13, 0, 1));
+    const ds = Math.pow(Math.pow(Math.abs(dx0), pe) + Math.pow(Math.abs(dy0 * 1.25), pe), 1 / pe);
+    w = Math.max(w, gauss(ds - rr, 55) * clamp((t - 6.97) / 0.05, 0, 1));
+    const bulge = pw(t, [[7.05, 0], [7.18, 0.22, E.inOut], [7.3, 0, E.inOut]]);
+    const m = 1 + bulge * gauss(d0, 650);
+    x = CX + (x - CX) * m; y = CY + (y - CY) * m;
+  }
+  let X = x - CX, Y = y - CY, Z = 0;
+  const gt = E.inOut(clamp((t - 7.25) / 0.22, 0, 1));
+  if (gt > 0) {
+    const fold = 4 * gt * (1 - gt) * 0.6 + gt * 0.25;
+    if (Math.abs(X) > 640) Z = -(Math.abs(X) - 640) * 1.3 * fold;
+    const al = (70 * gt * Math.PI) / 180, be = (-10 * gt * Math.PI) / 180;
+    const Y1 = Y * Math.cos(al) + Z * Math.sin(al), Z1 = -Y * Math.sin(al) + Z * Math.cos(al);
+    const X2 = X * Math.cos(be) - Y1 * Math.sin(be), Y2 = X * Math.sin(be) + Y1 * Math.cos(be);
+    X = X2; Y = Y2 + 300 * gt; Z = Z1 + 250 * gt;
+  }
+  return { X, Y, Z, sc, w };
+}
+function project(X, Y, Z) { const f = FOCAL / (FOCAL + Z); return { x: CX + X * f, y: CY + Y * f, f }; }
+
+const s4el = scene(C.cream, 5.6167, 7.4917);
+{
+  const holder = el('div', 'position:absolute;left:0;top:0;width:1920px;height:1080px', s4el);
+  grid.forEach((g, k) => {
+    const d = el('div', 'position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:#1B1B1B', holder);
+    sample(d, 5.6, 7.5, (t) => {
+      const s = s4(k, t), q = project(s.X, s.Y, s.Z);
+      return {
+        transform: `translate(${q.x.toFixed(2)}px,${q.y.toFixed(2)}px) scale(${Math.max(0.001, s.sc * (1 + 0.65 * s.w) * q.f * (1 + 0.4 * E.inOut(clamp((t - 7.25) / 0.22, 0, 1)))).toFixed(3)})`,
+        backgroundColor: mixHex('#1B1B1B', '#E9403C', clamp(s.w, 0, 1)),
+      };
+    });
+  });
+}
+
+const RAD = Math.PI / 180;
+const sphereP = [], torusP = [], cubeP = [];
+for (let k = 0; k < NG; k++) {
+  const yy = 1 - (2 * (k + 0.5)) / NG, rr = Math.sqrt(1 - yy * yy), ph = k * 2.399963;
+  sphereP.push([rr * Math.cos(ph) * 350, -yy * 350, rr * Math.sin(ph) * 350]);
+  const u = (2 * Math.PI * (k % 24)) / 24, v = (2 * Math.PI * Math.floor(k / 24)) / 24;
+  torusP.push([(235 + 100 * Math.cos(v)) * Math.cos(u), 100 * Math.sin(v), (235 + 100 * Math.cos(v)) * Math.sin(u)]);
+}
+{
+  const h = 225, V = [[-h, -h, -h], [h, -h, -h], [h, h, -h], [-h, h, -h], [-h, -h, h], [h, -h, h], [h, h, h], [-h, h, h]];
+  const EDGES = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+  for (let k = 0; k < NG; k++) {
+    const [a, b] = EDGES[Math.floor(k / 48)], s = ((k % 48) + 0.5) / 48;
+    cubeP.push([0, 1, 2].map((c) => lerp(V[a][c], V[b][c], s)));
+  }
+}
+function rotXYZ([x, y, z], ax, ay, az) {
+  let x1 = x * Math.cos(ay) + z * Math.sin(ay), z1 = -x * Math.sin(ay) + z * Math.cos(ay);
+  let y2 = y * Math.cos(ax) - z1 * Math.sin(ax), z2 = y * Math.sin(ax) + z1 * Math.cos(ax);
+  return [x1 * Math.cos(az) - y2 * Math.sin(az), x1 * Math.sin(az) + y2 * Math.cos(az), z2];
+}
+function s5(k, t) {
+  const g = grid[k];
+  const e1 = E.inOut(clamp((t - 8.13 - 0.06 * (k / NG)) / 0.2, 0, 1));
+  const e2 = E.inOut(clamp((t - 8.58 - 0.06 * (k / NG)) / 0.2, 0, 1));
+  const obj = [0, 1, 2].map((c) => lerp(lerp(sphereP[k][c], torusP[k][c], e1), cubeP[k][c], e2));
+  const ax = pw(t, [[8.1, 18], [8.35, 28, E.inOut], [8.6, 40], [8.78, 32, E.inOut]]) * RAD;
+  const az = pw(t, [[8.1, 0], [8.35, -55, E.inOut], [8.6, -35], [8.78, 38, E.inOut]]) * RAD;
+  const ay = 90 * (t - 7.6) * RAD;
+  let [X, Y, Z] = rotXYZ(obj, ax, ay, az);
+  const K = pw(t, [[9.1, 1], [9.25, 3.2, E.in], [9.375, 9, E.in]]);
+  X *= K; Y *= K; Z = Z * K;
+  if (K > 1) Z = Math.max(Z, -FOCAL * 0.8);
+  const p = E.inOut(clamp((t - (7.6 + 0.16 * (g.j / (GY - 1)))) / 0.2, 0, 1));
+  if (p < 1) {
+    const f0 = s4(k, 7.4917), lift = E.out(clamp((t - 7.49) / 0.12, 0, 1));
+    f0.Y -= 220 * lift; f0.Z -= 160 * lift;
+    X = lerp(f0.X, X, p); Y = lerp(f0.Y, Y, p) - 120 * Math.sin(Math.PI * p); Z = lerp(f0.Z, Z, p);
+  }
+  return { X, Y, Z };
+}
+const s5el = scene(C.blue, 7.4917, 9.375);
+{
+  const holder = el('div', 'position:absolute;left:0;top:0;width:1920px;height:1080px', s5el);
+  grid.forEach((g, k) => {
+    const isOrange = g.j === 8 || g.j === 9 ? (g.i % 3 === 0) : false;
+    const d = el('div', `position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:${isOrange ? '#EBA43C' : '#F4F2EE'}`, holder);
+    sample(d, 7.48, 9.39, (t) => {
+      const s = s5(k, t), q = project(s.X, s.Y, s.Z);
+      const fade = pw(t, [[9.15, 1], [9.3, 0.25], [9.37, 0.05]]);
+      return {
+        transform: `translate(${q.x.toFixed(2)}px,${q.y.toFixed(2)}px) scale(${Math.max(0.001, (t < 7.8 ? lerp(1.4, 0.9, clamp((t - 7.6) / 0.2, 0, 1)) : 0.9) * q.f).toFixed(3)})`,
+        opacity: (clamp(0.5 + 0.5 * (1 - (s.Z + 350) / 700), 0.35, 1) * fade).toFixed(3),
+      };
+    });
+  });
+}
+
+/* ---------------- shot 6: striped ribbon on yellow (9.38 - 11.25) ---------------- */
+const s6 = scene(C.yellow, 9.375, 11.2417);
+{
+  const W = [[-260, 905], [40, 852], [228, 828], [470, 766], [690, 690], [960, 560], [1110, 330], [1150, 190], [1060, 112], [900, 118],
+    [760, 190], [700, 330], [832, 492], [1000, 575], [1240, 640], [1580, 660], [1920, 660], [2300, 640]];
+  const seg = (i) => {
+    const p0 = W[Math.max(0, i - 1)], p1 = W[i], p2 = W[i + 1], p3 = W[Math.min(W.length - 1, i + 2)];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    return `C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0]} ${p2[1]}`;
+  };
+  const SPLIT = 10;
+  let dA = `M${W[0][0]} ${W[0][1]}`, dB = `M${W[SPLIT][0]} ${W[SPLIT][1]}`;
+  for (let i = 0; i < W.length - 1; i++) { if (i < SPLIT) dA += seg(i); else dB += seg(i); }
+  const LAYERS = [['#141414', 58], [C.red, 42], ['#F6F3EC', 26], ['#2F3DE6', 10]];
+  const grp = (d) => `<g class="rb" fill="none" stroke-linecap="butt" stroke-linejoin="round">${LAYERS.map(([c, w]) => `<path d="${d}" stroke="${c}" stroke-width="${w}"/>`).join('')}</g>`;
+  const cap = `<g class="cap">${LAYERS.map(([c, w]) => `<circle r="${w / 2}" fill="${c}"/>`).join('')}</g>`;
+  const headDisc = `<g class="cap"><circle r="29" fill="#141414"/><circle r="23" fill="${C.red}"/></g>`;
+  const ticks = Array.from({ length: 8 }, (_, i) => `<line class="tk" x1="0" y1="-9" x2="0" y2="9" stroke="#141414" stroke-width="7" stroke-linecap="round" transform="rotate(${i * 45 + 22})"/>`).join('');
+  const svg = el('div', 'position:absolute;left:0;top:0', s6,
+    `<svg width="1920" height="1080" viewBox="0 0 1920 1080" style="overflow:visible"><g class="spark">${ticks}</g>${grp(dA)}${grp(dB)}${headDisc}${cap}</svg>`);
+  const [gA, gB] = svg.querySelectorAll('g.rb');
+  const [headCap, tailCap] = svg.querySelectorAll('g.cap');
+  const pathA = gA.querySelector('path'), pathB = gB.querySelector('path');
+  const LA = pathA.getTotalLength(), LB = pathB.getTotalLength(), L = LA + LB;
+  // arc length at every waypoint
+  const arcAt = [0];
+  for (let i = 0; i < W.length - 1; i++) {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', `M${W[i][0]} ${W[i][1]}` + seg(i));
+    svg.querySelector('svg').appendChild(p);
+    arcAt.push(arcAt[i] + p.getTotalLength());
+    p.remove();
+  }
+  const pointAt = (s) => (s < LA ? pathA.getPointAtLength(clamp(s, 0, LA)) : pathB.getPointAtLength(clamp(s - LA, 0, LB)));
+  const head = (t) => pw(t, [[9.383, arcAt[1] - 40], [9.433, arcAt[2]], [9.583, arcAt[3]], [9.717, arcAt[4]], [9.85, arcAt[5]], [10.02, arcAt[7]],
+    [10.133, arcAt[10]], [10.267, arcAt[12]], [10.417, arcAt[14]], [10.55, arcAt[15]], [10.683, arcAt[16]], [10.83, arcAt[17]]]);
+  const tail = (t) => pw(t, [[9.75, 0], [9.85, arcAt[1]], [10.0, arcAt[2] + 50], [10.133, arcAt[3]], [10.267, arcAt[4] - 30], [10.417, arcAt[5] - 60],
+    [10.55, arcAt[6] + 60], [10.683, arcAt[10] + 40], [10.833, arcAt[12] + 140], [10.967, arcAt[14] + 160], [11.1, arcAt[15] + 220], [11.2, arcAt[16] + 60]]);
+  const BIG = 20000;
+  [[gA, 0], [gB, LA]].forEach(([g, base]) => {
+    sample(g, 9.37, 11.25, (t) => {
+      const h = head(t), tl = tail(t);
+      return { strokeDasharray: `${Math.max(0, h - tl).toFixed(2)}px ${BIG}px`, strokeDashoffset: `${(base - tl).toFixed(2)}px` };
+    });
+  });
+  sample(headCap, 9.37, 11.25, (t) => {
+    const h = head(t), q = pointAt(h);
+    return { transform: `translate(${q.x.toFixed(2)}px,${q.y.toFixed(2)}px)`, opacity: h > 0 && h < L - 1 ? 1 : 0 };
+  });
+  sample(tailCap, 9.37, 11.25, (t) => {
+    const s = tail(t), q = pointAt(s);
+    return { transform: `translate(${q.x.toFixed(2)}px,${q.y.toFixed(2)}px)`, opacity: s > 1 && s < L - 1 ? 1 : 0 };
+  });
+  svg.querySelectorAll('line.tk').forEach((ln, i) => {
+    sample(ln, 10.34, 10.68, (t) => {
+      const r = pw(t, [[10.36, 100], [10.62, 168, E.out]]);
+      return { transform: `translate(965px,555px) rotate(${i * 45 + 22}deg) translateY(${-r}px)`, opacity: pw(t, [[10.36, 0], [10.39, 1], [10.55, 1], [10.65, 0]]) };
+    });
+  });
+}
+
+/* ---------------- shot 7: word marquee rows bend into rings, then spin away (11.25 - 13.13) ---------------- */
+const s7 = scene(C.dark, 11.2417, 13.24);
+{
+  const ROWS = [
+    { txt: 'MOTION DESIGN • ANIMATION • ART DIRECTION • ', R: 440, y: 332, size: 58, weight: 700, outline: false, v: 270, intro: 840, anchor: ['ANIMATION', 74] },
+    { txt: 'TYPOGRAPHY • 3D • ILLUSTRATION • '.repeat(2), R: 360, y: 460, size: 52, weight: 700, outline: true, v: -290, intro: -1500, anchor: ['TYPOGRAPHY', 92] },
+    { txt: 'RHYTHM • TIMING • EASING • '.repeat(2), R: 280, y: 586, size: 44, weight: 800, outline: false, v: 260, intro: 1500, anchor: ['TIMING', -321] },
+    { txt: 'LINE • COLOR • SHAPE • '.repeat(2), R: 205, y: 710, size: 37, weight: 700, outline: true, v: -300, intro: -1500, anchor: ['COLOR', -277] },
+  ];
+  const U = (t) => pw(t, [[11.78, 0.0001], [12.25, 1, E.inOut]]);
+  const KS = (t) => pw(t, [[12.72, 1], [12.88, 1.08, E.out], [13.0, 0.95, E.inOut], [13.05, 0.85], [13.075, 0.78], [13.1, 0.42, E.in], [13.125, 0.15, E.in]]);
+  const SPIN = (t) => pw(t, [[12.72, 0], [13.0, 260, E.in], [13.125, 560]]);
+  const holder = el('div', 'position:absolute;left:0;top:0;width:1920px;height:1080px', s7);
+  sample(holder, 12.7, 13.13, (t) => ({ filter: `blur(${pw(t, [[12.75, 0], [12.85, 6], [13.1, 4]])}px)` }));
+  ROWS.forEach((row, r) => {
+    const C2 = 2 * Math.PI * row.R;
+    const rowEl = el('div', 'position:absolute;left:0;top:0;width:1920px;height:1080px', holder);
+    if (r > 0) sample(rowEl, 11.28, 11.52, (t) => ({ filter: `blur(${pw(t, [[11.3, 7], [11.4, 6], [11.5, 0, E.out]])}px)` }));
+    const meas = el('div', `position:absolute;left:0;top:-500px;font-size:${row.size}px;font-weight:${row.weight}`, holder);
+    meas.className = 'disp';
+    const spans = [...row.txt].map((ch) => el('span', '', meas, ch === ' ' ? ' ' : ch));
+    meas.style.letterSpacing = '0px';
+    const ls = (C2 - meas.offsetWidth) / row.txt.length;
+    meas.style.letterSpacing = ls + 'px';
+    const centers = spans.map((s) => s.offsetLeft + s.offsetWidth / 2 - ls / 2);
+    const widths = spans.map((s) => s.offsetWidth - ls);
+    const lineH = meas.offsetHeight;
+    const ai = row.txt.indexOf(row.anchor[0]) + Math.floor(row.anchor[0].length / 2);
+    // arc position of each letter at 11.7 matches the anchor word measured in the original
+    const phase = row.anchor[1] - (centers[ai] - C2 / 2) - row.v * (11.7 - 11.25);
+    meas.remove();
+    [...row.txt].forEach((ch, i) => {
+      if (ch === ' ') return;
+      const isDot = ch === '•';
+      const stroke = row.outline && !isDot ? 'color:transparent;-webkit-text-stroke:1.6px #EDE9E2;' : `color:${isDot ? C.red : '#EDE9E2'};`;
+      const c = el('div', `position:absolute;left:0;top:0;font-size:${row.size}px;font-weight:${row.weight};line-height:${lineH}px;${stroke}`, rowEl, ch);
+      c.className = 'disp';
+      const w = widths[i];
+      sample(c, 11.24, 13.13, (t) => {
+        const intro = row.intro * (1 - E.out(clamp((t - 11.27) / 0.26, 0, 1)));
+        let s = centers[i] - C2 / 2 + phase + row.v * (t - 11.25) + intro;
+        s = ((((s + C2 / 2) % C2) + C2) % C2) - C2 / 2;
+        const u = U(t), kap = u / row.R;
+        const Y = lerp(row.y, CY - row.R, u);
+        let x = CX + Math.sin(kap * s) / kap, y = Y + (1 - Math.cos(kap * s)) / kap, a = kap * s;
+        const k = KS(t), sp = (SPIN(t) * (r % 2 ? -1 : 1) * RAD);
+        if (k < 1 || sp !== 0) {
+          const dx = (x - CX) * k, dy = (y - CY) * k;
+          x = CX + dx * Math.cos(sp) - dy * Math.sin(sp); y = CY + dx * Math.sin(sp) + dy * Math.cos(sp); a += sp;
+        }
+        const edgeFade = clamp((C2 / 2 - Math.abs(s)) / (90 * (1 - u) + 1), 0, 1);
+        const enter = r === 0 ? 1 : clamp((t - 11.3) / 0.1, 0, 1);
+        const out = pw(t, [[13.07, 1], [13.125, 0]]);
+        return {
+          transform: `translate(${(x - w / 2).toFixed(2)}px,${(y - lineH / 2).toFixed(2)}px) rotate(${(a / RAD).toFixed(2)}deg) scale(${k.toFixed(3)})`,
+          opacity: (edgeFade * enter * out).toFixed(3),
+        };
+      });
+      c.style.width = w + 'px';
+      c.style.textAlign = 'center';
+    });
+  });
+  const dot = el('div', `position:absolute;left:926px;top:506px;width:68px;height:68px;border-radius:50%;background:${C.red}`, s7);
+  sample(dot, 12.1, 12.55, (t) => ({ transform: `scale(${Math.max(0.001, pw(t, [[12.12, 0], [12.3, 0.8, E.out], [12.42, 1.05], [12.5, 1]]))})` }));
+}
+
+/* ---------------- shot 8: cream end card, Claude. (13.13 - 15.06) ---------------- */
+const s8 = scene('#EAE5DD', 13.118, 15.2);
+sample(s8, 13.11, 13.24, (t) => ({ clipPath: `circle(${pw(t, [[13.122, 0], [13.133, 180], [13.15, 480], [13.183, 860], [13.2, 1000], [13.217, 1090], [13.233, 1200]])}px at 960px 540px)` }));
+{
+  const ink = '#151515';
+  const word = el('div', `position:absolute;font-family:Charter,"Iowan Old Style",Georgia,serif;font-weight:700;font-size:240px;color:${ink};white-space:pre;overflow:hidden;padding:0 20px;margin-left:-20px`, s8);
+  const letters = [...'Claude'].map((ch) => el('span', 'display:inline-block', word, ch));
+  word.style.fontSize = (240 * 672 / (word.offsetWidth - 40)) + 'px';
+  const b = baselineOf(word);
+  word.style.height = (b + 12) + 'px';
+  placeText(word, 600, 586);
+  letters.forEach((l, j) => {
+    const st = 13.25 + 0.055 * j;
+    sample(l, 13.24, 13.85, (t) => ({ transform: `translateY(${((b + 12) * (1 - E.out(clamp((t - st) / 0.25, 0, 1)))).toFixed(2)}px)` }));
+  });
+  const md = el('div', `position:absolute;font-size:26px;color:${ink}`, s8, 'MOTION DESIGNER');
+  md.className = 'din'; fitWidth(md, 434); placeText(md, 740, 697);
+  sample(md, 13.6, 13.78, (t) => { const p = E.out(clamp((t - 13.62) / 0.13, 0, 1)); return { opacity: p, transform: `translateY(${8 * (1 - p)}px)` }; });
+  const SUB = '900 FRAMES · 60 FPS · 128 BPM · WRITTEN ENTIRELY IN CODE';
+  const sub = el('div', 'position:absolute;font-size:15px;color:#8D887F', s8);
+  sub.className = 'din';
+  const subChars = [...SUB].map((ch) => el('span', '', sub, ch));
+  fitWidth(sub, 734); placeText(sub, 564, 755);
+  subChars.forEach((c, i) => anim(c, [{ t: 0, opacity: 0 }, { t: 14.05 + i * 0.0125, opacity: 0 }, { t: 14.05 + i * 0.0125, opacity: 1 }]));
+  const dot = el('div', `position:absolute;left:-50px;top:-50px;width:100px;height:100px;border-radius:50%;background:${C.red}`, s8);
+  const DP = [[13.12, 960, 540, 68, 68], [13.133, 960, 540, 96, 64], [13.15, 960, 540, 96, 64], [13.183, 968, 520, 56, 68], [13.2, 980, 480, 44, 58],
+    [13.233, 1008, 420, 40, 52], [13.267, 1032, 372, 40, 50], [13.283, 1048, 348, 40, 48], [13.35, 1096, 304, 44, 40], [13.42, 1150, 300, 40, 40],
+    [13.483, 1208, 352, 30, 34], [13.55, 1280, 500, 36, 40], [13.6, 1302, 568, 40, 40]];
+  sample(dot, 13.11, 13.62, (t) => {
+    const v = (c) => pw(t, DP.map((d) => [d[0], d[c]]));
+    return { transform: `translate(${v(1)}px,${v(2)}px) scale(${v(3) / 100},${v(4) / 100})` };
+  });
+}
+
+/* ---------------- HUD (frame counter, timecode, bar and beat) ---------------- */
+{
+  const hud = el('div', `position:absolute;left:0;top:0;width:1920px;height:1080px;z-index:10;color:${C.paper}`);
+  hud.className = 'din';
+  sample(hud, 0.09, 0.25, (t) => ({ opacity: pw(t, [[0.1, 0], [0.24, 1]]) }));
+  anim(hud, [[0, C.paper], [1.915, C.ink], [3.745, C.paper], [5.6167, C.ink], [7.4917, C.paper], [9.375, C.ink], [11.2417, C.paper], [13.2, C.ink]]
+    .map(([t, c]) => ({ t, color: c, e: 'step-end' })));
+  const br = (x, y, w, h) => el('div', `position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;background:currentColor;opacity:.55`, hud);
+  br(56, 56, 30, 2); br(56, 56, 2, 30); br(1834, 56, 30, 2); br(1862, 56, 2, 30);
+  br(56, 1022, 30, 2); br(56, 994, 2, 30); br(1834, 1022, 30, 2); br(1862, 994, 2, 30);
+  const text = 'position:absolute;font-size:17px;line-height:20px;letter-spacing:.2em;white-space:pre';
+  const tl = el('div', `${text};left:87px;top:72px`, hud, 'CLAUDE<span style="opacity:.5;margin-left:1.05em">MOTION REEL 2026</span>');
+  const tr = el('div', `${text};right:84px;top:72px`, hud);
+  const sqs = el('span', 'display:inline-block;height:20px;vertical-align:top;margin-right:.9em', tr);
+  for (let i = 0; i < 4; i++) {
+    const sq = el('span', 'display:inline-block;position:relative;width:8px;height:8px;margin:6px 8px 0 0;vertical-align:top', sqs);
+    el('span', 'position:absolute;left:0;top:0;width:8px;height:8px;box-sizing:border-box;border:1.5px solid currentColor;opacity:.5', sq);
+    const fill = el('span', 'position:absolute;left:-1.5px;top:-1.5px;width:11px;height:11px;background:currentColor', sq);
+    const k = [];
+    for (let b = 0; b <= 33; b++) k.push({ t: Math.max(0, b * BEAT - 0.001), opacity: b % 4 === i ? 1 : 0, e: 'step-end' });
+    anim(fill, k);
+  }
+  ticker(tr, Array.from({ length: 8 }, (_, b) => [Math.max(0, b * BAR - 0.001), `BAR ${b + 1}/8`]), 20, 'opacity:.5;margin-right:.9em');
+  el('span', '', tr, '128 BPM');
+  const brt = el('div', `${text};right:84px;top:983px`, hud);
+  const tcF = [], tcT = [];
+  for (let f = 0; f <= 912; f++) {
+    tcF.push([frameTime(f), 'F' + pad(f + 1, 4)]);
+    tcT.push([frameTime(f), `00:00:${pad(Math.floor(f / 60), 2)}:${pad(f % 60, 2)}`]);
+  }
+  const fcount = ticker(brt, tcF, 20, 'opacity:.5;margin-right:1.2em');
+  ticker(brt, tcT, 20);
+  [tl, tr, fcount].forEach((e) => sample(e, 13.14, 13.28, (t) => ({ opacity: pw(t, [[13.15, e === fcount ? 0.5 : 1], [13.27, 0]]) })));
+}
+
+/* All animations share one start time: page time 0 is clip time 0. */
+const t0 = document.timeline.currentTime || 0;
+for (const a of ALL) a.startTime = t0;
+if (location.hash.startsWith('#t=')) {
+  const ms = parseFloat(location.hash.slice(3)) * 1000;
+  for (const a of ALL) { a.pause(); a.currentTime = ms; }
+}
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@
     "why": "Por qué",
     "benchmarks": "Benchmarks",
     "when": "Cuándo usarla",
+    "cases": "Casos de uso",
     "install": "Instalación",
     "usage": "Uso",
     "how": "Cómo funciona",
@@ -243,6 +244,29 @@
     "skip_gist": "**Captar rápido la idea general de un clip corto.** El modelo por sí solo lo resuelve, y cargar la skill añade un poco de costo.",
     "skip_os": "**Windows o Linux.** video-lens solo funciona en macOS.",
     "skip_features": "**Etiquetas de hablante, detección de idioma o tempo musical.** No se admiten."
+  },
+  "cases": {
+    "title": "Caso de uso: reconstruir showreels virales",
+    "intro": "En la semana del lanzamiento de Claude Opus 5.5, un prompt de una línea para un showreel de motion graphics de 15 segundos se extendió por X. Tomamos {count} de los reels más compartidos, uno de ellos la respuesta de GPT-6 Astra al mismo prompt, y le dimos cada uno a {model} en Claude Code con video-lens y un solo prompt: averiguar cómo se mueve el video y reconstruirlo como una sola página HTML. Abajo está lo que devolvió, renderizado fotograma a fotograma y sin retoques, con su puntuación frente al original.",
+    "card_title": "{author} · hecho con {made_with}",
+    "video_label": "Reconstrucción del reel de {author}",
+    "original": "Original: [{author} en X]({url}), {likes} me gusta y {views} visualizaciones",
+    "look": "**Parecido:** {look} (dos reels distintos de la misma tendencia: {floor})",
+    "cuts": "**Cortes:** {matched} de los {total} cortes secos del original están en la reconstrucción, con menos de 0,1 s de diferencia",
+    "words": "**Palabras:** {found} de las {total} palabras en pantalla del original están en la reconstrucción",
+    "run": "**Ejecución:** {minutes} min, {cost} a precios de la API, sin retoques humanos",
+    "page_link": "[Abrir la página reconstruida]({page}) (un solo archivo HTML que se reproduce una vez al abrirse)",
+    "scoring_title": "Cómo se puntuaron las reconstrucciones",
+    "scoring_look": "**Parecido** es el SSIM, una medida estándar de similitud de imagen, entre el original y la reconstrucción en el mismo instante, 10 veces por segundo (1 = idénticos). Dos reels distintos de la misma tendencia dan el mínimo que aparece al lado.",
+    "scoring_cuts": "**Cortes**: los encuentra el detector de escenas de ffmpeg en ambos clips. Un corte cuenta cuando la reconstrucción corta a menos de 0,1 s del original.",
+    "scoring_words": "**Palabras**: las lee el OCR de video-lens en ambos clips, y solo se cuentan palabras del diccionario para descartar lecturas erróneas.",
+    "scoring_originals": "Los originales se quedan en X: esta página enlaza a ellos y solo muestra las reconstrucciones, que son código escrito por Claude. Los me gusta y las visualizaciones son de la [galería de videos de la semana de lanzamiento de Revid](https://www.revid.ai/claude-motion-graphics) del 28 de septiembre de 2026. Scripts: [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
+    "prompt_title": "El prompt, el mismo para cada reel salvo la duración del render (15,03 s para el reel de GPT-6 Astra)",
+    "note": {
+      "stephanlivera": "Lo que sigue fallando: el desenfoque de movimiento y la separación RGB se imitan con filtros de desenfoque, las formas 3D de puntos no tienen líneas entre los puntos y la oscilación del ancho de CLAUDE es más débil que en el original. La página pide SF Pro y JetBrains Mono, así que un navegador sin ellas muestra otras fuentes; la referencia es el video.",
+      "ajith": "Lo que sigue fallando: la esfera de puntos sobre crema es más plana que la del original, llena de púas; falta el contorno cuadrado rojo sobre el suelo azul a los 7,35 s, y se omitieron el grano de película y el desenfoque de movimiento. Las fuentes son sustitutas que trae macOS. La mayoría de las palabras perdidas son trozos de texto curvado en círculo, que el OCR lee a pedazos.",
+      "astra": "Original: la mitad de GPT-6 Astra de una publicación que compara ambos resultados, cortada en el fotograma donde empieza su reel (16,8 s). Lo que sigue fallando: los objetos 3D cromados (nudo, cinta, ocho, estrella) son aproximaciones planas en SVG y CSS sin reflejos, y la fuente de los titulares es otra. Este reel cambia de escena sobre todo con barridos, que el recuento de cortes secos no incluye; según la propia medición de la ejecución, 6 de sus 7 transiciones caen en el mismo fotograma que en el original y una llega un fotograma tarde."
+    }
   },
   "install": {
     "title": "Instalación",

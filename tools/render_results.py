@@ -25,6 +25,7 @@ half up, like Intl.NumberFormat on the page.
 Standard library only.
 """
 import datetime
+import html
 import json
 import re
 import sys
@@ -35,6 +36,7 @@ from i18n import rich_html
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs" / "data" / "benchmark.json"
+CASES = ROOT / "docs" / "data" / "cases.json"
 I18N = ROOT / "docs" / "i18n"
 PAGE = ROOT / "docs" / "index.html"
 SETUP_FIELDS = ("harness", "effort", "cost", "time")
@@ -81,8 +83,8 @@ class Labels:
     def score(self, value):
         return self.number(value, 3)
 
-    def usd(self, value):
-        return self.t("format.usd", n=self.number(value, 3))
+    def usd(self, value, digits=3):
+        return self.t("format.usd", n=self.number(value, digits))
 
     def seconds(self, value):
         return self.t("format.seconds", n=self.number(value, 1))
@@ -317,8 +319,37 @@ def items(texts):
     return [f"<li>{rich_html(text)}</li>" for text in texts]
 
 
+def cases_content(cases, labels):
+    """The use-case cards site.js builds from docs/data/cases.json, as English HTML."""
+    cards = []
+    for case in cases["cases"]:
+        cost = labels.usd(case["cost_usd"], 2)
+        scores = [labels.t("cases.look", look=labels.score(case["look"]), floor=labels.score(case["look_floor"])),
+                  labels.t("cases.cuts", matched=case["cuts_matched"], total=case["cuts_original"]),
+                  labels.t("cases.words", found=case["words_found"], total=case["words_original"]),
+                  labels.t("cases.run", minutes=case["minutes"], cost=cost)]
+        video_label = html.escape(labels.t("cases.video_label", author=case["author"]))
+        original = labels.t("cases.original", author=case["author"], url=case["url"], likes=case["likes"],
+                            views=case["views"])
+        cards += ['<article class="card case">',
+                  f'  <h3>{rich_html(labels.t("cases.card_title", author=case["author"], made_with=case["made_with"]))}</h3>',
+                  f'  <video class="case-video" data-case="{html.escape(case["id"])}" controls muted playsinline preload="none" '
+                  f'poster="{html.escape(case["poster"])}" aria-label="{video_label}">'
+                  f'<source src="{html.escape(case["video"])}" type="video/mp4"></video>',
+                  f'  <p class="note">{rich_html(original)}</p>',
+                  '  <ul class="list case-scores">', *(f"    {item}" for item in items(scores)), "  </ul>",
+                  f'  <p class="note">{rich_html(labels.t("cases.note." + case["id"]))}</p>',
+                  f'  <p class="case-link">{rich_html(labels.t("cases.page_link", page=case["page"]))}</p>',
+                  "</article>"]
+    return {"cases-intro": labels.t("cases.intro", count=len(cases["cases"]), model=cases["model"]), "cases-list": cards,
+            "cases-prompt": cases["prompt"]}
+
+
 def rendered_page(page, data, labels):
-    for element_id, content in page_content(data, labels).items():
+    content_by_id = page_content(data, labels)
+    if CASES.exists():
+        content_by_id |= cases_content(load_json(CASES), labels)
+    for element_id, content in content_by_id.items():
         pattern = re.compile(rf'(<([a-zA-Z][\w-]*)\b[^>]*\sid="{re.escape(element_id)}"[^>]*>)(.*?)(</\2\s*>)', re.S)
         matches = list(pattern.finditer(page))
         if len(matches) != 1:

@@ -307,6 +307,15 @@ tbody tr:last-child > * { border-bottom: 0; }
 .pipeline h3 { font-size: 16px; }
 .pipeline p { font-size: 14.5px; color: var(--ink-2); }
 
+/* Use cases */
+.case-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.case-video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--film); border-radius: 8px; }
+.case-scores { gap: 4px; font-size: 15px; }
+.case-link { font-weight: 600; }
+.prompt-box summary { cursor: pointer; font-weight: 600; width: fit-content; }
+.prompt-box summary:hover { color: var(--link); }
+.prompt-box pre { margin-top: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding-block: 28px 44px; color: var(--ink-2); font-size: 14px; }
 .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; }

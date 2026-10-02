@@ -9,6 +9,7 @@
     "why": "為什麼",
     "benchmarks": "基準測試",
     "when": "使用時機",
+    "cases": "使用案例",
     "install": "安裝",
     "usage": "使用方式",
     "how": "運作方式",
@@ -243,6 +244,29 @@
     "skip_gist": "**快速掌握短片大意。** 只用模型就能處理，而載入技能會多花一點成本。",
     "skip_os": "**Windows 或 Linux。** video-lens 只能在 macOS 上執行。",
     "skip_features": "**說話者標記、語言偵測或音樂節拍。** 這些都不支援。"
+  },
+  "cases": {
+    "title": "使用案例：重做爆紅的展示短片",
+    "intro": "Claude Opus 5.5 發布那週，一句用來產生 15 秒動態圖像展示短片的提示詞在 X 上廣為流傳。我們挑了 {count} 支分享最多的短片（其中一支是 GPT-6 Astra 對同一提示詞的作品），把每一支交給 Claude Code 裡的 {model}，只搭配 video-lens 和一句提示詞：弄清影片怎麼動，再把它重做成一個 HTML 頁面。下面是拿回來的結果，原樣逐格渲染，並附上與原片比較的分數。",
+    "card_title": "{author} · 以 {made_with} 製作",
+    "video_label": "重做 {author} 展示短片的影片",
+    "original": "原片：[X 上的 {author}]({url})，{likes} 個讚，{views} 次觀看",
+    "look": "**相似度：** {look}（同一潮流中兩支不同短片之間：{floor}）",
+    "cuts": "**切換：** 原片 {total} 處硬切中有 {matched} 處在 0.1 秒內出現在重做版",
+    "words": "**文字：** 原片畫面上 {total} 個單字中有 {found} 個出現在重做版",
+    "run": "**執行：** {minutes} 分鐘，以 API 價格計 {cost}，沒有人工修改",
+    "page_link": "[開啟重做的頁面]({page})（一個開啟後播放一次的 HTML 檔）",
+    "scoring_title": "評分方式",
+    "scoring_look": "**相似度**是 SSIM（常用的影像相似度分數，1 代表完全相同），每秒 10 次比較原片與重做版在同一時刻的畫面。旁邊的數值是同一潮流中兩支不同短片相比的下限。",
+    "scoring_cuts": "**切換**在兩段影片中都用 ffmpeg 的場景偵測找出。重做版在原片切換的 0.1 秒內切換，就算對上。",
+    "scoring_words": "**文字**在兩段影片中都用 video-lens 的 OCR 讀取，只計算字典裡有的單字，誤讀會被濾掉。",
+    "scoring_originals": "原片留在 X 上：本頁只連結原片，只展示重做版，也就是 Claude 寫的程式碼。按讚與觀看數取自 2026 年 9 月 28 日的 [Revid 發布週影片合集](https://www.revid.ai/claude-motion-graphics)。腳本：[bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases)。",
+    "prompt_title": "提示詞（除渲染長度外每支短片相同，GPT-6 Astra 的短片為 15.03 秒）",
+    "note": {
+      "stephanlivera": "仍有差異：動態模糊和 RGB 分離以模糊濾鏡模仿，3D 點狀圖形的點之間沒有連線，CLAUDE 字寬的起伏比原片弱。頁面指定了 SF Pro 和 JetBrains Mono，沒有這些字型的瀏覽器會顯示其他字型，以影片為準。",
+      "ajith": "仍有差異：米色背景上的點狀球體比原片帶尖刺的立體更扁，7.35 秒藍色地面上方的紅色方框缺失，底片顆粒和動態模糊沒有做。字型是 macOS 內建的替代字型。漏掉的單字大多是彎成圓形的文字，OCR 只讀出片段。",
+      "astra": "原片：並排展示兩種結果的貼文中 GPT-6 Astra 那一半，從其短片開始的那一格（16.8 秒）剪出。仍有差異：鉻質感的 3D 物件（繩結、緞帶、8 字、星形）是沒有反射的平面 SVG 與 CSS 近似，大標題字型也不同。這支短片多半用劃接切換場景，而切換計數只算硬切；依這次執行自己的量測，7 處轉場中有 6 處與原片落在同一格，1 處晚了 1 格。"
+    }
   },
   "install": {
     "title": "安裝",
