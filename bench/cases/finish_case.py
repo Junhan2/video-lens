@@ -5,9 +5,10 @@
 
 The final page is rendered again here (declared.mjs, 1920x1080, 60 fps) so the score belongs to the page that is
 published, not to whatever render the run made before its last edit. The render length and the floor (another
-reel's original, for the look score of two different reels) come from the case's row in sources.tsv. Writes runs/NAME/summary.json, a 1280x720 web copy and
-a poster under web/, and side_by_side.mp4 (original left, rebuild right) for looking at locally; the side-by-side is
-never published because the left half is someone else's video.
+reel's original, for the look score of two different reels) come from the case's row in sources.tsv. Writes
+runs/NAME/summary.json and side_by_side.mp4 (original left, rebuild right). For a video-lens run it also writes the web
+files under web/: the comparison video (the original muted at half size beside the rebuild, labelled), its poster,
+and the page.
 """
 import csv
 import json
@@ -25,8 +26,38 @@ SKILL = Path(os.environ.get("VIDEO_LENS_SKILL_LINK", Path.home() / ".claude/skil
 DECLARED = SKILL / "scripts" / "declared.mjs"
 
 
+FONT = "/System/Library/Fonts/HelveticaNeue.ttc"
+
+
 def run(*args):
     subprocess.run([str(arg) for arg in args], check=True, capture_output=True)
+
+
+def label_png(text, path):
+    """A small white-on-dark tag; the Homebrew ffmpeg here has no drawtext, so it is overlaid as an image."""
+    from PIL import Image, ImageDraw, ImageFont
+    font = ImageFont.truetype(FONT, 20)
+    left, top, right, bottom = font.getbbox(text)
+    image = Image.new("RGBA", (right - left + 20, bottom - top + 14), (0, 0, 0, 140))
+    ImageDraw.Draw(image).text((10 - left, 7 - top), text, font=font, fill=(255, 255, 255, 255))
+    image.save(path)
+
+
+def write_web(name, original, render, page):
+    """The published comparison: original | rebuild at 960x540 each, no sound, and its poster near the end."""
+    web = ROOT / "web"
+    web.mkdir(exist_ok=True)
+    tags = [web / "tag-original.png", web / "tag-rebuild.png"]
+    label_png("ORIGINAL", tags[0])
+    label_png("VIDEO-LENS REBUILD", tags[1])
+    pair = ("[0:v]scale=960:540,fps=60[o];[o][2:v]overlay=16:16[a];"
+            "[1:v]scale=960:540[r];[r][3:v]overlay=16:16[b];[a][b]hstack=shortest=1")
+    run("ffmpeg", "-v", "error", "-y", "-i", original, "-i", render, "-i", tags[0], "-i", tags[1],
+        "-filter_complex", pair, "-c:v", "libx264",
+        "-crf", "26", "-preset", "slow", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", web / f"{name}.mp4")
+    run("ffmpeg", "-v", "error", "-y", "-sseof", "-0.6", "-i", web / f"{name}.mp4", "-frames:v", "1", "-q:v", "4",
+        web / f"{name}.jpg")
+    shutil.copy(page, web / f"{name}.html")
 
 
 def run_stats(log):
@@ -79,13 +110,7 @@ def main(name):
     print(json.dumps({k: v for k, v in summary.items() if k != "words_missing"}))
     if name != reel:
         return   # the run without video-lens is published as numbers only
-    web = ROOT / "web"
-    web.mkdir(exist_ok=True)
-    run("ffmpeg", "-v", "error", "-y", "-i", render, "-vf", "scale=1280:720", "-c:v", "libx264", "-crf", "26",
-        "-preset", "slow", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-an", web / f"{name}.mp4")
-    run("ffmpeg", "-v", "error", "-y", "-sseof", "-0.6", "-i", render, "-frames:v", "1", "-vf", "scale=1280:720",
-        "-q:v", "4", web / f"{name}.jpg")
-    shutil.copy(page, web / f"{name}.html")
+    write_web(name, original, render, page)
 
 
 if __name__ == "__main__":

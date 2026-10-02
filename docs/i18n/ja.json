@@ -250,7 +250,7 @@
     "intro": "Claude Opus 5.5 のリリース週、15 秒のモーショングラフィックス・ショーリールを作る一行プロンプトが X で広まりました。最も多く共有されたリールを {count} 本選び(うち 1 本は同じプロンプトに対する GPT-6 Astra の結果)、それぞれを Claude Code 上の {model} に video-lens と 1 つのプロンプトだけで任せました。依頼は、動画がどう動いているかを読み解き、1 枚の HTML ページとして作り直すことです。以下は返ってきた結果を手を加えずにフレーム単位でレンダリングしたもので、元の動画と比べたスコアを添えています。",
     "verdict": "**ここで video-lens が変えたもの:** 元の動画への近さではありませんでした。video-lens なしでも、同じモデルの作り直しは {count} 本中 {closer} 本で同じかそれ以上に近くなりました(似ている度合いの平均 {alone}、video-lens ありは {lens})。video-lens を使うとコストの合計は {cost}で、{count} 本中 {faster} 本は速く終わりました。リールごとに 1 回ずつの実行なので、測定ではなく例です。",
     "card_title": "{author} · {made_with} で制作",
-    "video_label": "{author} のリールを作り直した動画",
+    "video_label": "{author} の元の動画(左)と video-lens による作り直し(右)",
     "original": "元の動画: [X の {author}]({url})、いいね {likes}、表示 {views}",
     "look": "**似ている度合い:** {look} (同じ流行の別々のリール同士: {floor})",
     "cuts": "**カット:** 元のハードカット {total} 回のうち {matched} 回が、0.1 秒以内で作り直しにもある",
@@ -263,7 +263,7 @@
     "scoring_cuts": "**カット**は、両方の動画で ffmpeg のシーン検出を使って見つけます。作り直しが元の動画と 0.1 秒以内で切り替われば一致と数えます。",
     "scoring_words": "**文字**は、両方の動画を video-lens の OCR で読み、辞書にある単語だけを数えて読み間違いを除きます。",
     "scoring_alone": "**同じモデル、video-lens なし**は、スキルの部分だけを除いた同じプロンプトです。スキルを一切読み込まず、ディスク上の video-lens を隠し、ほかの作り直しが見えないフォルダで実行しました。フレームの取り出しとレンダリングはモデル自身が書きました。最終ページは同じ方法でレンダリングし、採点しています。",
-    "scoring_originals": "元の動画は X に置いたままです。このページは元の動画へのリンクだけを置き、Claude が書いたコードである作り直しだけを見せます。いいねと表示回数は 2026 年 9 月 28 日時点の [Revid のリリース週動画ギャラリー](https://www.revid.ai/claude-motion-graphics) によります。スクリプト: [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases)。",
+    "scoring_originals": "各動画は、左に元の動画を音なし・半分の大きさで比較のために置き、右に Claude が書いたコードである作り直しを置いています。下のリンクは元の投稿に飛びます。いいねと表示回数は 2026 年 9 月 28 日時点の [Revid のリリース週動画ギャラリー](https://www.revid.ai/claude-motion-graphics) によります。スクリプト: [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases)。",
     "prompt_title": "プロンプト (レンダリングの長さ以外はどのリールでも同じ。GPT-6 Astra のリールは 15.03 秒)",
     "note": {
       "stephanlivera": "残る違い: モーションブラーと RGB のずれはぼかしフィルターでまねており、3D の点の形には点同士を結ぶ線がなく、CLAUDE の文字幅の揺れが元より弱めです。ページは SF Pro と JetBrains Mono を指定しているため、これらがないブラウザでは別のフォントで表示されます。基準は動画です。",

@@ -250,7 +250,7 @@
     "intro": "In der Startwoche von Claude Opus 5.5 verbreitete sich auf X ein Einzeiler-Prompt für ein 15-sekündiges Motion-Graphics-Showreel. Wir haben {count} der meistgeteilten Reels genommen, darunter die Antwort von GPT-6 Astra auf denselben Prompt, und jedes davon {model} in Claude Code gegeben, mit video-lens und einem einzigen Prompt: herausfinden, wie sich das Video bewegt, und es als eine HTML-Seite nachbauen. Unten steht, was zurückkam, Bild für Bild gerendert und unverändert, bewertet gegen das Original.",
     "verdict": "**Was video-lens hier geändert hat:** nicht, wie nah die Nachbauten herankamen. Ohne video-lens waren die Nachbauten desselben Modells in {closer} von {count} Reels mindestens so nah (Ähnlichkeit im Mittel {alone}, mit video-lens {lens}). Mit video-lens lagen die Gesamtkosten {cost}, und {faster} von {count} waren schneller. Ein Lauf pro Reel: Beispiele, keine Messung.",
     "card_title": "{author} · erstellt mit {made_with}",
-    "video_label": "Nachbau des Reels von {author}",
+    "video_label": "Das Original von {author} (links) und der Nachbau mit video-lens (rechts)",
     "original": "Original: [{author} auf X]({url}), {likes} Likes und {views} Aufrufe",
     "look": "**Ähnlichkeit:** {look} (zwei verschiedene Reels desselben Trends: {floor})",
     "cuts": "**Schnitte:** {matched} der {total} harten Schnitte des Originals sind im Nachbau, auf 0,1 s genau",
@@ -263,7 +263,7 @@
     "scoring_cuts": "**Schnitte** findet der Szenendetektor von ffmpeg in beiden Clips. Ein Schnitt zählt, wenn der Nachbau innerhalb von 0,1 s nach oder vor dem Original schneidet.",
     "scoring_words": "**Wörter** liest die OCR von video-lens in beiden Clips; gezählt werden nur Wörter aus dem Wörterbuch, damit Lesefehler wegfallen.",
     "scoring_alone": "**Dasselbe Modell, ohne video-lens** ist derselbe Prompt ohne den Skill-Teil: keine Skills geladen, video-lens auf der Festplatte versteckt und ein Arbeitsordner, aus dem die anderen Nachbauten nicht sichtbar sind. Das Modell schrieb Bildextraktion und Rendering selbst. Seine fertige Seite wird genauso gerendert und bewertet.",
-    "scoring_originals": "Die Originale bleiben auf X: Diese Seite verlinkt sie und zeigt nur die Nachbauten, also Code, den Claude geschrieben hat. Likes und Aufrufe stammen aus der [Galerie der Startwochen-Videos von Revid](https://www.revid.ai/claude-motion-graphics) vom 28. September 2026. Skripte: [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
+    "scoring_originals": "Jedes Video zeigt links das Original, stumm und in halber Größe, zum Vergleich, und rechts den Nachbau, also Code, den Claude geschrieben hat; der Link darunter führt zum Originalbeitrag. Likes und Aufrufe stammen aus der [Galerie der Startwochen-Videos von Revid](https://www.revid.ai/claude-motion-graphics) vom 28. September 2026. Skripte: [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
     "prompt_title": "Der Prompt, für jedes Reel derselbe bis auf die Renderlänge (15,03 s beim Reel von GPT-6 Astra)",
     "note": {
       "stephanlivera": "Noch abweichend: Bewegungsunschärfe und RGB-Versatz sind mit Weichzeichnern nachgeahmt, die 3D-Punktformen haben keine Linien zwischen den Punkten, und die Breitenschwankung von CLAUDE ist schwächer als im Original. Die Seite verlangt SF Pro und JetBrains Mono; ein Browser ohne diese Schriften zeigt andere. Maßgeblich ist das Video.",

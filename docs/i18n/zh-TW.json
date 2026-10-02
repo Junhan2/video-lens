@@ -250,7 +250,7 @@
     "intro": "Claude Opus 5.5 發布那週，一句用來產生 15 秒動態圖像展示短片的提示詞在 X 上廣為流傳。我們挑了 {count} 支分享最多的短片（其中一支是 GPT-6 Astra 對同一提示詞的作品），把每一支交給 Claude Code 裡的 {model}，只搭配 video-lens 和一句提示詞：弄清影片怎麼動，再把它重做成一個 HTML 頁面。下面是拿回來的結果，原樣逐格渲染，並附上與原片比較的分數。",
     "verdict": "**video-lens 在這裡改變了什麼：** 不是重做版有多接近原片。不用 video-lens 時，同一模型的重做版在 {count} 支中有 {closer} 支至少一樣接近（相似度平均 {alone}，用 video-lens 時為 {lens}）。用了 video-lens，成本合計{cost}，{count} 支中有 {faster} 支更快完成。每支短片只跑一次，這些是範例，不是量測。",
     "card_title": "{author} · 以 {made_with} 製作",
-    "video_label": "重做 {author} 展示短片的影片",
+    "video_label": "{author} 的原片（左）與用 video-lens 重做的版本（右）",
     "original": "原片：[X 上的 {author}]({url})，{likes} 個讚，{views} 次觀看",
     "look": "**相似度：** {look}（同一潮流中兩支不同短片之間：{floor}）",
     "cuts": "**切換：** 原片 {total} 處硬切中有 {matched} 處在 0.1 秒內出現在重做版",
@@ -263,7 +263,7 @@
     "scoring_cuts": "**切換**在兩段影片中都用 ffmpeg 的場景偵測找出。重做版在原片切換的 0.1 秒內切換，就算對上。",
     "scoring_words": "**文字**在兩段影片中都用 video-lens 的 OCR 讀取，只計算字典裡有的單字，誤讀會被濾掉。",
     "scoring_alone": "**同一模型，不用 video-lens** 是拿掉技能部分的同一句提示詞：不載入任何技能，把磁碟上的 video-lens 藏起來，並在看不到其他重做結果的資料夾裡執行。擷取影格與渲染由模型自己撰寫。最終頁面用同樣的方式渲染與評分。",
-    "scoring_originals": "原片留在 X 上：本頁只連結原片，只展示重做版，也就是 Claude 寫的程式碼。按讚與觀看數取自 2026 年 9 月 28 日的 [Revid 發布週影片合集](https://www.revid.ai/claude-motion-graphics)。腳本：[bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases)。",
+    "scoring_originals": "每段影片左邊是原片，靜音並縮小一半供比較，右邊是重做版，也就是 Claude 寫的程式碼；下方連結指向原貼文。按讚與觀看數取自 2026 年 9 月 28 日的 [Revid 發布週影片合集](https://www.revid.ai/claude-motion-graphics)。腳本：[bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases)。",
     "prompt_title": "提示詞（除渲染長度外每支短片相同，GPT-6 Astra 的短片為 15.03 秒）",
     "note": {
       "stephanlivera": "仍有差異：動態模糊和 RGB 分離以模糊濾鏡模仿，3D 點狀圖形的點之間沒有連線，CLAUDE 字寬的起伏比原片弱。頁面指定了 SF Pro 和 JetBrains Mono，沒有這些字型的瀏覽器會顯示其他字型，以影片為準。",

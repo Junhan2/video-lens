@@ -239,7 +239,7 @@
     <div class="case-grid" id="cases-list">
       <article class="card case">
         <h3>@stephanlivera · made with Claude Opus 5.5</h3>
-        <video class="case-video" data-case="stephanlivera" controls muted playsinline preload="none" poster="assets/cases/stephanlivera.jpg" aria-label="Rebuild of the reel by @stephanlivera"><source src="assets/cases/stephanlivera.mp4" type="video/mp4"></video>
+        <video class="case-video" data-case="stephanlivera" controls muted playsinline preload="none" poster="assets/cases/stephanlivera.jpg" aria-label="The original by @stephanlivera (left) and the video-lens rebuild (right)"><source src="assets/cases/stephanlivera.mp4" type="video/mp4"></video>
         <p class="note">Original: <a href="https://x.com/stephanlivera/status/2103315922098470926">@stephanlivera on X</a>, 16k likes and 1.7M views</p>
         <ul class="list case-scores">
           <li><strong>Looks alike:</strong> 0.786 (two different reels from the trend: 0.344)</li>
@@ -253,7 +253,7 @@
       </article>
       <article class="card case">
         <h3>@ajith_io · made with Claude Opus 5.5</h3>
-        <video class="case-video" data-case="ajith" controls muted playsinline preload="none" poster="assets/cases/ajith.jpg" aria-label="Rebuild of the reel by @ajith_io"><source src="assets/cases/ajith.mp4" type="video/mp4"></video>
+        <video class="case-video" data-case="ajith" controls muted playsinline preload="none" poster="assets/cases/ajith.jpg" aria-label="The original by @ajith_io (left) and the video-lens rebuild (right)"><source src="assets/cases/ajith.mp4" type="video/mp4"></video>
         <p class="note">Original: <a href="https://x.com/ajith_io/status/2103449416325890146">@ajith_io on X</a>, 3.8k likes and 546k views</p>
         <ul class="list case-scores">
           <li><strong>Looks alike:</strong> 0.810 (two different reels from the trend: 0.344)</li>
@@ -267,7 +267,7 @@
       </article>
       <article class="card case">
         <h3>@shneural · made with GPT-6 Astra</h3>
-        <video class="case-video" data-case="astra" controls muted playsinline preload="none" poster="assets/cases/astra.jpg" aria-label="Rebuild of the reel by @shneural"><source src="assets/cases/astra.mp4" type="video/mp4"></video>
+        <video class="case-video" data-case="astra" controls muted playsinline preload="none" poster="assets/cases/astra.jpg" aria-label="The original by @shneural (left) and the video-lens rebuild (right)"><source src="assets/cases/astra.mp4" type="video/mp4"></video>
         <p class="note">Original: <a href="https://x.com/shneural/status/2103151003272962130">@shneural on X</a>, 6.6k likes and 1.7M views</p>
         <ul class="list case-scores">
           <li><strong>Looks alike:</strong> 0.809 (two different reels from the trend: 0.258)</li>
@@ -287,7 +287,7 @@
         <li data-i18n="cases.scoring_cuts"><strong>Cuts</strong> are found by ffmpeg's scene detector in both clips. A cut counts when the rebuild cuts within 0.1 s of the original.</li>
         <li data-i18n="cases.scoring_words"><strong>Words</strong> are read by the video-lens OCR in both clips, counting only dictionary words so misreadings drop out.</li>
         <li data-i18n="cases.scoring_alone"><strong>Same model, no video-lens</strong> is the same prompt without the skill: no skills loaded, video-lens hidden on disk, and a working folder where the other rebuilds cannot be seen. The model wrote its own frame extraction and rendering. Its final page is rendered and scored the same way.</li>
-        <li data-i18n="cases.scoring_originals">The originals stay on X: this page links to them and shows only the rebuilds, which are code Claude wrote. Likes and views are from <a href="https://www.revid.ai/claude-motion-graphics">Revid's gallery of launch-week videos</a> on September 28, 2026. Scripts: <a href="https://github.com/Junhan2/video-lens/tree/main/bench/cases">bench/cases</a>.</li>
+        <li data-i18n="cases.scoring_originals">Each video shows the original on the left, muted and at half size, for comparison, and the rebuild on the right, which is code Claude wrote; the link under it goes to the original post. Likes and views are from <a href="https://www.revid.ai/claude-motion-graphics">Revid's gallery of launch-week videos</a> on September 28, 2026. Scripts: <a href="https://github.com/Junhan2/video-lens/tree/main/bench/cases">bench/cases</a>.</li>
       </ul>
     </div>
     <details class="block prompt-box">

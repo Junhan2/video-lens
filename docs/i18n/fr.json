@@ -250,7 +250,7 @@
     "intro": "Pendant la semaine de lancement de Claude Opus 5.5, un prompt d'une ligne pour un showreel de motion design de 15 secondes s'est répandu sur X. Nous avons pris {count} des reels les plus partagés, dont la réponse de GPT-6 Astra au même prompt, et confié chacun à {model} dans Claude Code avec video-lens et un seul prompt : comprendre comment la vidéo bouge et la refaire sous forme d'une seule page HTML. Voici ce qui est revenu, rendu image par image et laissé tel quel, avec son score face à l'original.",
     "verdict": "**Ce que video-lens a changé ici :** pas la proximité des reconstructions. Sans lui, celles du même modèle étaient au moins aussi proches dans {closer} reels sur {count} (ressemblance moyenne {alone}, contre {lens} avec lui). Avec lui, le coût total était {cost}, et {faster} sur {count} ont été plus rapides. Une exécution par reel : des exemples, pas une mesure.",
     "card_title": "{author} · réalisé avec {made_with}",
-    "video_label": "Reconstruction du reel de {author}",
+    "video_label": "L'original de {author} (à gauche) et la reconstruction avec video-lens (à droite)",
     "original": "Original : [{author} sur X]({url}), {likes} j'aime et {views} vues",
     "look": "**Ressemblance :** {look} (deux reels différents de la même tendance : {floor})",
     "cuts": "**Coupes :** {matched} des {total} coupes franches de l'original sont dans la reconstruction, à 0,1 s près",
@@ -263,7 +263,7 @@
     "scoring_cuts": "**Coupes** : le détecteur de scènes de ffmpeg les trouve dans les deux clips. Une coupe compte quand la reconstruction coupe à moins de 0,1 s de l'original.",
     "scoring_words": "**Mots** : l'OCR de video-lens les lit dans les deux clips, en ne comptant que les mots du dictionnaire pour écarter les erreurs de lecture.",
     "scoring_alone": "**Même modèle, sans video-lens** est le même prompt sans la partie skill : aucun skill chargé, video-lens masqué sur le disque et un dossier de travail d'où les autres reconstructions ne sont pas visibles. Le modèle a écrit lui-même l'extraction d'images et le rendu. Sa page finale est rendue et notée de la même façon.",
-    "scoring_originals": "Les originaux restent sur X : cette page renvoie vers eux et ne montre que les reconstructions, qui sont du code écrit par Claude. Les j'aime et les vues viennent de la [galerie des vidéos de la semaine de lancement de Revid](https://www.revid.ai/claude-motion-graphics) au 28 septembre 2026. Scripts : [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
+    "scoring_originals": "Chaque vidéo montre l'original à gauche, sans son et à moitié taille, pour comparer, et la reconstruction à droite, qui est du code écrit par Claude ; le lien en dessous mène à la publication d'origine. Les j'aime et les vues viennent de la [galerie des vidéos de la semaine de lancement de Revid](https://www.revid.ai/claude-motion-graphics) au 28 septembre 2026. Scripts : [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
     "prompt_title": "Le prompt, le même pour chaque reel sauf la durée du rendu (15,03 s pour le reel de GPT-6 Astra)",
     "note": {
       "stephanlivera": "Ce qui diffère encore : le flou de mouvement et le décalage RVB sont imités par des filtres de flou, les formes 3D en points n'ont pas de lignes entre les points, et l'ondulation de la largeur de CLAUDE est plus faible que dans l'original. La page demande SF Pro et JetBrains Mono ; un navigateur qui ne les a pas affiche d'autres polices. La vidéo fait référence.",
