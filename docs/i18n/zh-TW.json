@@ -247,7 +247,7 @@
   },
   "cases": {
     "title": "使用案例：重做爆紅的展示短片",
-    "intro": "Claude Opus 5.5 發布那週，一句用來產生 15 秒動態圖像展示短片的提示詞在 X 上廣為流傳。我們挑了 {count} 支分享最多的短片（其中一支是 GPT-6 Astra 對同一提示詞的作品），把每一支交給 Claude Code 裡的 {model}，只搭配 video-lens 和一句提示詞：弄清影片怎麼動，再把它重做成一個 HTML 頁面。下面是拿回來的結果，原樣逐格渲染，並附上與原片比較的分數。",
+    "intro": "Claude Opus 5.5 發布那週，一句用來產生 15 秒動態圖像展示短片的提示詞在 X 上廣為流傳。我們挑了 {count} 支分享最多的短片，把每一支交給 Claude Code 裡的 {model}，只搭配 video-lens 和一句提示詞：弄清影片怎麼動，再把它重做成一個 HTML 頁面。下面是拿回來的結果，原樣逐格渲染，並附上與原片比較的分數。",
     "verdict": "**video-lens 在這裡改變了什麼：** 不是重做版有多接近原片。不用 video-lens 時，同一模型的重做版在 {count} 支中有 {closer} 支至少一樣接近（相似度平均 {alone}，用 video-lens 時為 {lens}）。用了 video-lens，成本合計{cost}，{count} 支中有 {faster} 支更快完成。每支短片只跑一次，這些是範例，不是量測。",
     "card_title": "{author} · 以 {made_with} 製作",
     "video_label": "{author} 的原片（左）與用 video-lens 重做的版本（右）",
@@ -264,11 +264,10 @@
     "scoring_words": "**文字**在兩段影片中都用 video-lens 的 OCR 讀取，只計算字典裡有的單字，誤讀會被濾掉。",
     "scoring_alone": "**同一模型，不用 video-lens** 是拿掉技能部分的同一句提示詞：不載入任何技能，把磁碟上的 video-lens 藏起來，並在看不到其他重做結果的資料夾裡執行。擷取影格與渲染由模型自己撰寫。最終頁面用同樣的方式渲染與評分。",
     "scoring_originals": "每段影片左邊是原片，靜音並縮小一半供比較，右邊是重做版，也就是 Claude 寫的程式碼；下方連結指向原貼文。按讚與觀看數取自 2026 年 9 月 28 日的 [Revid 發布週影片合集](https://www.revid.ai/claude-motion-graphics)。腳本：[bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases)。",
-    "prompt_title": "提示詞（除渲染長度外每支短片相同，GPT-6 Astra 的短片為 15.03 秒）",
+    "prompt_title": "提示詞（每支短片相同）",
     "note": {
       "stephanlivera": "仍有差異：動態模糊和 RGB 分離以模糊濾鏡模仿，3D 點狀圖形的點之間沒有連線，CLAUDE 字寬的起伏比原片弱。頁面指定了 SF Pro 和 JetBrains Mono，沒有這些字型的瀏覽器會顯示其他字型，以影片為準。",
-      "ajith": "仍有差異：米色背景上的點狀球體比原片帶尖刺的立體更扁，7.35 秒藍色地面上方的紅色方框缺失，底片顆粒和動態模糊沒有做。字型是 macOS 內建的替代字型。漏掉的單字大多是彎成圓形的文字，OCR 只讀出片段。",
-      "astra": "原片：並排展示兩種結果的貼文中 GPT-6 Astra 那一半，從其短片開始的那一格（16.8 秒）剪出。仍有差異：鉻質感的 3D 物件（繩結、緞帶、8 字、星形）是沒有反射的平面 SVG 與 CSS 近似，大標題字型也不同。這支短片多半用劃接切換場景，而切換計數只算硬切；依這次執行自己的量測，7 處轉場中有 6 處與原片落在同一格，1 處晚了 1 格。"
+      "ajith": "仍有差異：米色背景上的點狀球體比原片帶尖刺的立體更扁，7.35 秒藍色地面上方的紅色方框缺失，底片顆粒和動態模糊沒有做。字型是 macOS 內建的替代字型。漏掉的單字大多是彎成圓形的文字，OCR 只讀出片段。"
     }
   },
   "install": {

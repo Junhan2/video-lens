@@ -247,7 +247,7 @@
   },
   "cases": {
     "title": "使用案例：重做爆款展示短片",
-    "intro": "Claude Opus 5.5 发布那周，一句用来生成 15 秒动态图形展示短片的提示词在 X 上广泛流传。我们挑了 {count} 条转发最多的短片（其中一条是 GPT-6 Astra 对同一提示词的作品），把每一条交给 Claude Code 里的 {model}，只配 video-lens 和一条提示词：弄清视频怎么动，再把它重做成一个 HTML 页面。下面是拿回来的结果，原样逐帧渲染，并附上与原片对比的分数。",
+    "intro": "Claude Opus 5.5 发布那周，一句用来生成 15 秒动态图形展示短片的提示词在 X 上广泛流传。我们挑了 {count} 条转发最多的短片，把每一条交给 Claude Code 里的 {model}，只配 video-lens 和一条提示词：弄清视频怎么动，再把它重做成一个 HTML 页面。下面是拿回来的结果，原样逐帧渲染，并附上与原片对比的分数。",
     "verdict": "**video-lens 在这里改变了什么：** 不是重做版有多接近原片。不用 video-lens 时，同一模型的重做版在 {count} 条中有 {closer} 条至少一样接近（相似度平均 {alone}，用 video-lens 时为 {lens}）。用了 video-lens，成本合计{cost}，{count} 条中有 {faster} 条更快完成。每条短片只跑了一次，这些是示例，不是测量。",
     "card_title": "{author} · 用 {made_with} 制作",
     "video_label": "{author} 的原片（左）和用 video-lens 重做的版本（右）",
@@ -264,11 +264,10 @@
     "scoring_words": "**文字**在两段视频里都用 video-lens 的 OCR 读取，只统计词典里有的单词，误读会被滤掉。",
     "scoring_alone": "**同一模型，不用 video-lens** 是去掉技能部分的同一条提示词：不加载任何技能，把磁盘上的 video-lens 藏起来，并在看不到其他重做结果的文件夹里运行。抽帧和渲染由模型自己编写。最终页面用同样的方法渲染和评分。",
     "scoring_originals": "每段视频左边是原片，静音并缩小一半用于对比，右边是重做版，也就是 Claude 写的代码；下方链接指向原帖。点赞和浏览数取自 2026 年 9 月 28 日的 [Revid 发布周视频合集](https://www.revid.ai/claude-motion-graphics)。脚本：[bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases)。",
-    "prompt_title": "提示词（除渲染时长外每条短片相同，GPT-6 Astra 的短片为 15.03 秒）",
+    "prompt_title": "提示词（每条短片相同）",
     "note": {
       "stephanlivera": "仍有差异：运动模糊和 RGB 分离用模糊滤镜模仿，3D 点状图形的点之间没有连线，CLAUDE 字宽的起伏比原片弱。页面指定了 SF Pro 和 JetBrains Mono，没有这些字体的浏览器会显示其他字体，以视频为准。",
-      "ajith": "仍有差异：米色背景上的点状球体比原片带尖刺的立体更扁，7.35 秒蓝色地面上方的红色方框缺失，胶片颗粒和运动模糊没有做。字体是 macOS 自带的替代字体。漏掉的单词大多是弯成圆形的文字，OCR 只读出了片段。",
-      "astra": "原片：并排展示两种结果的帖子中 GPT-6 Astra 那一半，从其短片开始的那一帧（16.8 秒）剪出。仍有差异：带铬质感的 3D 物体（绳结、丝带、8 字、星形）是没有反射的平面 SVG 和 CSS 近似，大标题字体也不同。这条短片大多用划变切换场景，而切换计数只算硬切；按这次运行自己的测量，7 处转场中有 6 处与原片落在同一帧，1 处晚了 1 帧。"
+      "ajith": "仍有差异：米色背景上的点状球体比原片带尖刺的立体更扁，7.35 秒蓝色地面上方的红色方框缺失，胶片颗粒和运动模糊没有做。字体是 macOS 自带的替代字体。漏掉的单词大多是弯成圆形的文字，OCR 只读出了片段。"
     }
   },
   "install": {

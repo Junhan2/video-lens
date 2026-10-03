@@ -234,8 +234,8 @@
 
   <section class="wrap section" id="cases" aria-labelledby="cases-title">
     <h2 id="cases-title" data-i18n="cases.title">Use case: rebuilding viral showreels</h2>
-    <p class="section-lede" id="cases-intro">In the launch week of Claude Opus 5.5, a one-line prompt for a 15-second motion graphics showreel spread across X. We took 3 of the most-shared reels, one of them GPT-6 Astra's answer to the same prompt, and gave each to Claude Opus 5.5 in Claude Code with video-lens and a single prompt: work out how the video moves and rebuild it as one HTML page. Below is what came back, rendered frame by frame and left as it was, scored against its original.</p>
-    <p class="section-lede" id="cases-verdict"><strong>What video-lens changed here:</strong> not how close the rebuilds came. Without it, the same model's rebuilds looked at least as close in 3 of 3 reels (looks alike 0.834 on average, against 0.802 with it). With it, total cost was 36% lower, and 2 of 3 were faster. One run per reel: examples, not a measurement.</p>
+    <p class="section-lede" id="cases-intro">In the launch week of Claude Opus 5.5, a one-line prompt for a 15-second motion graphics showreel spread across X. We took 2 of the most-shared reels and gave each to Claude Opus 5.5 in Claude Code with video-lens and a single prompt: work out how the video moves and rebuild it as one HTML page. Below is what came back, rendered frame by frame and left as it was, scored against its original.</p>
+    <p class="section-lede" id="cases-verdict"><strong>What video-lens changed here:</strong> not how close the rebuilds came. Without it, the same model's rebuilds looked at least as close in 2 of 2 reels (looks alike 0.828 on average, against 0.798 with it). With it, total cost was 24% lower, and 1 of 2 were faster. One run per reel: examples, not a measurement.</p>
     <div class="case-grid" id="cases-list">
       <article class="card case">
         <h3>@stephanlivera · made with Claude Opus 5.5</h3>
@@ -265,20 +265,6 @@
         <p class="note">Still off: the dot sphere on cream is flatter than the original's spiky one, the red square outline above the blue floor at 7.35 s is missing, and film grain and motion blur were left out. The fonts are stand-ins that ship with macOS. Most of the missed words are pieces of text bent into a circle, which the OCR reads in fragments.</p>
         <p class="case-link"><a href="./cases/ajith.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
       </article>
-      <article class="card case">
-        <h3>@shneural · made with GPT-6 Astra</h3>
-        <video class="case-video" data-case="astra" controls muted playsinline preload="none" poster="assets/cases/astra.jpg" aria-label="The original by @shneural (left) and the video-lens rebuild (right)"><source src="assets/cases/astra.mp4" type="video/mp4"></video>
-        <p class="note">Original: <a href="https://x.com/shneural/status/2103151003272962130">@shneural on X</a>, 6.6k likes and 1.7M views</p>
-        <ul class="list case-scores">
-          <li><strong>Looks alike:</strong> 0.809 (two different reels from the trend: 0.258)</li>
-          <li><strong>Cuts:</strong> 1 of the original's 1 hard cuts are in the rebuild, within 0.1 s</li>
-          <li><strong>Words:</strong> 48 of the 48 words on screen in the original are in the rebuild</li>
-          <li><strong>Run:</strong> 14 min, $3.02 at API prices, no human edits</li>
-          <li><strong>Same model, no video-lens:</strong> looks alike 0.846 · cuts 1/1 · words 48/48 · 41 min, $8.30</li>
-        </ul>
-        <p class="note">Original: GPT-6 Astra's half of a side-by-side post, cut at the frame where its reel starts (16.8 s). Still off: the chrome 3D objects (knot, ribbon, figure eight, star) are flat SVG and CSS stand-ins without the reflections, and the headline font differs. This reel changes scenes mostly with wipes, which the hard-cut count does not include; by the run's own measurement, 6 of its 7 transitions land on the same frame as the original's and one is a frame late.</p>
-        <p class="case-link"><a href="./cases/astra.html">Open the rebuilt page</a> (one HTML file that plays once when it opens)</p>
-      </article>
     </div>
     <div class="block">
       <h3 data-i18n="cases.scoring_title">How the rebuilds were scored</h3>
@@ -291,7 +277,7 @@
       </ul>
     </div>
     <details class="block prompt-box">
-      <summary data-i18n="cases.prompt_title">The prompt, the same for every reel except the render length (15.03 s for GPT-6 Astra's reel)</summary>
+      <summary data-i18n="cases.prompt_title">The prompt, the same for every reel</summary>
       <pre id="cases-prompt">/video-lens clip.mp4 in this folder is a 15-second motion-graphics showreel posted on X. Reverse-engineer it and rebuild it as one self-contained file, recreation.html (a 1920x1080 page, no audio), that plays the same video: the same shots in the same order at the same times, with the same layout, colors, text and motion (delays, durations, easing). So that every frame can be rendered exactly, animate only with CSS animations or the Web Animations API, all of them starting at page load (page time 0 = video time 0); no requestAnimationFrame, timers, canvas, video, or external files, fonts or libraries (use installed system fonts close to the original). When it is built, render it with the skill's declared.mjs (--viewport 1920x1080 --render 60 15.06) and copy the render to recreation.mp4 in this folder, compare it with the original using the skill, and fix the biggest differences, at most two fix rounds. Look at as many sheets and frames as the rebuild needs; nobody will answer questions, so do not ask. Finish with a table of the shots (start, end, what is on screen) for the original and for your recreation.</pre>
     </details>
   </section>

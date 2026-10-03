@@ -57,34 +57,6 @@
     "minutes": 37,
     "cost_usd": 9.3
    }
-  },
-  {
-   "id": "astra",
-   "author": "@shneural",
-   "url": "https://x.com/shneural/status/2103151003272962130",
-   "made_with": "GPT-6 Astra",
-   "likes": "6.6k",
-   "views": "1.7M",
-   "video": "assets/cases/astra.mp4",
-   "poster": "assets/cases/astra.jpg",
-   "page": "./cases/astra.html",
-   "look_floor": 0.258,
-   "look": 0.809,
-   "cuts_matched": 1,
-   "cuts_original": 1,
-   "words_found": 48,
-   "words_original": 48,
-   "minutes": 14,
-   "cost_usd": 3.02,
-   "alone": {
-    "look": 0.846,
-    "cuts_matched": 1,
-    "cuts_original": 1,
-    "words_found": 48,
-    "words_original": 48,
-    "minutes": 41,
-    "cost_usd": 8.3
-   }
   }
  ]
 }

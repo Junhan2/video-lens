@@ -247,7 +247,7 @@
   },
   "cases": {
     "title": "Use case: rebuilding viral showreels",
-    "intro": "In the launch week of Claude Opus 5.5, a one-line prompt for a 15-second motion graphics showreel spread across X. We took {count} of the most-shared reels, one of them GPT-6 Astra's answer to the same prompt, and gave each to {model} in Claude Code with video-lens and a single prompt: work out how the video moves and rebuild it as one HTML page. Below is what came back, rendered frame by frame and left as it was, scored against its original.",
+    "intro": "In the launch week of Claude Opus 5.5, a one-line prompt for a 15-second motion graphics showreel spread across X. We took {count} of the most-shared reels and gave each to {model} in Claude Code with video-lens and a single prompt: work out how the video moves and rebuild it as one HTML page. Below is what came back, rendered frame by frame and left as it was, scored against its original.",
     "verdict": "**What video-lens changed here:** not how close the rebuilds came. Without it, the same model's rebuilds looked at least as close in {closer} of {count} reels (looks alike {alone} on average, against {lens} with it). With it, total cost was {cost}, and {faster} of {count} were faster. One run per reel: examples, not a measurement.",
     "card_title": "{author} · made with {made_with}",
     "video_label": "The original by {author} (left) and the video-lens rebuild (right)",
@@ -264,11 +264,10 @@
     "scoring_words": "**Words** are read by the video-lens OCR in both clips, counting only dictionary words so misreadings drop out.",
     "scoring_alone": "**Same model, no video-lens** is the same prompt without the skill: no skills loaded, video-lens hidden on disk, and a working folder where the other rebuilds cannot be seen. The model wrote its own frame extraction and rendering. Its final page is rendered and scored the same way.",
     "scoring_originals": "Each video shows the original on the left, muted and at half size, for comparison, and the rebuild on the right, which is code Claude wrote; the link under it goes to the original post. Likes and views are from [Revid's gallery of launch-week videos](https://www.revid.ai/claude-motion-graphics) on September 28, 2026. Scripts: [bench/cases](https://github.com/Junhan2/video-lens/tree/main/bench/cases).",
-    "prompt_title": "The prompt, the same for every reel except the render length (15.03 s for GPT-6 Astra's reel)",
+    "prompt_title": "The prompt, the same for every reel",
     "note": {
       "stephanlivera": "Still off: the motion blur and RGB split are imitated with blur filters, the 3D dot shapes have no lines between the dots, and the width wobble on CLAUDE is weaker than in the original. The page asks for SF Pro and JetBrains Mono, so a browser without them shows other fonts; the video is the reference.",
-      "ajith": "Still off: the dot sphere on cream is flatter than the original's spiky one, the red square outline above the blue floor at 7.35 s is missing, and film grain and motion blur were left out. The fonts are stand-ins that ship with macOS. Most of the missed words are pieces of text bent into a circle, which the OCR reads in fragments.",
-      "astra": "Original: GPT-6 Astra's half of a side-by-side post, cut at the frame where its reel starts (16.8 s). Still off: the chrome 3D objects (knot, ribbon, figure eight, star) are flat SVG and CSS stand-ins without the reflections, and the headline font differs. This reel changes scenes mostly with wipes, which the hard-cut count does not include; by the run's own measurement, 6 of its 7 transitions land on the same frame as the original's and one is a frame late."
+      "ajith": "Still off: the dot sphere on cream is flatter than the original's spiky one, the red square outline above the blue floor at 7.35 s is missing, and film grain and motion blur were left out. The fonts are stand-ins that ship with macOS. Most of the missed words are pieces of text bent into a circle, which the OCR reads in fragments."
     }
   },
   "install": {
